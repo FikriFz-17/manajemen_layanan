@@ -16,7 +16,7 @@ class UserController extends Controller
             'nama' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'phone' => 'required|string|max:20',
-            'instansi' => 'nullable|string',
+            'instansi' => 'required|string',
         ], [
             'nama.required' => 'Nama tidak boleh kosong',
             'email.required' => 'Email tidak boleh kosong',

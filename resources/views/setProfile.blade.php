@@ -89,18 +89,21 @@
         <div class="max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-lg shadow-md">
             <!-- Success Message -->
             @if (session('success'))
-                <div id="successToast" class="fixed top-6 right-6 z-50 transform translate-x-full opacity-0 transition duration-500 ease-out">
-                    <div class="bg-gradient-to-r from-green-50 to-emerald-100 border-l-4 border-green-500 p-4 rounded-lg shadow-lg w-80">
-                        <div class="flex items-start">
+                <div id="successToast" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 scale-0 opacity-0 transition-all duration-300 ease-out">
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-100 border border-green-200 p-5 rounded-xl shadow-2xl w-96 max-w-sm mx-4">
+                        <div class="flex items-center">
                             <div class="flex-shrink-0">
-                                <i class="fas fa-check-circle text-green-500 text-lg"></i>
+                                <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-check text-white text-lg"></i>
+                                </div>
                             </div>
-                            <div class="ml-3 flex-1">
-                                <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+                            <div class="ml-4 flex-1">
+                                <h3 class="text-lg font-semibold text-green-800 mb-1">Berhasil!</h3>
+                                <p class="text-sm text-green-700">{{ session('success') }}</p>
                             </div>
-                            <button type="button" onclick="document.getElementById('successToast').remove()"
-                                    class="flex-shrink-0 ml-3 text-green-400 hover:text-green-600 transition-colors duration-200">
-                                <i class="fas fa-times text-sm"></i>
+                            <button type="button" onclick="closeToast('successToast')"
+                                    class="flex-shrink-0 ml-3 w-8 h-8 bg-green-100 hover:bg-green-200 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110">
+                                <i class="fas fa-times text-green-600 text-sm"></i>
                             </button>
                         </div>
                     </div>
@@ -109,23 +112,30 @@
 
             <!-- Validation Errors -->
             @if ($errors->any())
-                <div id="errorToast" class="fixed top-6 right-6 z-50 transform translate-x-full opacity-0 transition duration-500 ease-out">
-                    <div class="bg-gradient-to-r from-green-50 to-emerald-100 border-l-4 border-red-500 p-4 rounded-lg shadow-lg w-80">
+                <div id="errorToast" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 scale-0 opacity-0 transition-all duration-300 ease-out">
+                    <div class="bg-gradient-to-r from-red-50 to-pink-100 border border-red-200 p-5 rounded-xl shadow-2xl w-96 max-w-sm mx-4">
                         <div class="flex items-start">
                             <div class="flex-shrink-0">
-                                <i class="fas fa-check-circle text-red-500 text-lg"></i>
+                                <div class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-exclamation-triangle text-white text-lg"></i>
+                                </div>
                             </div>
-                            <div class="ml-3 flex-1">
-                               <p class="text-sm font-semibold text-red-800 mb-1">Terjadi beberapa kesalahan:</p>
-                                <ul class="list-disc pl-4 text-sm text-red-700 space-y-1">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
+                            <div class="ml-4 flex-1">
+                                <h3 class="text-lg font-semibold text-red-800 mb-2">Terjadi Kesalahan!</h3>
+                                <div class="max-h-32 overflow-y-auto pr-2">
+                                    <ul class="space-y-1">
+                                        @foreach ($errors->all() as $error)
+                                            <li class="text-sm text-red-700 flex items-start">
+                                                <i class="fas fa-dot-circle text-red-500 text-xs mt-1.5 mr-2 flex-shrink-0"></i>
+                                                <span>{{ $error }}</span>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
                             </div>
-                            <button type="button" onclick="document.getElementById('errorToast').remove()"
-                                    class="flex-shrink-0 ml-3 text-red-400 hover:text-red-600 transition-colors duration-200">
-                                <i class="fas fa-times text-sm"></i>
+                            <button type="button" onclick="closeToast('errorToast')"
+                                    class="flex-shrink-0 ml-3 w-8 h-8 bg-red-100 hover:bg-red-200 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110">
+                                <i class="fas fa-times text-red-600 text-sm"></i>
                             </button>
                         </div>
                     </div>
@@ -243,37 +253,81 @@
       }
     });
 
+    function closeToast(toastId) {
+        const toast = document.getElementById(toastId);
+        const backdrop = document.getElementById(toastId + '_backdrop');
+
+        if (toast) {
+            toast.classList.remove('scale-100', 'opacity-100');
+            toast.classList.add('scale-0', 'opacity-0');
+
+            if (backdrop) {
+                backdrop.classList.remove('opacity-100');
+                backdrop.classList.add('opacity-0');
+            }
+
+            setTimeout(() => {
+                toast.remove();
+                if (backdrop) {
+                    backdrop.remove();
+                }
+            }, 300);
+        }
+    }
+
+    // Success Toast
     document.addEventListener('DOMContentLoaded', function () {
         const toast = document.getElementById('successToast');
         if (toast) {
+            // Add backdrop blur
+            const backdrop = document.createElement('div');
+            backdrop.id = 'successToast_backdrop';
+            backdrop.className = 'fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm z-40 opacity-0 transition-opacity duration-300';
+            document.body.appendChild(backdrop);
+
             // Delay agar animasi berjalan
             setTimeout(() => {
-                toast.classList.remove('translate-x-full', 'opacity-0');
-                toast.classList.add('translate-x-0', 'opacity-100');
+                toast.classList.remove('scale-0', 'opacity-0');
+                toast.classList.add('scale-100', 'opacity-100');
+                backdrop.classList.add('opacity-100');
             }, 100);
 
             // Auto close setelah 5s
             setTimeout(() => {
-                toast.classList.remove('translate-x-0', 'opacity-100');
-                toast.classList.add('translate-x-full', 'opacity-0');
+                closeToast('successToast');
             }, 5000);
         }
     });
 
+    // Error Toast
     document.addEventListener('DOMContentLoaded', function () {
         const toast = document.getElementById('errorToast');
         if (toast) {
+            // Add backdrop blur
+            const backdrop = document.createElement('div');
+            backdrop.id = 'errorToast_backdrop';
+            backdrop.className = 'fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm z-40 opacity-0 transition-opacity duration-300';
+            document.body.appendChild(backdrop);
+
             // Delay agar animasi berjalan
             setTimeout(() => {
-                toast.classList.remove('translate-x-full', 'opacity-0');
-                toast.classList.add('translate-x-0', 'opacity-100');
+                toast.classList.remove('scale-0', 'opacity-0');
+                toast.classList.add('scale-100', 'opacity-100');
+                backdrop.classList.add('opacity-100');
             }, 100);
 
             // Auto close setelah 5s
             setTimeout(() => {
-                toast.classList.remove('translate-x-0', 'opacity-100');
-                toast.classList.add('translate-x-full', 'opacity-0');
+                closeToast('errorToast');
             }, 5000);
+        }
+    });
+
+    // Close toast when clicking backdrop
+    document.addEventListener('click', function(e) {
+        if (e.target.id.endsWith('_backdrop')) {
+            const toastId = e.target.id.replace('_backdrop', '');
+            closeToast(toastId);
         }
     });
   </script>
