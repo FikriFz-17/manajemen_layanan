@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\ExpirationEmailTimer;
 
 Route::get('/', function () {
     return view('welcome');
@@ -91,6 +92,8 @@ Route::get('/email/verify/{id}/{hash}', function ($id, $hash) {
     return redirect()->route('login')->with('success', 'Email berhasil diverifikasi! Silahkan login.');
 })->middleware(['signed'])->name('verification.verify');
 
+Route::get('/expiration', [ExpirationEmailTimer::class, "showVerifyPage"]);
+
 // Logout
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout.submit');
 
@@ -125,4 +128,6 @@ Route::get('/userManagement', function(){
 Route::get('/user/all', [UserController::class, "getAllUser"]);
 
 Route::post('/admin/laporan/{id}/update', [LaporanController::class, 'tanganiLaporan'])->name('admin.laporan.update');
+
+
 
