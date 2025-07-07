@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard - Kominfo Kebumen</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@fortawesome/fontawesome-free@6.4.0/js/all.min.js" crossorigin="anonymous"></script>
+</head>
+<body class="bg-gray-100 h-screen flex">
+
+  <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+
+  <div id="sidebar" class="w-64 bg-[#262394] text-white flex flex-col p-6 fixed lg:relative h-full z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+    <img src="{{ asset('images/logo-kebumen.png') }}" alt="Logo" class="w-20 mx-auto mb-4">
+    <h1 class="text-lg font-bold text-center mb-8">Diskominfo Kebumen</h1>
+    <nav class="flex flex-col gap-4">
+      <a href="{{ route('adminDashboard') }}" class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors bg-white bg-opacity-20"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="{{route('userManagement')}}" class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors"><i class="fa-solid fa-user"></i></i>User Management</a>
+
+      <div class="mt-auto pt-4 border-t border-white border-opacity-20">
+        <div class="flex items-center gap-2 p-2 rounded transition-colors hover:bg-white hover:bg-opacity-10 cursor-pointer">
+          <div class="relative">
+            <i class="fas fa-headset text-xl"></i>
+            <span class="absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full"></span>
+          </div>
+          <span>Customer Service</span>
+        </div>
+      </div>
+    </nav>
+  </div>
+
+  <div class="flex-1 lg:ml-0 p-4 lg:p-6 overflow-auto">
+
+    <div class="lg:hidden flex justify-between items-center mb-6 bg-white p-4 rounded shadow">
+      <button id="hamburgerBtn" class="text-2xl text-[#262394] focus:outline-none">
+        <i class="fas fa-bars"></i>
+      </button>
+      <h1 class="text-xl font-bold text-[#262394]">Dashboard</h1>
+      <div class="relative inline-block text-left">
+        <button onclick="toggleDropdown()" class="flex items-center gap-2 focus:outline-none">
+          <i class="fas fa-user-circle text-2xl text-[#262394]"></i>
+          <i class="fas fa-chevron-down text-sm text-[#262394]"></i>
+        </button>
+        <div id="userDropdown" class="absolute right-0 mt-2 w-40 bg-white rounded shadow hidden z-20 border">
+          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fas fa-key mr-2"></i>Ganti Password</a>
+          <form action="{{ route('login') }}" method="post">
+            @csrf
+            <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"><i class="fas fa-sign-out-alt mr-2"></i>Logout</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="hidden lg:flex justify-end mb-6 relative">
+      <div class="relative inline-block text-left">
+        <button onclick="toggleDropdown()" class="flex items-center gap-2 focus:outline-none">
+          <i class="fas fa-user-circle text-2xl"></i>
+          <span class="font-medium">Admin</span>
+          <i class="fas fa-chevron-down text-sm"></i>
+        </button>
+
+        <div id="userDropdownDesktop" class="absolute right-0 mt-2 w-40 bg-white rounded shadow hidden z-20">
+          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fas fa-key mr-2"></i>Ganti Password</a>
+          <form action="{{ route('login') }}" method="post">
+            @csrf
+            <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"><i class="fas fa-sign-out-alt mr-2"></i>Logout</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Message -->
+    @if (session('success'))
+        <div id="successToast" class="fixed top-6 right-6 z-50 transform translate-x-full opacity-0 transition duration-500 ease-out">
+            <div class="bg-gradient-to-r from-green-50 to-emerald-100 border-l-4 border-green-500 p-4 rounded-lg shadow-lg w-80">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle text-green-500 text-lg"></i>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+                    </div>
+                    <button type="button" onclick="document.getElementById('successToast').remove()"
+                            class="flex-shrink-0 ml-3 text-green-400 hover:text-green-600 transition-colors duration-200">
+                        <i class="fas fa-times text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Validation Errors -->
+    @if ($errors->any())
+        <div id="errorToast" class="fixed top-6 right-6 z-50 transform translate-x-full opacity-0 transition duration-500 ease-out">
+            <div class="bg-gradient-to-r from-green-50 to-emerald-100 border-l-4 border-red-500 p-4 rounded-lg shadow-lg w-80">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle text-red-500 text-lg"></i>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <p class="text-sm font-semibold text-red-800 mb-1">Terjadi beberapa kesalahan:</p>
+                        <ul class="list-disc pl-4 text-sm text-red-700 space-y-1">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    <button type="button" onclick="document.getElementById('errorToast').remove()"
+                            class="flex-shrink-0 ml-3 text-red-400 hover:text-red-600 transition-colors duration-200">
+                        <i class="fas fa-times text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+    <!-- Card -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 lg:mb-8">
+      <div class="bg-green-500 text-white p-4 lg:p-6 rounded shadow">
+          <div class="flex justify-between items-center">
+              <div>
+                  <h2 class="text-2xl lg:text-3xl font-bold" id="successCount">0</h2>
+                  <p class="font-medium">Selesai</p>
+              </div>
+              <i class="fa-solid fa-circle-check text-3xl lg:text-4xl"></i>
+          </div>
+      </div>
+      <div class="bg-yellow-500 text-white p-4 lg:p-6 rounded shadow">
+        <div class="flex justify-between items-center">
+            <div>
+                <h2 class="text-2xl lg:text-3xl font-bold" id="progressCount">0</h2>
+                <p class="font-medium">Progress</p>
+            </div>
+            <i class="fa-solid fa-bars-progress text-3xl lg:text-4xl"></i>
+        </div>
+      </div>
+      <div class="bg-red-500 text-white p-4 lg:p-6 rounded shadow md:col-span-2 lg:col-span-1">
+        <div class="flex justify-between items-center">
+            <div>
+                <h2 class="text-2xl lg:text-3xl font-bold" id="pengajuanCount">0</h2>
+                <p class="font-medium">Pengajuan</p>
+            </div>
+            <i class="fa-solid fa-bullhorn text-3xl lg:text-4xl"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter&search -->
+    <!-- Search dan Action Buttons -->
+    <div class="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center mb-6">
+    <!-- Search Bar -->
+    <div class="relative w-full lg:w-1/3">
+        <input type="text" id="searchInput" placeholder="Cari laporan berdasarkan No. Resi atau Masalah..."
+                class="border border-gray-300 px-4 py-2.5 rounded-lg w-full pr-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+        <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-wrap gap-2">
+        <button id="filterBtn" class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2.5 rounded-lg border transition-colors">
+            <i class="fas fa-filter text-gray-600"></i>
+            <span class="text-gray-700">Filter</span>
+        </button>
+        <button id="exportBtn" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg transition-colors">
+            <i class="fas fa-download"></i>
+            <span>Export</span>
+        </button>
+    </div>
+    </div>
+
+    <!-- Collapsible Filter Panel -->
+    <div id="filterPanel" class="hidden bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                <input type="date" id="filterTanggal" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                <select id="filterKategori" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">Semua Kategori</option>
+                    <option value="Aplikasi">Aplikasi</option>
+                    <option value="Infrastruktur">Infrastruktur</option>
+                    <option value="Jaringan">Jaringan</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select id="filterStatus" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">Semua Status</option>
+                    <option value="Pengajuan">Pengajuan</option>
+                    <option value="Progress">Progress</option>
+                    <option value="Selesai">Selesai</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tampilkan</label>
+                <select id="showEntries" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="5">5 entries</option>
+                    <option value="10">10 entries</option>
+                    <option value="25">25 entries</option>
+                    <option value="50">50 entries</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- table -->
+    <div class="overflow-auto bg-white shadow rounded">
+        <table class="min-w-full text-center border">
+            <thead class="bg-black text-white">
+                <tr>
+                    <th class="px-2 lg:px-4 py-2 text-sm lg:text-base">No. Resi</th>
+                    <th class="px-2 lg:px-4 py-2 text-sm lg:text-base">Masalah</th>
+                    <th class="px-2 lg:px-4 py-2 text-sm lg:text-base">Status</th>
+                    <th class="px-2 lg:px-4 py-2 text-sm lg:text-base">Tanggal</th>
+                    <th class="px-2 lg:px-4 py-2 text-sm lg:text-base">Tangani</th>
+                </tr>
+            </thead>
+            <tbody id="laporanTable"></tbody>
+        </table>
+    </div>
+
+    <!-- modal/popup -->
+    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+      <div class="bg-white rounded-lg w-full max-w-2xl shadow-lg overflow-auto max-h-[90vh]">
+        <div class="flex justify-between items-center border-b px-6 py-4">
+          <h3 class="text-lg font-semibold">Edit Laporan</h3>
+          <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="p-6 space-y-4">
+          <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm mb-6">
+            <p><strong>Nama:</strong></p><p id="modalUserNama">-</p>
+            <p><strong>Instansi:</strong></p><p id="modalUserInstansi">-</p>
+            <p><strong>Email:</strong></p><p id="modalUserEmail">-</p>
+            <p><strong>No. Resi:</strong></p><p id="modalResi">-</p>
+            <p><strong>Judul/Topik Permasalahan:</strong></p><p id="modalNama">-</p>
+            <p><strong>Tanggal Pengajuan:</strong></p><p id="modalTanggal">-</p>
+            <p><strong>Deskripsi Awal:</strong></p><p id="modalDeskripsi">-</p>
+            <p><strong>Lampiran:</strong></p><p id="modalLampiran">-</p>
+          </div>
+
+            <div class="space-y-4 border-t pt-4">
+                <form method="post" id="editForm">
+                    @csrf
+                    <div>
+                    <label for="modalSetStatus" class="block text-sm font-medium text-gray-700 mb-2 mt-2">Set Status</label>
+                    <select id="modalSetStatus" name="status" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <option value="" selected>--- Set Status ---</option>
+                        <option value="Pengajuan">Pengajuan</option>
+                        <option value="Progress">Progress</option>
+                        <option value="Selesai">Selesai</option>
+                    </select>
+                    </div>
+                    <div>
+                    <label for="modalSetKategori" class="block text-sm font-medium text-gray-700 mb-2 mt-2">Kategori</label>
+                    <select id="modalSetKategori" name="kategori" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <option value="" selected>--- Set Kategori ---</option>
+                        <option value="Aplikasi">Aplikasi</option>
+                        <option value="Infrastruktur">Infrastruktur</option>
+                        <option value="Jaringan">Jaringan</option>
+                    </select>
+                    </div>
+                    <div>
+                    <label for="modalSetTanggalSelesai" class="block text-sm font-medium text-gray-700 mb-2 mt-2">Set Tanggal Selesai</label>
+                    <input type="date" id="modalSetTanggalSelesai" name="tanggal_selesai" class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                    <label for="modalDeskripsiPenanganan" class="block text-sm font-medium text-gray-700 mb-2 mt-2">Deskripsi Penanganan</label>
+                    <textarea id="modalDeskripsiPenanganan" name="deskripsi_penanganan" rows="4" class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Jelaskan bagaimana masalah ditangani..."></textarea>
+                    </div>
+                    <div class="flex justify-end items-center border-t px-6 py-4 gap-2">
+                        <button type="submit" id="adminEditBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="mt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div class="text-sm text-gray-600">
+            <span id="paginationInfo">Showing 1 to 10 of 15 entries</span>
+        </div>
+        <div class="flex" id="paginationButtons">
+            <!-- table di generate menggunakan javascript -->
+        </div>
+    </div>
+  </div>
+
+  <script>
+    // Pagination variables
+    let laporanData = [];
+    let currentPage = 1;
+    let itemsPerPage = 5;
+    let filteredData = [];
+    let currentEditingIndex = null;
+
+    // Mobile hamburger menu
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const sidebar = document.getElementById('sidebar');
+    const mobileOverlay = document.getElementById('mobileOverlay');
+
+    hamburgerBtn.addEventListener('click', function() {
+      sidebar.classList.toggle('-translate-x-full');
+      mobileOverlay.classList.toggle('hidden');
+    });
+
+    mobileOverlay.addEventListener('click', function() {
+      sidebar.classList.add('-translate-x-full');
+      mobileOverlay.classList.add('hidden');
+    });
+
+    document.addEventListener('click', function(e) {
+      if (window.innerWidth < 1024) {
+        if (!sidebar.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+          sidebar.classList.add('-translate-x-full');
+          mobileOverlay.classList.add('hidden');
+        }
+      }
+    });
+
+    window.addEventListener('resize', function() {
+      if (window.innerWidth >= 1024) {
+        sidebar.classList.remove('-translate-x-full');
+        mobileOverlay.classList.add('hidden');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+      }
+    });
+
+    function toggleDropdown() {
+      if (window.innerWidth < 1024) {
+        const dropdown = document.getElementById('userDropdown');
+        dropdown.classList.toggle('hidden');
+      } else {
+        const dropdown = document.getElementById('userDropdownDesktop');
+        dropdown.classList.toggle('hidden');
+      }
+    }
+
+    window.addEventListener('click', function(e) {
+      const dropdownMobile = document.getElementById('userDropdown');
+      const dropdownDesktop = document.getElementById('userDropdownDesktop');
+
+      if (window.innerWidth < 1024) {
+        if (!e.target.closest('button[onclick="toggleDropdown()"]') && !dropdownMobile.contains(e.target)) {
+          dropdownMobile.classList.add('hidden');
+        }
+      } else {
+        if (!e.target.closest('button[onclick="toggleDropdown()"]') && !dropdownDesktop.contains(e.target)) {
+          dropdownDesktop.classList.add('hidden');
+        }
+      }
+    });
+
+    function updateStatistics() {
+        const progressCount = laporanData.filter(item => item.status === 'Progress').length;
+        const successCount = laporanData.filter(item => item.status === 'Selesai').length;
+        const pengajuanCount = laporanData.filter(item => item.status === 'Pengajuan').length;
+
+        document.getElementById('progressCount').textContent = progressCount;
+        document.getElementById('successCount').textContent = successCount;
+        document.getElementById('pengajuanCount').textContent = pengajuanCount;
+    }
+
+    function renderTable() {
+        const tableBody = document.getElementById('laporanTable');
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = itemsPerPage === 50 ? filteredData.length : startIndex + itemsPerPage;
+        const currentData = filteredData.slice(startIndex, endIndex);
+
+        tableBody.innerHTML = '';
+
+        currentData.forEach((item, index) => {
+            let statusClass = '';
+            if (item.status === 'Progress') {
+                statusClass = 'bg-yellow-100 text-blue-800';
+            } else if (item.status === 'Selesai') {
+                statusClass = 'bg-green-100 text-green-800';
+            } else if (item.status === 'Pengajuan') {
+                statusClass = 'bg-red-100 text-yellow-800';
+            }
+
+            const globalIndex = laporanData.findIndex(d => d.id === item.id);
+            const row = `
+                <tr class="border-b hover:bg-gray-50" data-index="${globalIndex}">
+                    <td class="px-2 lg:px-4 py-2 text-sm lg:text-base">${item.resi}</td>
+                    <td class="px-2 lg:px-4 py-2 text-sm lg:text-base">${item.masalah}</td>
+                    <td class="px-2 lg:px-4 py-2 text-sm lg:text-base"><span class="px-2 py-1 ${statusClass} rounded text-xs">${item.status}</span></td>
+                    <td class="px-2 lg:px-4 py-2 text-sm lg:text-base">${item.tanggal}</td>
+                    <td class="px-2 lg:px-4 py-2"><i class="fas fa-edit text-blue-500 hover:text-blue-700 cursor-pointer edit-btn"></i></td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+
+        updatePaginationInfo();
+        renderPagination();
+    }
+
+    function updatePaginationInfo() {
+        const startIndex = (currentPage - 1) * itemsPerPage + 1;
+        const endIndex = Math.min(currentPage * itemsPerPage, filteredData.length);
+        const totalEntries = filteredData.length;
+
+        document.getElementById('paginationInfo').textContent = `Showing ${startIndex} to ${endIndex} of ${totalEntries} entries`;
+    }
+
+    function renderPagination() {
+        const paginationContainer = document.getElementById('paginationButtons');
+        const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+        if (totalPages <= 1) {
+            paginationContainer.innerHTML = '';
+            return;
+        }
+
+        let paginationHTML = '';
+
+        paginationHTML += `
+            <button onclick="changePage(${currentPage - 1})"
+                    class="px-3 lg:px-4 py-2 border rounded-l bg-gray-200 hover:bg-gray-300 text-sm lg:text-base ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}"
+                    ${currentPage === 1 ? 'disabled' : ''}>
+                Prev
+            </button>
+        `;
+
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === currentPage) {
+                paginationHTML += `<button class="px-3 lg:px-4 py-2 border bg-blue-500 text-white text-sm lg:text-base">${i}</button>`;
+            } else {
+                paginationHTML += `<button onclick="changePage(${i})" class="px-3 lg:px-4 py-2 border bg-gray-100 hover:bg-gray-200 text-sm lg:text-base">${i}</button>`;
+            }
+        }
+
+        paginationHTML += `
+            <button onclick="changePage(${currentPage + 1})"
+                    class="px-3 lg:px-4 py-2 border rounded-r bg-gray-200 hover:bg-gray-300 text-sm lg:text-base ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}"
+                    ${currentPage === totalPages ? 'disabled' : ''}>
+                Next
+            </button>
+        `;
+
+        paginationContainer.innerHTML = paginationHTML;
+    }
+
+    function changePage(page) {
+        const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+        if (page >= 1 && page <= totalPages) {
+            currentPage = page;
+            renderTable();
+        }
+    }
+
+    // Filter panel toggle
+    document.getElementById('filterBtn').addEventListener('click', function() {
+        const panel = document.getElementById('filterPanel');
+        const isHidden = panel.classList.contains('hidden');
+
+        if (isHidden) {
+            panel.classList.remove('hidden');
+            panel.classList.add('animate-slideDown');
+        } else {
+            panel.classList.add('hidden');
+            panel.classList.remove('animate-slideDown');
+        }
+    });
+
+    // Export function placeholder (untuk implementasi selanjutnya)
+    document.getElementById('exportBtn').addEventListener('click', function() {
+        alert('maintenance');
+    });
+
+    function filterTable() {
+        const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+        const status = document.getElementById('filterStatus').value;
+        const kategori = document.getElementById('filterKategori').value;
+
+        filteredData = laporanData.filter(item => {
+            const idMatch = item.resi.toString().includes(keyword);
+            const masalahMatch = item.masalah.toLowerCase().includes(keyword);
+            const statusMatch = status === "" || item.status === status;
+            const kategoriMatch = kategori === "" || item.kategori === kategori;
+            const filterTanggal = document.getElementById('filterTanggal').value;
+
+            let tanggalMatch = true;
+            if (filterTanggal) {
+                const d = new Date(filterTanggal);
+                const formatTanggal = d.toLocaleDateString('id-ID').split('/').map(str => str.padStart(2, '0')).join('');
+                const tanggalFilterResi = formatTanggal.substring(0, 2) + formatTanggal.substring(2, 4) + formatTanggal.substring(6, 8);
+                tanggalMatch = item.resi.startsWith(tanggalFilterResi);
+            }
+
+            return (idMatch || masalahMatch) && statusMatch && kategoriMatch && tanggalMatch;
+        });
+
+        currentPage = 1;
+        renderTable();
+    }
+
+    function handleEntriesChange() {
+        const showEntries = parseInt(document.getElementById('showEntries').value);
+        itemsPerPage = showEntries;
+        currentPage = 1;
+        renderTable();
+    }
+
+    document.getElementById('searchInput').addEventListener('input', filterTable);
+    document.getElementById('filterStatus').addEventListener('change', filterTable);
+    document.getElementById('filterKategori').addEventListener('change', filterTable);
+    document.getElementById('filterTanggal').addEventListener('change', filterTable);
+    document.getElementById('showEntries').addEventListener('change', handleEntriesChange);
+
+    function openModal(dataIndex) {
+        currentEditingIndex = dataIndex;
+        const data = laporanData[currentEditingIndex];
+
+        document.getElementById('modalUserNama').innerText = data.nama;
+        document.getElementById('modalUserEmail').innerText = data.email;
+        document.getElementById('modalUserInstansi').innerText = data.instansi;
+        document.getElementById('modalResi').innerText = data.resi;
+        document.getElementById('modalNama').innerText = data.masalah;
+        document.getElementById('modalTanggal').innerText = data.tanggal;
+        document.getElementById('modalDeskripsi').innerText = data.deskripsi;
+        document.getElementById('modalLampiran').innerText = data.lampiran;
+
+        // Fill form fields
+        document.getElementById('modalSetStatus').value = data.status || '';
+        document.getElementById('modalSetKategori').value = data.kategori || '';
+        document.getElementById('modalSetTanggalSelesai').value = data.tanggal_selesai || '';
+        document.getElementById('modalDeskripsiPenanganan').value = data.penyelesaian || '';
+
+        document.getElementById('editForm').action = `/admin/laporan/${data.id}/update`;
+
+        toggleButtonByStatus();
+
+        const modal = document.getElementById('editModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeModal() {
+        currentEditingIndex = null;
+        const modal = document.getElementById('editModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    document.getElementById('editModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('/laporan/all')
+        .then(response => response.json())
+        .then(data => {
+            laporanData = data.map(item => ({
+                id: item.id,
+                resi: item.resi,
+                masalah: item.judul_masalah,
+                status: item.status,
+                kategori: item.kategori,
+                tanggal: item.tanggal_pengajuan,
+                tanggal_selesai: item.tanggal_selesai,
+                estimasi: item.estimasi,
+                deskripsi: item.deskripsi,
+                penyelesaian: item.penyelesaian,
+                lampiran: item.lampiran,
+                nama: item.user_nama,
+                instansi: item.user_instansi,
+                email: item.user_email,
+            }));
+            filteredData = [...laporanData];
+            updateStatistics();
+            renderTable();
+        })
+        .catch(error => {
+            console.error('Gagal memuat data laporan:', error);
+        });
+
+        document.getElementById('laporanTable').addEventListener('click', function(e) {
+            const editBtn = e.target.closest('.edit-btn');
+            if (editBtn) {
+                const row = editBtn.closest('tr');
+                const dataIndex = parseInt(row.getAttribute('data-index'));
+                openModal(dataIndex);
+            }
+        });
+    });
+
+    function toggleButtonByStatus() {
+        const statusSelect = document.getElementById('modalSetStatus');
+        const submitBtn = document.getElementById('adminEditBtn');
+        const status = statusSelect.value;
+        if (status === 'Selesai') {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            submitBtn.title = "Status 'Selesai' tidak bisa disimpan ulang.";
+        } else {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            submitBtn.removeAttribute('title');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const toast = document.getElementById('successToast');
+        if (toast) {
+            // Delay agar animasi berjalan
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 100);
+
+            // Auto close setelah 5s
+            setTimeout(() => {
+                toast.classList.remove('translate-x-0', 'opacity-100');
+                toast.classList.add('translate-x-full', 'opacity-0');
+            }, 5000);
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const toast = document.getElementById('errorToast');
+        if (toast) {
+            // Delay agar animasi berjalan
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 100);
+
+            // Auto close setelah 5s
+            setTimeout(() => {
+                toast.classList.remove('translate-x-0', 'opacity-100');
+                toast.classList.add('translate-x-full', 'opacity-0');
+            }, 5000);
+        }
+    });
+  </script>
+
+</body>
+</html>
