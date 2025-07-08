@@ -30,6 +30,11 @@
       ✉️ Verifikasi Sekarang
     </a>
 
+    <!-- Warning Expired -->
+    <p style="font-size: 13px; color: #dc2626; margin-bottom: 30px;">
+        ⚠️ Tautan verifikasi ini hanya berlaku selama 1 menit. Setelah itu, Anda perlu meminta ulang tautan baru.
+    </p>
+
     <!-- Link alternatif -->
     <div style="text-align: left; font-size: 13px; color: #6b7280; background-color: #f9fafb; border: 1px solid #e5e7eb; padding: 12px 16px; border-radius: 8px; word-wrap: break-word;">
       Jika tombol tidak berfungsi, salin dan buka tautan ini di browser Anda:<br>
