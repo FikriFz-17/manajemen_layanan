@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Validator;
 
 class AuthApiController extends Controller
 {
@@ -33,5 +36,58 @@ class AuthApiController extends Controller
             'token' => $token,
             'user' => $user
         ]);
+    }
+
+    public function register(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nama' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'phone' => 'required|string|max:20',
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/'
+            ],
+        ], [
+            'email.unique' => 'Email sudah terdaftar.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+            'password.regex' => 'Password harus memiliki huruf besar, kecil, angka, dan simbol.'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validasi gagal.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+
+        $user = User::create([
+            'nama' => $validated['nama'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'password' => Hash::make($validated['password']),
+            'role' => 'user',
+            'is_active' => false,
+            'profile_url' => 'default.jpg',
+            'remember_token' => Str::random(60),
+        ]);
+
+        // Kirim email verifikasi
+        event(new Registered($user));
+
+        return response()->json([
+            'message' => 'Registrasi berhasil. Silakan cek email untuk verifikasi.',
+            'user' => [
+                'id' => $user->id,
+                'nama' => $user->nama,
+                'email' => $user->email,
+                'phone' => $user->phone,
+            ]
+        ], 201);
     }
 }

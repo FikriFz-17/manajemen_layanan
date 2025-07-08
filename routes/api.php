@@ -18,4 +18,4 @@ Route::middleware('auth:sanctum')->get('/user-laporans', [LaporanController::cla
 
 Route::post('/login', [AuthApiController::class, "login"]);
 
-
+Route::post('register', [AuthApiController::class, "register"]);

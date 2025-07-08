@@ -17,7 +17,7 @@
     <h1 class="text-lg font-bold text-center mb-8">Diskominfo Kebumen</h1>
     <nav class="flex flex-col gap-4">
       <a href="{{ route('adminDashboard') }}" class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors"><i class="fas fa-home"></i> Dashboard</a>
-      <a href="#" class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors bg-white bg-opacity-20"><i class="fa-solid fa-user"></i>User Management</a>
+      <a href="{{route('userManagement')}}" class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors bg-white bg-opacity-20"><i class="fa-solid fa-user"></i>User Management</a>
 
       <div class="mt-auto pt-4 border-t border-white border-opacity-20">
         <div class="flex items-center gap-2 p-2 rounded transition-colors hover:bg-white hover:bg-opacity-10 cursor-pointer">
