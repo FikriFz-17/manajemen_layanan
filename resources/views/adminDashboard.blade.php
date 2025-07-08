@@ -145,36 +145,83 @@
       </div>
     </div>
 
-    <!-- Filter&search -->
     <!-- Search dan Action Buttons -->
     <div class="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center mb-6">
-    <!-- Search Bar -->
-    <div class="relative w-full lg:w-1/3">
-        <input type="text" id="searchInput" placeholder="Cari laporan berdasarkan No. Resi atau Masalah..."
-                class="border border-gray-300 px-4 py-2.5 rounded-lg w-full pr-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-        <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-    </div>
+        <!-- Search Bar -->
+        <div class="relative w-full lg:w-1/3">
+            <input type="text" id="searchInput" placeholder="Cari laporan berdasarkan No. Resi atau Masalah..."
+                    class="border border-gray-300 px-4 py-2.5 rounded-lg w-full pr-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+            <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        </div>
 
-    <!-- Action Buttons -->
-    <div class="flex flex-wrap gap-2">
-        <button id="filterBtn" class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2.5 rounded-lg border transition-colors">
-            <i class="fas fa-filter text-gray-600"></i>
-            <span class="text-gray-700">Filter</span>
-        </button>
-        <button id="exportBtn" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg transition-colors">
-            <i class="fas fa-download"></i>
-            <span>Export</span>
-        </button>
-    </div>
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap gap-2">
+            <button id="filterBtn" class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2.5 rounded-lg border transition-colors">
+                <i class="fas fa-filter text-gray-600"></i>
+                <span class="text-gray-700">Filter</span>
+            </button>
+            <button id="exportBtn" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg transition-colors">
+                <i class="fas fa-download"></i>
+                <span>Export</span>
+            </button>
+        </div>
     </div>
 
     <!-- Collapsible Filter Panel -->
-    <div id="filterPanel" class="hidden bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+    <div id="filterPanel" class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Compact Date Range Filter -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
-                <input type="date" id="filterTanggal" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Periode Tanggal</label>
+                <div class="relative">
+                    <input
+                        type="text"
+                        id="dateRange"
+                        placeholder="Pilih periode..."
+                        readonly
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer bg-white"
+                        onclick="toggleDatePicker()"
+                    >
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Date Picker Dropdown -->
+                <div id="datePicker"
+                    class="hidden z-20 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-4 w-[320px] sm:w-[360px] lg:absolute lg:min-w-64">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Dari</label>
+                            <input type="date" id="startDate"
+                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Sampai</label>
+                            <input type="date" id="endDate"
+                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 mb-4">
+                        <button onclick="setQuickRange('today')"
+                            class="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200">Hari Ini</button>
+                        <button onclick="setQuickRange('week')"
+                            class="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200">7 Hari</button>
+                        <button onclick="setQuickRange('month')"
+                            class="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200">30 Hari</button>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button onclick="clearDateRange()"
+                            class="px-4 py-1 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300">Reset</button>
+                    </div>
+                </div>
             </div>
+
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
                 <select id="filterKategori" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
@@ -184,6 +231,7 @@
                     <option value="Jaringan">Jaringan</option>
                 </select>
             </div>
+
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
                 <select id="filterStatus" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
@@ -193,6 +241,7 @@
                     <option value="Selesai">Selesai</option>
                 </select>
             </div>
+
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Tampilkan</label>
                 <select id="showEntries" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
@@ -213,7 +262,7 @@
                     <th class="px-2 lg:px-4 py-2 text-sm lg:text-base">No. Resi</th>
                     <th class="px-2 lg:px-4 py-2 text-sm lg:text-base">Masalah</th>
                     <th class="px-2 lg:px-4 py-2 text-sm lg:text-base">Status</th>
-                    <th class="px-2 lg:px-4 py-2 text-sm lg:text-base">Tanggal</th>
+                    <th class="px-2 lg:px-4 py-2 text-sm lg:text-base">Tanggal Pengajuan</th>
                     <th class="px-2 lg:px-4 py-2 text-sm lg:text-base">Tangani</th>
                 </tr>
             </thead>
@@ -264,12 +313,12 @@
                     </select>
                     </div>
                     <div>
-                    <label for="modalSetTanggalSelesai" class="block text-sm font-medium text-gray-700 mb-2 mt-2">Set Tanggal Selesai</label>
-                    <input type="date" id="modalSetTanggalSelesai" name="tanggal_selesai" class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <label for="modalSetTanggalSelesai" class="block text-sm font-medium text-gray-700 mb-2 mt-2">Set Tanggal Selesai</label>
+                        <input type="date" id="modalSetTanggalSelesai" name="tanggal_selesai" class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                     </div>
                     <div>
-                    <label for="modalDeskripsiPenanganan" class="block text-sm font-medium text-gray-700 mb-2 mt-2">Deskripsi Penanganan</label>
-                    <textarea id="modalDeskripsiPenanganan" name="deskripsi_penanganan" rows="4" class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Jelaskan bagaimana masalah ditangani..."></textarea>
+                        <label for="modalDeskripsiPenanganan" class="block text-sm font-medium text-gray-700 mb-2 mt-2">Deskripsi Penanganan</label>
+                        <textarea id="modalDeskripsiPenanganan" name="deskripsi_penanganan" rows="4" class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Jelaskan bagaimana masalah ditangani..."></textarea>
                     </div>
                     <div class="flex justify-end items-center border-t px-6 py-4 gap-2">
                         <button type="submit" id="adminEditBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Simpan Perubahan</button>
@@ -279,7 +328,6 @@
         </div>
       </div>
     </div>
-
 
     <div class="mt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
         <div class="text-sm text-gray-600">
@@ -475,24 +523,63 @@
         alert('maintenance');
     });
 
+    function toggleDatePicker() {
+        const datePicker = document.getElementById('datePicker');
+        datePicker.classList.toggle('hidden');
+    }
+
+    document.addEventListener('click', function (e) {
+        const datePicker = document.getElementById('datePicker');
+        const dateRangeInput = document.getElementById('dateRange');
+
+        if (
+            !datePicker.contains(e.target) &&
+            !dateRangeInput.contains(e.target)
+        ) {
+            datePicker.classList.add('hidden');
+        }
+    });
+
+
     function filterTable() {
+        const formatDate = (date) => {
+            if (!date) return '';
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+            return `${yyyy}/${mm}/${dd}`;
+        };
+
         const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
         const status = document.getElementById('filterStatus').value;
         const kategori = document.getElementById('filterKategori').value;
+
+        const startDateInput = document.getElementById('startDate').value;
+        const endDateInput = document.getElementById('endDate').value;
+
+        const startDate = startDateInput ? new Date(startDateInput) : null;
+        const endDate = endDateInput ? new Date(endDateInput) : null;
 
         filteredData = laporanData.filter(item => {
             const idMatch = item.resi.toString().includes(keyword);
             const masalahMatch = item.masalah.toLowerCase().includes(keyword);
             const statusMatch = status === "" || item.status === status;
             const kategoriMatch = kategori === "" || item.kategori === kategori;
-            const filterTanggal = document.getElementById('filterTanggal').value;
 
             let tanggalMatch = true;
-            if (filterTanggal) {
-                const d = new Date(filterTanggal);
-                const formatTanggal = d.toLocaleDateString('id-ID').split('/').map(str => str.padStart(2, '0')).join('');
-                const tanggalFilterResi = formatTanggal.substring(0, 2) + formatTanggal.substring(2, 4) + formatTanggal.substring(6, 8);
-                tanggalMatch = item.resi.startsWith(tanggalFilterResi);
+            if (startDate || endDate) {
+                // Update text input dateRange
+                document.getElementById('dateRange').value = `${formatDate(startDate)} - ${formatDate(endDate)}`;
+
+                const resiDateStr = item.resi.substring(0, 6); // "ddmmyy"
+                const day = resiDateStr.substring(0, 2);
+                const month = resiDateStr.substring(2, 4);
+                const year = '20' + resiDateStr.substring(4, 6);
+
+                const resiDate = new Date(`${year}-${month}-${day}`);
+
+                if (startDate && resiDate < startDate) tanggalMatch = false;
+                if (endDate && resiDate > endDate) tanggalMatch = false;
             }
 
             return (idMatch || masalahMatch) && statusMatch && kategoriMatch && tanggalMatch;
@@ -501,6 +588,49 @@
         currentPage = 1;
         renderTable();
     }
+
+    function setQuickRange(range){
+        const today = new Date()
+
+        let start = new Date()
+
+        if (range === "today"){
+            start = new Date(today)
+        } else if (range === "week"){
+            start.setDate(today.getDate() - 6)
+        } else if (range === "month"){
+            start.setDate(today.getDate() - 29)
+        }
+
+        const formatDate = (date) => {
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        };
+
+        document.getElementById('startDate').value = formatDate(start);
+        document.getElementById('endDate').value = formatDate(today);
+
+        // Update tampilan teks range
+        document.getElementById('dateRange').value = `${formatDate(start)} - ${formatDate(today)}`;
+
+        // Apply filter
+        filterTable();
+    }
+
+    function clearDateRange(){
+        document.getElementById('startDate').value = '';
+        document.getElementById('endDate').value = '';
+        document.getElementById('dateRange').value = '';
+
+        // Sembunyikan date picker jika sedang terbuka
+        document.getElementById('datePicker').classList.add('hidden');
+
+        // Render ulang tabel tanpa filter tanggal
+        filterTable();
+    }
+
 
     function handleEntriesChange() {
         const showEntries = parseInt(document.getElementById('showEntries').value);
@@ -512,7 +642,7 @@
     document.getElementById('searchInput').addEventListener('input', filterTable);
     document.getElementById('filterStatus').addEventListener('change', filterTable);
     document.getElementById('filterKategori').addEventListener('change', filterTable);
-    document.getElementById('filterTanggal').addEventListener('change', filterTable);
+    document.getElementById('datePicker').addEventListener('change', filterTable);
     document.getElementById('showEntries').addEventListener('change', handleEntriesChange);
 
     function openModal(dataIndex) {

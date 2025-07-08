@@ -106,7 +106,7 @@ class LaporanController extends Controller
             'estimasi' => $estimasi,
         ]);
 
-         // Ambil data user
+        // Ambil data user
         $user = DB::table('users')->where('id', $laporan->user_id)->first();
 
         // Kirim Email ke user

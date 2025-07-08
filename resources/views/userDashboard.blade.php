@@ -121,27 +121,92 @@
     </div>
 
     <!-- Search & Filter -->
-    <div class="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center mb-4">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4 flex-wrap">
+        <!-- Search input -->
         <div class="relative w-full lg:w-1/3">
             <input type="text" id="searchInput" placeholder="Cari laporan berdasarkan No. Resi atau Masalah..."
-                    class="border border-gray-300 px-4 py-2.5 rounded-lg w-full pr-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                class="border border-gray-300 px-4 py-2.5 rounded-lg w-full pr-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
             <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
         </div>
 
-        <div class="flex flex-col sm:flex-row gap-2">
-            <select id="filterStatus" class="border px-3 py-2 rounded w-full sm:w-auto">
-                <option value="">Semua Status</option>
-                <option value="Pengajuan">Pengajuan</option>
-                <option value="Progress">Progress</option>
-                <option value="Selesai">Selesai</option>
-            </select>
+        <!-- Filter group (Periode + Status + Show Entries) -->
+        <div class="flex flex-col sm:flex-row gap-3 flex-wrap w-full lg:w-auto">
+            <!-- Periode Tanggal -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Periode Tanggal</label>
+                <div class="relative w-full sm:w-[320px] md:w-[300px]">
+                    <input
+                        type="text"
+                        id="dateRange"
+                        placeholder="Pilih periode..."
+                        readonly
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer bg-white"
+                        onclick="toggleDatePicker()"
+                    >
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+                <!-- Date Picker Dropdown -->
+                <div id="datePicker"
+                    class="hidden z-20 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-4 w-[320px] sm:w-[360px] lg:absolute lg:min-w-64">
 
-            <select id="showEntries" class="border px-3 py-2 rounded w-full sm:w-auto">
-                <option value="5">Show 5 entries</option>
-                <option value="10">Show 10 entries</option>
-                <option value="25">Show 25 entries</option>
-                <option value="50">Show 50 entries</option>
-            </select>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Dari</label>
+                            <input type="date" id="startDate"
+                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Sampai</label>
+                            <input type="date" id="endDate"
+                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 mb-4">
+                        <button onclick="setQuickRange('today')"
+                            class="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200">Hari Ini</button>
+                        <button onclick="setQuickRange('week')"
+                            class="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200">7 Hari</button>
+                        <button onclick="setQuickRange('month')"
+                            class="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200">30 Hari</button>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button onclick="clearDateRange()"
+                            class="px-4 py-1 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300">Reset</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select id="filterStatus"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">Semua Status</option>
+                    <option value="Pengajuan">Pengajuan</option>
+                    <option value="Progress">Progress</option>
+                    <option value="Selesai">Selesai</option>
+                </select>
+            </div>
+
+            <!-- Show Entries -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tampilkan</label>
+                <select id="showEntries"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="5">Show 5 entries</option>
+                    <option value="10">Show 10 entries</option>
+                    <option value="25">Show 25 entries</option>
+                    <option value="50">Show 50 entries</option>
+                </select>
+            </div>
         </div>
     </div>
 
@@ -322,7 +387,7 @@
         const endIndex = Math.min(currentPage * itemsPerPage, filteredData.length);
         const totalEntries = filteredData.length;
 
-        document.getElementById('paginationInfo').textContent = `Showing ${startIndex} to ${endIndex} of ${totalEntries} entries`;
+        document.getElementById('paginationInfo').textContent = `Menampilkan ${startIndex} sampai ${endIndex} dari ${totalEntries} data`;
     }
 
     // Render pagination buttons
@@ -377,20 +442,109 @@
     }
 
     // Filter & Search - Fixed
+    function toggleDatePicker() {
+        const datePicker = document.getElementById('datePicker');
+        datePicker.classList.toggle('hidden');
+    }
+
+    document.addEventListener('click', function (e) {
+        const datePicker = document.getElementById('datePicker');
+        const dateRangeInput = document.getElementById('dateRange');
+
+        if (
+            !datePicker.contains(e.target) &&
+            !dateRangeInput.contains(e.target)
+        ) {
+            datePicker.classList.add('hidden');
+        }
+    });
+
     function filterTable() {
-      const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
-      const status = document.getElementById('filterStatus').value;
+        const formatDate = (date) => {
+            if (!date) return '';
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+            return `${yyyy}/${mm}/${dd}`;
+        };
+
+        const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+        const status = document.getElementById('filterStatus').value;
+
+        const startDateInput = document.getElementById('startDate').value;
+        const endDateInput = document.getElementById('endDate').value;
+
+        const startDate = startDateInput ? new Date(startDateInput) : null;
+        const endDate = endDateInput ? new Date(endDateInput) : null;
 
         filteredData = laporanData.filter(item => {
             const idMatch = item.resi.toString().includes(keyword);
             const masalahMatch = item.masalah.toLowerCase().includes(keyword);
             const statusMatch = status === "" || item.status === status;
 
-            return (idMatch || masalahMatch) && statusMatch;
+            let tanggalMatch = true;
+            if (startDate || endDate) {
+                // Update text input dateRange
+                document.getElementById('dateRange').value = `${formatDate(startDate)} - ${formatDate(endDate)}`;
+
+                const resiDateStr = item.resi.substring(0, 6); // "ddmmyy"
+                const day = resiDateStr.substring(0, 2);
+                const month = resiDateStr.substring(2, 4);
+                const year = '20' + resiDateStr.substring(4, 6);
+
+                const resiDate = new Date(`${year}-${month}-${day}`);
+
+                if (startDate && resiDate < startDate) tanggalMatch = false;
+                if (endDate && resiDate > endDate) tanggalMatch = false;
+            }
+
+            return (idMatch || masalahMatch) && statusMatch  && tanggalMatch;
         });
 
-      currentPage = 1;
-      renderTable();
+        currentPage = 1;
+        renderTable();
+    }
+
+    function setQuickRange(range){
+        const today = new Date()
+
+        let start = new Date()
+
+        if (range === "today"){
+            start = new Date(today)
+        } else if (range === "week"){
+            start.setDate(today.getDate() - 6)
+        } else if (range === "month"){
+            start.setDate(today.getDate() - 29)
+        }
+
+        const formatDate = (date) => {
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        };
+
+        document.getElementById('startDate').value = formatDate(start);
+        document.getElementById('endDate').value = formatDate(today);
+
+        // Update tampilan teks range
+        document.getElementById('dateRange').value = `${formatDate(start)} - ${formatDate(today)}`;
+
+        // Apply filter
+        filterTable();
+    }
+
+    function clearDateRange(){
+        document.getElementById('startDate').value = '';
+        document.getElementById('endDate').value = '';
+        document.getElementById('dateRange').value = '';
+
+        // Sembunyikan date picker jika sedang terbuka
+        document.getElementById('datePicker').classList.add('hidden');
+
+        // Render ulang tabel tanpa filter tanggal
+        filterTable();
     }
 
     // Handle entries per page change
@@ -405,6 +559,7 @@
     document.getElementById('searchInput').addEventListener('input', filterTable);
     document.getElementById('filterStatus').addEventListener('change', filterTable);
     document.getElementById('showEntries').addEventListener('change', handleEntriesChange);
+    document.getElementById('datePicker').addEventListener('change', filterTable);
 
     function openModal(dataIndex) {
         currentEditingIndex = dataIndex;

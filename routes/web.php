@@ -92,6 +92,7 @@ Route::get('/email/verify/{id}/{hash}', function ($id, $hash) {
     return redirect()->route('login')->with('success', 'Email berhasil diverifikasi! Silahkan login.');
 })->middleware(['signed'])->name('verification.verify');
 
+// Email verification timer
 Route::get('/expiration', [ExpirationEmailTimer::class, "showVerifyPage"]);
 
 // Logout
