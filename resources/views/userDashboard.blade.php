@@ -230,24 +230,24 @@
 
     <!-- Modal Pop-up -->
     <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
-    <div class="bg-white rounded-lg w-full max-w-2xl shadow-lg overflow-auto max-h-[90vh]">
-        <div class="flex justify-between items-center border-b px-6 py-4">
-        <h3 class="text-lg font-semibold">Detail Laporan</h3>
-        <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
-            <i class="fas fa-times"></i>
-        </button>
+        <div class="bg-white rounded-lg w-full max-w-2xl shadow-lg overflow-auto max-h-[90vh]">
+            <div class="flex justify-between items-center border-b px-6 py-4">
+            <h3 class="text-lg font-semibold">Detail Laporan</h3>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+            </div>
+            <div class="p-6 space-y-4">
+            <div class="grid grid-cols-2 gap-4 text-sm">
+                <p><strong>Judul/Topik Permasalahan:</strong></p><p id="modalNama">-</p>
+                <p><strong>Tanggal Pengajuan:</strong></p><p id="modalTanggal">-</p>
+                <p><strong>Estimasi Selesai:</strong></p><p id="modalEstimasi">-</p>
+                <p><strong>Status:</strong></p><p id="modalStatus">-</p>
+                <p><strong>Deskripsi:</strong></p><p id="modalDeskripsi">-</p>
+                <p><strong>Lampiran:</strong></p><p id="modalLampiran">-</p>
+            </div>
+            </div>
         </div>
-        <div class="p-6 space-y-4">
-        <div class="grid grid-cols-2 gap-4 text-sm">
-            <p><strong>Judul/Topik Permasalahan:</strong></p><p id="modalNama">-</p>
-            <p><strong>Tanggal Pengajuan:</strong></p><p id="modalTanggal">-</p>
-            <p><strong>Estimasi Selesai:</strong></p><p id="modalEstimasi">-</p>
-            <p><strong>Status:</strong></p><p id="modalStatus">-</p>
-            <p><strong>Deskripsi:</strong></p><p id="modalDeskripsi">-</p>
-            <p><strong>Lampiran:</strong></p><p id="modalLampiran">-</p>
-        </div>
-        </div>
-    </div>
     </div>
 
     <!-- Pagination -->
@@ -569,7 +569,9 @@
         document.getElementById('modalTanggal').innerText = data.tanggal;
         document.getElementById('modalStatus').innerText = data.status;
         document.getElementById('modalDeskripsi').innerText = data.deskripsi;
-        document.getElementById('modalLampiran').innerText = data.lampiran;
+        document.getElementById('modalLampiran').innerHTML = data.lampiran ? `<a href="/storage/${data.lampiran}" target="_blank" class="text-blue-600 underline hover:text-blue-800">
+         Lihat Lampiran
+       </a>` : '-';
         document.getElementById('modalEstimasi').innerText =
             data.status === 'Pengajuan' ? '0 Hari' :
             data.status === 'Progress' ? (data.estimasi || 0) + ' Hari' :

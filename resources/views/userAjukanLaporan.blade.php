@@ -130,11 +130,11 @@
             </div>
         </div>
     @endif
-    
+
     <!-- FORM PENGAJUAN - Responsive -->
     <div class="bg-white p-4 md:p-6 lg:p-8 shadow-md rounded-lg w-full max-w-none">
       <h2 class="text-xl md:text-2xl font-semibold mb-4 md:mb-6 text-[#262394] text-center lg:text-left">Ajukan Laporan Permasalahan</h2>
-      <form action="{{ route('laporan.submit') }}" method="POST" class="space-y-6" id="form-ajuan">
+      <form action="{{ route('laporan.submit') }}" method="POST" enctype="multipart/form-data" class="space-y-6" id="form-ajuan">
         @csrf
         <!-- Row: Nama, Instansi & Tanggal -->
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
@@ -189,15 +189,17 @@
 
         <!-- File Upload (Optional) -->
         <div class="flex flex-col">
+            <!-- label -->
           <label for="lampiran" class="block text-sm font-medium mb-2 text-gray-700">
             <i class="fas fa-paperclip mr-2 text-[#262394]"></i>Lampiran (Opsional)
           </label>
+          <!-- Area Upload -->
           <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-[#262394] transition-colors duration-200">
-            <input type="file" id="lampiran" name="lampiran" class="hidden" accept="image/*,.pdf,.doc,.docx">
+            <input type="file" id="lampiran" name="lampiran" class="hidden" accept="image/*,.pdf" onchange="previewLampiran(event)">
             <label for="lampiran" class="cursor-pointer flex flex-col items-center justify-center text-gray-500 hover:text-[#262394]">
               <i class="fas fa-cloud-upload-alt text-3xl mb-2"></i>
               <span class="text-sm text-center">Klik untuk upload file</span>
-              <span class="text-xs text-gray-400 mt-1">Format: JPG, PNG, PDF, DOC (Max: 5MB)</span>
+              <span class="text-xs text-gray-400 mt-1">Format: JPG, PNG, PDF (Max: 5MB)</span>
             </label>
           </div>
         </div>
@@ -301,15 +303,30 @@
     const fileInput = document.getElementById('lampiran');
     const fileLabel = document.querySelector('label[for="lampiran"]');
 
-    fileInput.addEventListener('change', function() {
-      if (this.files.length > 0) {
+    //tombol hapus
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = 'Hapus File';
+    deleteButton.type = 'button';
+    deleteButton.className = 'mt-2 text-red-600 text-sm underline hover:text-red-800 hidden'; // Disembunyikan awal
+    fileLabel.parentElement.appendChild(deleteButton);
+
+    fileInput.addEventListener('change', function () {
+    if (this.files.length > 0) {
         const fileName = this.files[0].name;
         fileLabel.innerHTML = `
-          <i class="fas fa-check-circle text-3xl mb-2 text-green-500"></i>
-          <span class="text-sm text-center text-green-600">File terpilih: ${fileName}</span>
-          <span class="text-xs text-gray-400 mt-1">Klik lagi untuk mengganti file</span>
+            <i class="fas fa-check-circle text-3xl mb-2 text-green-500"></i>
+            <span class="text-sm text-center text-green-600">File terpilih: ${fileName}</span>
+            <span class="text-xs text-gray-400 mt-1">Klik lagi untuk mengganti file</span>
         `;
-      }
+        deleteButton.classList.remove('hidden');
+    }
+    });
+
+    // Saat tombol "Hapus File" diklik
+    deleteButton.addEventListener('click', function () {
+        fileInput.value = '';
+        fileLabel.innerHTML=''
+        deleteButton.classList.add('hidden');
     });
 
     // Form validation
@@ -359,6 +376,35 @@
             }
         });
     });
+
+    const lampiran = document.getElementById('lampiran')
+    lampiran.addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Pastikan hanya preview untuk jenis file tertentu (PDF, gambar, dll)
+        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+        if (!allowedTypes.includes(file.type)) {
+            alert("File tidak bisa dipreview otomatis.");
+        return;
+        }
+
+        // Buat URL lokal untuk file
+        const fileURL = URL.createObjectURL(file);
+
+        // Buka tab baru
+        setTimeout(() => {
+            const newTab = window.open('', '_blank');
+            if (file.type.includes('image')) {
+                newTab.document.write(`<img src="${fileURL}" style="max-width:100%;">`);
+            } else if (file.type === 'application/pdf') {
+                newTab.document.write(`
+                    <iframe src="${fileURL}" style="width:100%;height:100%;position:absolute;top:0;left:0;border:none;"></iframe>
+                `);
+            }
+        }, 100);
+    });
+
   </script>
 
 </body>
