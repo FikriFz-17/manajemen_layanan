@@ -18,10 +18,13 @@ class LaporanController extends Controller
             'tanggal' => 'required|date',
             'masalah' => 'required|string',
             'deskripsi' => 'required|string',
+            'lampiran' => 'nullable|file|mimes:pdf,jpg,png,jpeg,docx|max:2048'
         ], [
             'tanggal.required' => 'Tanggal tidak boleh kosong',
             'masalah.required' => 'Masalah tidak boleh kosong',
             'deskripsi.required' => 'Deskripsi tidak boleh kosong',
+            'lampiran.mimes' => 'Lampiran harus berupa PDF, JPG, PNG, DOC, atau DOCX',
+            'lampiran.max' => 'Lampiran maksimal 2MB',
         ]);
 
         // Generate resi format: dmy-no
@@ -39,6 +42,13 @@ class LaporanController extends Controller
             $no++;
         }
 
+        $lampiranPath = null;
+        if ($request->hasFile('lampiran')) {
+            $file = $request->file('lampiran');
+            $originalName = $file->getClientOriginalName(); // nama asli file
+            $lampiranPath = $file->storeAs('lampiran', $originalName, 'public');
+        }
+
         DB::table('laporans')->insert([
             'user_id' => $user->id,
             'resi' => $resi,
@@ -46,6 +56,7 @@ class LaporanController extends Controller
             'status' => 'Pengajuan',
             'tanggal_pengajuan' => $validated['tanggal'],
             'deskripsi' => $validated['deskripsi'],
+            'lampiran' => $lampiranPath
         ]);
 
         return back()->with('success', 'Laporan berhasil diajukan, Pantau status laporan Anda di dashboard');

@@ -656,7 +656,9 @@
         document.getElementById('modalNama').innerText = data.masalah;
         document.getElementById('modalTanggal').innerText = data.tanggal;
         document.getElementById('modalDeskripsi').innerText = data.deskripsi;
-        document.getElementById('modalLampiran').innerText = data.lampiran;
+        document.getElementById('modalLampiran').innerHTML = data.lampiran ? `<a href="/storage/${data.lampiran}" target="_blank" class="text-blue-600 underline hover:text-blue-800">
+         Lihat Lampiran
+       </a>` : '-';
 
         // Fill form fields
         document.getElementById('modalSetStatus').value = data.status || '';

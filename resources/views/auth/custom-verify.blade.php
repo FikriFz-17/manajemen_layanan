@@ -32,7 +32,7 @@
 
     <!-- Warning Expired -->
     <p style="font-size: 13px; color: #dc2626; margin-bottom: 30px;">
-        ⚠️ Tautan verifikasi ini hanya berlaku selama 1 menit. Setelah itu, Anda perlu meminta ulang tautan baru.
+        ⚠️ Tautan verifikasi ini hanya berlaku selama 10 menit. Setelah itu, Anda perlu meminta ulang tautan baru.
     </p>
 
     <!-- Link alternatif -->
