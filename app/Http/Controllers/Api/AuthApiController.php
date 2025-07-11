@@ -29,6 +29,16 @@ class AuthApiController extends Controller
             return response()->json(['message' => 'Akun belum diverifikasi'], 403);
         }
 
+        // Cek apakah user sudah memiliki token
+        if ($user->tokens()->count() > 0) {
+            $existingToken = $user->tokens()->first();
+
+            return response()->json([
+                'message' => 'Login berhasil (menggunakan token yang sudah ada)',
+                'user' => $user
+            ]);
+        }
+
         $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
@@ -89,5 +99,13 @@ class AuthApiController extends Controller
                 'phone' => $user->phone,
             ]
         ], 201);
+    }
+
+    public function logout(Request $request){
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'Logout berhasil'
+        ]);
     }
 }
