@@ -6,6 +6,7 @@
   <title>Dashboard Publik - Kominfo Kebumen</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@fortawesome/fontawesome-free@6.4.0/js/all.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -57,9 +58,14 @@
           Pantau perkembangan laporan dan layanan Anda
         </p>
         <div class="flex flex-col sm:flex-row gap-4">
-          <button class="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all duration-300">
+          <button class="border-2 border-white text-white px-4 md:px-3 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all duration-300">
             <a href="{{route('login')}}" class="flex items-center">
                 <i class="fas fa-plus-circle mr-2"></i>Buat Laporan Baru
+            </a>
+          </button>
+          <button class="border-2 border-white text-white px-4 sm:px- md:px-3 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all duration-300">
+            <a href="#" class="flex items-center">
+                <i class="fa-solid fa-file-arrow-down mr-2"></i>Panduan Pengguna
             </a>
           </button>
         </div>
@@ -72,7 +78,7 @@
         <div class="flex justify-between items-center">
           <div>
             <h3 class="text-3xl font-bold text-green-600 animate-bounce-slow" id="successCount">0</h3>
-            <p class="text-gray-600 font-medium">Laporan Selesai</p>
+            <p class="text-gray-600 font-medium">Selesai</p>
           </div>
           <div class="bg-green-100 p-4 rounded-full">
             <i class="fas fa-check-circle text-green-500 text-2xl animate-pulse"></i>
@@ -84,7 +90,7 @@
         <div class="flex justify-between items-center">
           <div>
             <h3 class="text-3xl font-bold text-yellow-600 animate-bounce-slow" id="progressCount">0</h3>
-            <p class="text-gray-600 font-medium">Dalam Proses</p>
+            <p class="text-gray-600 font-medium">Progress</p>
           </div>
           <div class="bg-yellow-100 p-4 rounded-full">
             <i class="fa-solid fa-bars-progress text-yellow-500 text-2xl animate-pulse"></i>
@@ -96,13 +102,24 @@
         <div class="flex justify-between items-center">
           <div>
             <h3 class="text-3xl font-bold text-red-600 animate-bounce-slow" id="pengajuanCount">0</h3>
-            <p class="text-gray-600 font-medium">Laporan Baru</p>
+            <p class="text-gray-600 font-medium">Pengajuan</p>
           </div>
           <div class="bg-red-100 p-4 rounded-full">
             <i class="fa-solid fa-bullhorn text-red-500 text-2xl animate-pulse"></i>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Statistik Chart -->
+    <div id="chart" class="bg-white rounded shadow p-4 mb-4">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold">Statistik Laporan</h2>
+            <select id="tahunChartSelect" class="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring focus:border-blue-300">
+            <!-- Tahun diisi via JS -->
+            </select>
+        </div>
+        <div id="chartContainer"></div>
     </div>
 
     <!-- Quick Info -->
@@ -430,6 +447,36 @@
             filteredData = [...laporanData];
             updateStatistics();
             renderTable();
+
+            const tahunSet = new Set();
+            laporanData.forEach(item => {
+                if (item.resi) {
+                    const tahun = '20' + item.resi.substring(4, 6);
+                    tahunSet.add(tahun);
+                }
+            });
+
+            const tahunSelect = document.getElementById('tahunChartSelect');
+            tahunSelect.innerHTML = '';
+            [...tahunSet].sort().forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.textContent = t;
+                tahunSelect.appendChild(opt);
+            });
+
+            // Set default tahun = tahun terbaru
+            const currentYear = new Date().getFullYear().toString();
+            const tahunArray = [...tahunSet].sort();
+            const defaultTahun = tahunSet.has(currentYear) ? currentYear : tahunArray[tahunArray.length - 1];
+
+            tahunSelect.value = defaultTahun;
+            generateChart(defaultTahun);
+
+            // Event ganti tahun
+            tahunSelect.addEventListener('change', () => {
+                generateChart(tahunSelect.value);
+            });
         })
         .catch(error => {
             console.error('Gagal memuat data laporan:', error);
@@ -439,6 +486,69 @@
         document.getElementById('filterStatus').addEventListener('change', filterTable);
         document.getElementById('showEntries').addEventListener('change', handleEntriesChange);
     });
+
+    let chart;
+    function generateChart(tahun) {
+        const monthly = {
+            Pengajuan: Array(12).fill(0),
+            Selesai: Array(12).fill(0)
+        };
+
+        laporanData.forEach(item => {
+            if (!item.resi || !item.status) return;
+
+            const resi = item.resi;
+            const bulan = parseInt(resi.substring(2, 4), 10) - 1; // ambil MM dari ddmmyy
+            const tahunResi = '20' + resi.substring(4, 6); // ambil YY dari ddmmyy dan ubah ke 20YY
+
+            if (tahunResi === tahun) {
+            if (item.status === 'Pengajuan' || item.status === 'Selesai') {
+                monthly[item.status][bulan]++;
+            }
+            }
+        });
+
+        const options = {
+            chart: {
+                type: 'bar',
+                height: 350,
+            },
+            series: [
+                {
+                    name: 'Pengajuan',
+                    data: monthly['Pengajuan']
+                },
+                {
+                    name: 'Selesai',
+                    data: monthly['Selesai']
+                }
+            ],
+            xaxis: {
+                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+            },
+            colors: ['#FF4560', '#00E396'],
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '45%',
+                    endingShape: 'rounded'
+                },
+            },
+            dataLabels: {
+                enabled: false
+            },
+            legend: {
+                position: 'top'
+            },
+        };
+
+        if (chart) {
+            chart.updateOptions(options);
+        } else {
+            chart = new ApexCharts(document.querySelector("#chartContainer"), options);
+            chart.render();
+        }
+    }
   </script>
 
 </body>

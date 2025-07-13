@@ -18,13 +18,13 @@ class LaporanController extends Controller
             'tanggal' => 'required|date',
             'masalah' => 'required|string',
             'deskripsi' => 'required|string',
-            'lampiran' => 'nullable|file|mimes:pdf,jpg,png,jpeg,docx|max:2048'
+            'lampiran' => 'nullable|file|mimes:pdf,jpg,png,jpeg,docx|max:5120'
         ], [
             'tanggal.required' => 'Tanggal tidak boleh kosong',
             'masalah.required' => 'Masalah tidak boleh kosong',
             'deskripsi.required' => 'Deskripsi tidak boleh kosong',
             'lampiran.mimes' => 'Lampiran harus berupa PDF, JPG, PNG, DOC, atau DOCX',
-            'lampiran.max' => 'Lampiran maksimal 2MB',
+            'lampiran.max' => 'Lampiran maksimal 5MB',
         ]);
 
         // Generate resi format: dmy-no
