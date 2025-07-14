@@ -32,10 +32,6 @@
                 <td>: {{ \Carbon\Carbon::parse($data['tanggal_pengajuan'])->format('d M Y') }}</td>
             </tr>
             <tr>
-                <td><strong>Tanggal Selesai</strong></td>
-                <td>: {{ \Carbon\Carbon::parse($data['tanggal_selesai'])->format('d M Y') }}</td>
-            </tr>
-            <tr>
                 <td><strong>Estimasi Penyelesaian</strong></td>
                 <td>: {{ $data['estimasi'] }} hari</td>
             </tr>

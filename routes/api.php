@@ -29,6 +29,8 @@ Route::get('all-users', [UserApiController::class, "getAllUser"]);
 
 Route::middleware('auth:sanctum')->post('/ajukanLaporan', [LaporanApiController::class, "createLaporan"]);
 
+Route::get('public/data', [LaporanApiController::class, "getPublicData"]);
+
 // admin functionality
 Route::post('kirim-verifikasi', function (Request $request) {
     $request->validate([

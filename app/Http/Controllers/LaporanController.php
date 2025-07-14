@@ -18,7 +18,7 @@ class LaporanController extends Controller
             'tanggal' => 'required|date',
             'masalah' => 'required|string',
             'deskripsi' => 'required|string',
-            'lampiran' => 'nullable|file|mimes:pdf,jpg,png,jpeg,docx|max:5120'
+            'lampiran' => 'nullable|file|mimes:pdf,jpg,png,jpeg|max:5120'
         ], [
             'tanggal.required' => 'Tanggal tidak boleh kosong',
             'masalah.required' => 'Masalah tidak boleh kosong',
@@ -72,6 +72,19 @@ class LaporanController extends Controller
                 'users.instansi as user_instansi'
             )
             ->orderByRaw("FIELD(laporans.status, 'Pengajuan', 'Progress', 'Selesai'),laporans.tanggal_pengajuan ASC")->get();
+
+        return response()->json($data);
+    }
+
+    public function getPublicData(){
+        $data = DB::table('laporans')
+            ->select(
+                'laporans.resi as resi',
+                'laporans.judul_masalah as masalah',
+                'laporans.tanggal_pengajuan as tanggal_pengajuan',
+                'laporans.status as status'
+            )
+            ->orderByRaw("laporans.tanggal_pengajuan DESC")->get();
 
         return response()->json($data);
     }

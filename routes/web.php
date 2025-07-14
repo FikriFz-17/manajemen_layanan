@@ -7,12 +7,14 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ExpirationEmailTimer;
+use App\Http\Controllers\LaporanExportController;
 
+// Public Routes
 Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
-Route::get('/laporan/all', [LaporanController::class, "getAllData"]);
+Route::get('/public/data', [LaporanController::class, "getPublicData"]);
 
 // Auth Routes (Login, Register)
 Route::middleware('guest')->group(function () {
@@ -98,7 +100,7 @@ Route::get('/expiration', [ExpirationEmailTimer::class, "showVerifyPage"]);
 // Logout
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout.submit');
 
-// Protected Routes
+// User Route
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         return view('userDashboard');
@@ -115,9 +117,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/setProfile', function () {
         return view('setProfile');
     })->name('setProfile');
+
     Route::post('/setProfile', [UserController::class, 'update'])->name('update.submit');
 });
 
+// Admin Routes
 Route::get('/adminDash', function () {
     return view('adminDashboard');
 })->name('adminDashboard');
@@ -128,7 +132,11 @@ Route::get('/userManagement', function(){
 
 Route::get('/user/all', [UserController::class, "getAllUser"]);
 
+Route::get('/laporan/all', [LaporanController::class, "getAllData"]);
+
 Route::post('/admin/laporan/{id}/update', [LaporanController::class, 'tanganiLaporan'])->name('admin.laporan.update');
+
+Route::get('/export-laporan', [LaporanExportController::class, 'export']);
 
 
 

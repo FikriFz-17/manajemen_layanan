@@ -435,12 +435,12 @@
         updateTime();
         setInterval(updateTime, 60000);
 
-        fetch('/laporan/all')
+        fetch('/public/data')
         .then(response => response.json())
         .then(data => {
             laporanData = data.map(item => ({
                 resi: item.resi,
-                masalah: item.judul_masalah,
+                masalah: item.masalah,
                 status: item.status,
                 tanggal: item.tanggal_pengajuan,
             }));
@@ -502,9 +502,9 @@
             const tahunResi = '20' + resi.substring(4, 6); // ambil YY dari ddmmyy dan ubah ke 20YY
 
             if (tahunResi === tahun) {
-            if (item.status === 'Pengajuan' || item.status === 'Selesai') {
-                monthly[item.status][bulan]++;
-            }
+                if (item.status === 'Pengajuan' || item.status === 'Selesai') {
+                    monthly[item.status][bulan]++;
+                }
             }
         });
 
