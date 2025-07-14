@@ -311,15 +311,15 @@
     fileLabel.parentElement.appendChild(deleteButton);
 
     fileInput.addEventListener('change', function () {
-    if (this.files.length > 0) {
-        const fileName = this.files[0].name;
-        fileLabel.innerHTML = `
-            <i class="fas fa-check-circle text-3xl mb-2 text-green-500"></i>
-            <span class="text-sm text-center text-green-600">File terpilih: ${fileName}</span>
-            <span class="text-xs text-gray-400 mt-1">Klik lagi untuk mengganti file</span>
-        `;
-        deleteButton.classList.remove('hidden');
-    }
+        if (this.files.length > 0) {
+            const fileName = this.files[0].name;
+            fileLabel.innerHTML = `
+                <i class="fas fa-check-circle text-3xl mb-2 text-green-500"></i>
+                <span class="text-sm text-center text-green-600">File terpilih: ${fileName}</span>
+                <span class="text-xs text-gray-400 mt-1">Klik lagi untuk mengganti file</span>
+            `;
+            deleteButton.classList.remove('hidden');
+        }
     });
 
     // Saat tombol "Hapus File" diklik

@@ -520,7 +520,7 @@
 
     // Export function placeholder (untuk implementasi selanjutnya)
     document.getElementById('exportBtn').addEventListener('click', function() {
-        alert('maintenance');
+        window.location.href="/export-laporan"
     });
 
     function toggleDatePicker() {

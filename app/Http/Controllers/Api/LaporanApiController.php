@@ -128,4 +128,20 @@ class LaporanApiController extends Controller
             'laporan' => $laporan
         ]);
     }
+
+    public function getPublicData(){
+        $data = DB::table('laporans')
+            ->select(
+                'laporans.resi as resi',
+                'laporans.judul_masalah as masalah',
+                'laporans.tanggal_pengajuan as tanggal_pengajuan',
+                'laporans.status as status'
+            )
+            ->orderByRaw("laporans.tanggal_pengajuan DESC")->get();
+
+        return response()->json([
+            'message' => 'Success',
+            'laporan' => $data
+        ]);
+    }
 }
