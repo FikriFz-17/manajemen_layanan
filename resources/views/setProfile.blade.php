@@ -159,9 +159,76 @@
                         <label for="no-telpon" class="block text-sm font-medium text-gray-700">No. Telepon</label>
                         <input type="tel" id="no-telpon" name="phone" value="{{ Auth::user()->phone }}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                     </div>
-                    <div>
-                        <label for="instansi" class="block text-sm font-medium text-gray-700">Instansi</label>
-                        <input type="text" id="instansi" name="instansi" value="{{ Auth::user()->instansi }}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    <div class="w-full">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Instansi</label>
+                        <!-- Trigger input -->
+                        <input
+                            type="text"
+                            id="InstanceToggle"
+                            placeholder="Pilih instansi..."
+                            readonly
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer bg-white"
+                            onclick="toggleInstancePicker()"
+                            value="{{ Auth::user()->instansi }}"
+                        >
+
+                        <!-- Dropdown (POSISI NORMAL - tidak absolute) -->
+                        <div id="InstancePicker"
+                            class="hidden mt-2 w-full bg-white border border-gray-300 rounded-lg shadow p-4">
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <button type="button" onclick="setDesa()" class="w-full px-3 py-2 text-sm font-medium bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition">
+                                    Desa
+                                </button>
+                                <button type="button" onclick="setPemda()" class="w-full px-3 py-2 text-sm font-medium bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition">
+                                    Pemerintah Daerah
+                                </button>
+                            </div>
+
+                            <div class="flex justify-end mt-4">
+                                <button type="button" onclick="resetInstanceSelection()"
+                                    class="px-4 py-2 bg-red-100 text-red-600 text-sm rounded-md hover:bg-red-200 transition font-medium">
+                                    Reset Pilihan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dropdown fields yang akan muncul kalo pilih desa -->
+                <div id="desa-options" class="hidden mt-6 p-6 bg-gray-50 rounded-lg border border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Informasi Instansi Desa</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="kecamatan" class="block text-sm font-medium text-gray-700">Kecamatan</label>
+                            <select id="kecamatan" name="kecamatan" onchange="loadDesa()" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <option value="">-- Pilih Kecamatan --</option>
+                                <!-- Kecamatan akan diisi via JS -->
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="desa" class="block text-sm font-medium text-gray-700">Desa</label>
+                            <select id="desa" name="desa" onchange="loadInstansi()" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <option value="">-- Pilih Desa --</option>
+                                <!-- Desa akan diisi via JS -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dropdown fields yang akan muncul kalau pilih instansi pemda -->
+                <div id="pemda-options" class="hidden mt-6 bg-gray-50 rounded-lg border border-gray-200 shadow-sm px-6 py-5">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Informasi Instansi Umum</h3>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="col-span-1 sm:col-span-2">
+                            <label for="pemda" class="block text-sm font-medium text-gray-700 mb-1">Nama Instansi Pemerintah Daerah</label>
+                            <select id="pemda" name="pemda" class="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                <option value="">-- Pilih Instansi --</option>
+                                <!-- Instansi akan diisi via JS -->
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -260,6 +327,135 @@
                 }, 5000);
             }
         });
+    });
+
+    function toggleInstancePicker() {
+        const instancePicker = document.getElementById('InstancePicker');
+        instancePicker.classList.toggle('hidden');
+        document.getElementById('desa-options')?.classList.add('hidden');
+        document.getElementById('pemda-options')?.classList.add('hidden');
+    }
+
+    function setDesa() {
+        document.getElementById('desa-options')?.classList.remove('hidden');
+        document.getElementById('pemda-options')?.classList.add('hidden');
+    }
+
+    function setPemda() {
+        document.getElementById('desa-options')?.classList.add('hidden');
+        document.getElementById('pemda-options')?.classList.remove('hidden');
+    }
+
+    window.addEventListener('click', function (e) {
+        const picker = document.getElementById('InstancePicker');
+        const toggle = document.getElementById('InstanceToggle');
+        const desa = document.getElementById('desa-options');
+        const pemda = document.getElementById('pemda-options')
+        if (!picker.contains(e.target) && !toggle.contains(e.target) && !desa.contains(e.target) && !pemda.contains(e.target)) {
+            picker.classList.add('hidden');
+            desa.classList.add('hidden');
+            pemda.classList.add('hidden');
+        }
+    });
+
+    // === Dummy Data ===
+    const kecamatanData = [
+        { id: 1, nama: 'Ambal' },
+        { id: 2, nama: 'Kutowinangun' },
+        { id: 3, nama: 'Karanganyar' }
+    ];
+
+    const desaData = [
+        { id: 1, kecamatan_id: 1, nama: 'Peneket' },
+        { id: 2, kecamatan_id: 1, nama: 'Ambalkebrek' },
+        { id: 3, kecamatan_id: 2, nama: 'Kutowinangun Wetan' }
+    ];
+
+    const pemdaData = [
+        { id: 1, nama: 'Sekretariat Daerah' },
+        { id: 2, nama: 'Bagian Pemerintahan' },
+        { id: 3, nama: 'Bagian Umum' }
+    ];
+
+    // === Load Dropdown ===
+    function loadKecamatan() {
+        const kecamatanSelect = document.getElementById('kecamatan');
+        kecamatanSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+
+        kecamatanData.forEach(k => {
+            const option = document.createElement('option');
+            option.value = k.id;
+            option.textContent = k.nama;
+            kecamatanSelect.appendChild(option);
+        });
+    }
+
+    function loadDesa() {
+        const desaSelect = document.getElementById('desa');
+        const kecamatanId = parseInt(document.getElementById('kecamatan').value);
+        desaSelect.innerHTML = '<option value="">-- Pilih Desa --</option>';
+
+        const filteredDesa = desaData.filter(d => d.kecamatan_id === kecamatanId);
+        filteredDesa.forEach(d => {
+            const option = document.createElement('option');
+            option.value = d.nama;
+            option.textContent = d.nama;
+            desaSelect.appendChild(option);
+        });
+
+        // Reset display
+        document.getElementById('InstanceToggle').value = '';
+    }
+
+    function loadPemda() {
+        const pemdaSelect = document.getElementById('pemda');
+        pemdaSelect.innerHTML = '<option value="">-- Pilih Instansi --</option>';
+
+        pemdaData.forEach(p => {
+            const option = document.createElement('option');
+            option.value = p.nama;
+            option.textContent = p.nama;
+            pemdaSelect.appendChild(option);
+        });
+    }
+
+    // Ketika pilih desa → tampilkan "Kecamatan, Desa"
+    document.getElementById('desa')?.addEventListener('change', function () {
+        const desaNama = this.value;
+        const kecamatanId = parseInt(document.getElementById('kecamatan').value);
+        const kecamatan = kecamatanData.find(k => k.id === kecamatanId)?.nama || '';
+        if (desaNama && kecamatan) {
+            document.getElementById('InstanceToggle').value = `${kecamatan}, ${desaNama}`;
+        }
+    });
+
+    // Ketika pilih pemda → langsung tampil
+    document.getElementById('pemda')?.addEventListener('change', function () {
+        const pemdaNama = this.value;
+        if (pemdaNama) {
+            document.getElementById('InstanceToggle').value = pemdaNama;
+        }
+    });
+
+    function resetInstanceSelection() {
+        // Kosongkan input utama
+        document.getElementById('InstanceToggle').value = '';
+
+        // Reset dropdown
+        document.getElementById('kecamatan').selectedIndex = 0;
+        document.getElementById('desa').innerHTML = '<option value="">-- Pilih Desa --</option>';
+        document.getElementById('pemda').selectedIndex = 0;
+
+        // Sembunyikan opsi lanjutan
+        document.getElementById('desa-options')?.classList.add('hidden');
+        document.getElementById('pemda-options')?.classList.add('hidden');
+        document.getElementById('InstancePicker')?.classList.add('hidden');
+    }
+
+    // Auto-load saat DOM siap
+    document.addEventListener('DOMContentLoaded', function () {
+        loadKecamatan();
+        loadPemda();
     });
   </script>
 
