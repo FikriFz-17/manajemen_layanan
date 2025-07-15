@@ -111,15 +111,48 @@
       </div>
     </div>
 
-    <!-- Statistik Chart -->
-    <div id="chart" class="bg-white rounded shadow p-4 mb-4">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold">Statistik Laporan</h2>
-            <select id="tahunChartSelect" class="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring focus:border-blue-300">
-            <!-- Tahun diisi via JS -->
-            </select>
+    <!-- statistik charts -->
+    <div class="flex flex-col lg:flex-row gap-4">
+        <!-- Statistik Harian -->
+        <div id="dailyChart" class="bg-white rounded shadow p-4 mb-4 w-full lg:w-1/2">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
+            <h2 class="text-lg font-semibold">Statistik Laporan Harian</h2>
+            <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <select id="tahunHarianSelect"
+                class="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring w-full sm:w-auto">
+                <!-- Tahun akan diisi lewat JS -->
+                </select>
+                <select id="bulanHarianSelect"
+                class="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring w-full sm:w-auto">
+                <option value="0">Jan</option>
+                <option value="1">Feb</option>
+                <option value="2">Mar</option>
+                <option value="3">Apr</option>
+                <option value="4">Mei</option>
+                <option value="5">Jun</option>
+                <option value="6">Jul</option>
+                <option value="7">Agu</option>
+                <option value="8">Sep</option>
+                <option value="9">Okt</option>
+                <option value="10">Nov</option>
+                <option value="11">Des</option>
+                </select>
+            </div>
+            </div>
+            <div id="dailyChartContainer" class="overflow-x-hidden overflow-y-hidden"></div>
         </div>
-        <div id="chartContainer"></div>
+
+        <!-- Statistik Bulanan -->
+        <div id="chart" class="bg-white rounded shadow p-4 mb-4 w-full lg:w-1/2">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
+            <h2 class="text-lg font-semibold">Statistik Laporan Bulanan</h2>
+            <select id="tahunChartSelect"
+                class="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring focus:border-blue-300 w-full sm:w-auto">
+                <!-- Tahun diisi via JS -->
+            </select>
+            </div>
+            <div id="chartContainer" class="overflow-x-auto"></div>
+        </div>
     </div>
 
     <!-- Quick Info -->
@@ -473,6 +506,36 @@
             tahunSelect.value = defaultTahun;
             generateChart(defaultTahun);
 
+            // === Tambahan untuk Chart Harian ===
+            const tahunHarianSelect = document.getElementById('tahunHarianSelect');
+            const bulanHarianSelect = document.getElementById('bulanHarianSelect');
+
+            // Isi dropdown tahun harian
+            [...tahunSet].sort().forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.textContent = t;
+                tahunHarianSelect.appendChild(opt);
+            });
+
+            // Set default: tahun & bulan saat ini
+            const now = new Date();
+            const currentMonth = now.getMonth().toString();
+            const currentYearHarian = now.getFullYear().toString();
+
+            tahunHarianSelect.value = tahunSet.has(currentYearHarian) ? currentYearHarian : [...tahunSet].sort().reverse()[0];
+            bulanHarianSelect.value = currentMonth;
+
+            // Render chart harian awal
+            generateDailyChart(tahunHarianSelect.value, bulanHarianSelect.value);
+
+            // Event ketika dropdown diganti
+            tahunHarianSelect.addEventListener('change', () => {
+                generateDailyChart(tahunHarianSelect.value, bulanHarianSelect.value);
+            });
+            bulanHarianSelect.addEventListener('change', () => {
+                generateDailyChart(tahunHarianSelect.value, bulanHarianSelect.value);
+            });
             // Event ganti tahun
             tahunSelect.addEventListener('change', () => {
                 generateChart(tahunSelect.value);
@@ -487,6 +550,7 @@
         document.getElementById('showEntries').addEventListener('change', handleEntriesChange);
     });
 
+    // monthly chart
     let chart;
     function generateChart(tahun) {
         const monthly = {
@@ -512,6 +576,9 @@
             chart: {
                 type: 'bar',
                 height: 350,
+                toolbar: {
+                    show: true
+                }
             },
             series: [
                 {
@@ -525,6 +592,12 @@
             ],
             xaxis: {
                 categories: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+                labels: {
+                    rotate: -45, // rotasi label agar tidak tumpang tindih
+                    style: {
+                        fontSize: '12px'
+                    }
+                }
             },
             colors: ['#FF4560', '#00E396'],
             plotOptions: {
@@ -540,6 +613,32 @@
             legend: {
                 position: 'top'
             },
+            responsive: [
+                {
+                    breakpoint: 640, // misal ukuran layar < 640px (mobile)
+                    options: {
+                        chart: {
+                            height: 320
+                        },
+                        plotOptions: {
+                            bar: {
+                                columnWidth: '60%'
+                            }
+                        },
+                        xaxis: {
+                            labels: {
+                                rotate: -45,
+                                style: {
+                                    fontSize: '10px'
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            ]
         };
 
         if (chart) {
@@ -547,6 +646,101 @@
         } else {
             chart = new ApexCharts(document.querySelector("#chartContainer"), options);
             chart.render();
+        }
+    }
+
+    // daily chart
+    let dailyChart;
+    function generateDailyChart(tahun, bulan) {
+        const daysInMonth = new Date(tahun, parseInt(bulan) + 1, 0).getDate();
+
+        const daily = {
+            Pengajuan: Array(daysInMonth).fill(0),
+            Selesai: Array(daysInMonth).fill(0)
+        };
+
+        laporanData.forEach(item => {
+            const tgl = new Date(item.tanggal);
+            const tahunItem = tgl.getFullYear();
+            const bulanItem = tgl.getMonth();
+
+            if (tahunItem == tahun && bulanItem == bulan) {
+                const tanggal = tgl.getDate() - 1;
+                if (item.status === 'Pengajuan' || item.status === 'Selesai') {
+                    daily[item.status][tanggal]++;
+                }
+            }
+        });
+
+        const options = {
+            chart: {
+                type: 'line',
+                height: 350,
+                zoom: {
+                    enabled: false
+                },
+                toolbar: {
+                    show: true,
+                    tools:{
+                        download: true,
+                    }
+                }
+            },
+            series: [
+                { name: 'Pengajuan', data: daily['Pengajuan'] },
+                { name: 'Selesai', data: daily['Selesai'] }
+            ],
+            xaxis: {
+                categories: Array.from({ length: daysInMonth }, (_, i) => i + 1),
+                title: { text: 'Tanggal' },
+                labels: {
+                    rotate: -45,
+                    style: {
+                        fontSize: window.innerWidth < 640 ? '10px' : '12px' // Lebih kecil di mobile
+                    },
+                    hideOverlappingLabels: true,
+                    showDuplicates: false,
+                    trim: true
+                },
+                tickPlacement: 'on'
+            },
+            stroke: {
+                curve: 'smooth',
+                width: 2
+            },
+            colors: ['#FF4560', '#00E396'],
+            legend: {
+                position: 'top'
+            },
+            dataLabels: {
+                enabled: false
+            },
+            responsive: [{
+                breakpoint: 640, // max-width: 640px
+                options: {
+                    chart: {
+                        height: 300
+                    },
+                    xaxis: {
+                        labels: {
+                            rotate: -60,
+                            style: {
+                                fontSize: '9px'
+                            }
+                        }
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }]
+        };
+
+        if (dailyChart) {
+            dailyChart.updateOptions(options);
+        } else {
+            dailyChart = new ApexCharts(document.querySelector("#dailyChartContainer"), options);
+            dailyChart.render();
         }
     }
   </script>
