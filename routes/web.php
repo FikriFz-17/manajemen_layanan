@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ExpirationEmailTimer;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\LaporanExportController;
 
 // Public Routes
@@ -137,6 +138,13 @@ Route::get('/laporan/all', [LaporanController::class, "getAllData"]);
 Route::post('/admin/laporan/{id}/update', [LaporanController::class, 'tanganiLaporan'])->name('admin.laporan.update');
 
 Route::get('/export-laporan', [LaporanExportController::class, 'export']);
+
+// import route
+Route::post('/import/kecamatan', [ImportController::class, 'importKecamatan'])->name('import.kecamatan');
+
+Route::post('/import/desa', [ImportController::class, 'importDesa'])->name('import.desa');
+
+Route::post('/import/pemda', [ImportController::class, 'importPemda'])->name('import.pemda');
 
 
 
