@@ -154,7 +154,7 @@
             <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
         </div>
 
-        <!-- Action Buttons -->
+        <!-- Export Buttons -->
         <div class="flex flex-wrap gap-2">
             <button id="filterBtn" class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2.5 rounded-lg border transition-colors">
                 <i class="fas fa-filter text-gray-600"></i>
@@ -163,6 +163,10 @@
             <button id="exportBtn" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg transition-colors">
                 <i class="fas fa-download"></i>
                 <span>Export</span>
+            </button>
+            <button onclick="openImportModal()" id="importBtn" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg transition-colors">
+                <i class="fa-solid fa-upload"></i>
+                <span>Import</span>
             </button>
         </div>
     </div>
@@ -327,6 +331,45 @@
             </div>
         </div>
       </div>
+    </div>
+
+    <!-- modal import -->
+    <div id="uploadModal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 hidden">
+        <!-- Modal Box -->
+        <div class="bg-white w-full max-w-lg mx-4 sm:mx-auto rounded-lg shadow-lg p-6 relative">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Upload Dokumen</h2>
+
+            <form method="POST" action="#" enctype="multipart/form-data">
+                @csrf
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">File SK</label>
+                        <input type="file" name="file_sk" class="block w-full text-sm text-gray-700 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">File KTP</label>
+                        <input type="file" name="file_ktp" class="block w-full text-sm text-gray-700 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">File Tambahan</label>
+                        <input type="file" name="file_tambahan" class="block w-full text-sm text-gray-700 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300">
+                    </div>
+                </div>
+
+                <div class="flex justify-end items-center mt-6 gap-3">
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                        Upload
+                    </button>
+                </div>
+            </form>
+
+            <!-- Tombol close (pojok kanan atas) -->
+            <button onclick="closeImportModal()" class="absolute top-3 right-3 text-gray-500 hover:text-red-500">
+                ✕
+            </button>
+        </div>
     </div>
 
     <div class="mt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -521,6 +564,24 @@
     // Export function placeholder (untuk implementasi selanjutnya)
     document.getElementById('exportBtn').addEventListener('click', function() {
         window.location.href="/export-laporan"
+    });
+
+    function openImportModal(){
+        const modal = document.getElementById('uploadModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeImportModal(){
+        const modal = document.getElementById('uploadModal');
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+    }
+
+    document.getElementById('uploadModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeImportModal();
+        }
     });
 
     function toggleDatePicker() {
