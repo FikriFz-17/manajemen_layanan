@@ -17,6 +17,7 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'phone' => 'required|string|max:20',
             'instansi' => 'required|string',
+            'jenis_instansi' => 'nullable|string|in:desa,pemda'
         ], [
             'nama.required' => 'Nama tidak boleh kosong',
             'email.required' => 'Email tidak boleh kosong',
@@ -29,6 +30,7 @@ class UserController extends Controller
             'email' => $validated['email'],
             'phone' => $validated['phone'],
             'instansi' => $validated['instansi'],
+            'jenis_instansi' => $validated['jenis_instansi'],
             'updated_at' => now()
         ]);
 

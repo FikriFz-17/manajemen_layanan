@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthApiController;
 use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\Api\LaporanApiController;
+use App\Http\Controllers\Api\InstansiApiController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -47,5 +48,12 @@ Route::post('kirim-verifikasi', function (Request $request) {
 
     return response()->json(['message' => 'Email verifikasi telah dikirim.']);
 });
+
+// wilayah API
+Route::get('/kecamatan', [InstansiApiController::class, "getKecamatan"]);
+
+Route::get('/desa', [InstansiApiController::class, "getDesa"]);
+
+Route::get('/pemda', [InstansiApiController::class, "getPemda"]);
 
 

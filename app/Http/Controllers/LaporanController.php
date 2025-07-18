@@ -69,7 +69,8 @@ class LaporanController extends Controller
                 'laporans.*',
                 'users.nama as user_nama',
                 'users.email as user_email',
-                'users.instansi as user_instansi'
+                'users.instansi as user_instansi',
+                'users.jenis_instansi as user_jenis_instansi'
             )
             ->orderByRaw("FIELD(laporans.status, 'Pengajuan', 'Progress', 'Selesai'),laporans.tanggal_pengajuan ASC")->get();
 

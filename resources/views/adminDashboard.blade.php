@@ -227,6 +227,15 @@
             </div>
 
             <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Instansi</label>
+                <select id="filterJenisInstansi" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">Semua Instansi</option>
+                    <option value="desa">Desa</option>
+                    <option value="pemda">Pemerintah Daerah</option>
+                </select>
+            </div>
+
+            <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
                 <select id="filterKategori" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <option value="">Semua Kategori</option>
@@ -287,6 +296,7 @@
           <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm mb-6">
             <p><strong>Nama:</strong></p><p id="modalUserNama">-</p>
             <p><strong>Instansi:</strong></p><p id="modalUserInstansi">-</p>
+            <p><strong>Jenis Instansi:</strong></p><p id="modalUserJenisInstansi">-</p>
             <p><strong>Email:</strong></p><p id="modalUserEmail">-</p>
             <p><strong>No. Resi:</strong></p><p id="modalResi">-</p>
             <p><strong>Judul/Topik Permasalahan:</strong></p><p id="modalNama">-</p>
@@ -334,38 +344,40 @@
     </div>
 
     <!-- modal import -->
-    <div id="uploadModal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 hidden">
-        <!-- Modal Box -->
+    <div id="uploadModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
         <div class="bg-white w-full max-w-lg mx-4 sm:mx-auto rounded-lg shadow-lg p-6 relative">
-            <h2 class="text-lg font-semibold text-gray-800 mb-4">Upload Dokumen</h2>
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Upload Data Excel</h2>
 
-            <form method="POST" action="#" enctype="multipart/form-data">
+            <!-- Upload Form -->
+            <form id="uploadForm" method="POST" enctype="multipart/form-data">
                 @csrf
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">File SK</label>
-                        <input type="file" name="file_sk" class="block w-full text-sm text-gray-700 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300">
-                    </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">File KTP</label>
-                        <input type="file" name="file_ktp" class="block w-full text-sm text-gray-700 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">File Tambahan</label>
-                        <input type="file" name="file_tambahan" class="block w-full text-sm text-gray-700 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300">
-                    </div>
+                <!-- Pilih Jenis -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Jenis Data</label>
+                    <select id="jenisData" name="jenis" onchange="onJenisChange()" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">-- Pilih Jenis --</option>
+                        <option value="desa">Desa</option>
+                        <option value="kecamatan">Kecamatan</option>
+                        <option value="pemda">Pemerintah Daerah</option>
+                    </select>
                 </div>
 
-                <div class="flex justify-end items-center mt-6 gap-3">
-                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                <!-- Upload File -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">File Excel</label>
+                    <input type="file" name="file" id="fileInput" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-end gap-3 mt-6 border-t pt-4">
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                         Upload
                     </button>
                 </div>
             </form>
 
-            <!-- Tombol close (pojok kanan atas) -->
+            <!-- Tombol Close (pojok kanan atas) -->
             <button onclick="closeImportModal()" class="absolute top-3 right-3 text-gray-500 hover:text-red-500">
                 ✕
             </button>
@@ -614,6 +626,7 @@
         const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
         const status = document.getElementById('filterStatus').value;
         const kategori = document.getElementById('filterKategori').value;
+        const jenis_instansi = document.getElementById('filterJenisInstansi').value;
 
         const startDateInput = document.getElementById('startDate').value;
         const endDateInput = document.getElementById('endDate').value;
@@ -626,6 +639,7 @@
             const masalahMatch = item.masalah.toLowerCase().includes(keyword);
             const statusMatch = status === "" || item.status === status;
             const kategoriMatch = kategori === "" || item.kategori === kategori;
+            const jenisInstansiMatch = jenis_instansi === "" || item.jenis_instansi === jenis_instansi;
 
             let tanggalMatch = true;
             if (startDate || endDate) {
@@ -643,7 +657,7 @@
                 if (endDate && resiDate > endDate) tanggalMatch = false;
             }
 
-            return (idMatch || masalahMatch) && statusMatch && kategoriMatch && tanggalMatch;
+            return (idMatch || masalahMatch) && statusMatch && kategoriMatch && tanggalMatch && jenisInstansiMatch;
         });
 
         currentPage = 1;
@@ -703,6 +717,7 @@
     document.getElementById('searchInput').addEventListener('input', filterTable);
     document.getElementById('filterStatus').addEventListener('change', filterTable);
     document.getElementById('filterKategori').addEventListener('change', filterTable);
+    document.getElementById('filterJenisInstansi').addEventListener('change', filterTable);
     document.getElementById('datePicker').addEventListener('change', filterTable);
     document.getElementById('showEntries').addEventListener('change', handleEntriesChange);
 
@@ -713,6 +728,7 @@
         document.getElementById('modalUserNama').innerText = data.nama;
         document.getElementById('modalUserEmail').innerText = data.email;
         document.getElementById('modalUserInstansi').innerText = data.instansi;
+        document.getElementById('modalUserJenisInstansi').innerText = data.jenis_instansi === "desa" ? 'Desa' : data.jenis_instansi === "pemda" ? 'Pemerintah Daerah' : '-';
         document.getElementById('modalResi').innerText = data.resi;
         document.getElementById('modalNama').innerText = data.masalah;
         document.getElementById('modalTanggal').innerText = data.tanggal;
@@ -767,6 +783,7 @@
                 lampiran: item.lampiran,
                 nama: item.user_nama,
                 instansi: item.user_instansi,
+                jenis_instansi: item.user_jenis_instansi,
                 email: item.user_email,
             }));
             filteredData = [...laporanData];
@@ -799,6 +816,19 @@
             submitBtn.disabled = false;
             submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             submitBtn.removeAttribute('title');
+        }
+    }
+
+    function onJenisChange(){
+        const jenis = document.getElementById('jenisData').value;
+        const form = document.getElementById('uploadForm');
+
+        if (jenis === 'kecamatan'){
+            form.action = "{{ route ('import.kecamatan') }}";
+        } else if (jenis === 'desa'){
+            form.action = "{{ route ('import.desa') }}";
+        } else if (jenis === 'pemda'){
+            form.action = "{{ route ('import.pemda') }}";
         }
     }
 
