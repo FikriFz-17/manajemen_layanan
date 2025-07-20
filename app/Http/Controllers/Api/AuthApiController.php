@@ -64,7 +64,8 @@ class AuthApiController extends Controller
         ], [
             'email.unique' => 'Email sudah terdaftar.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
-            'password.regex' => 'Password harus memiliki huruf besar, kecil, angka, dan simbol.'
+            'password.regex' => 'Password harus memiliki huruf besar, kecil, angka, dan simbol.',
+            'password.min' => 'Password harus memiliki minimal 8 karakter.'
         ]);
 
         if ($validator->fails()) {
@@ -82,9 +83,7 @@ class AuthApiController extends Controller
             'phone' => $validated['phone'],
             'password' => Hash::make($validated['password']),
             'role' => 'user',
-            'is_active' => false,
             'profile_url' => 'default.jpg',
-            'remember_token' => Str::random(60),
         ]);
 
         // Kirim email verifikasi

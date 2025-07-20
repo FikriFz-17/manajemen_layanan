@@ -38,9 +38,7 @@ class AuthController extends Controller
             'phone' => $validated['phone'],
             'password' => Hash::make($validated['password']),
             'role' => 'user',
-            'is_active' => false,
             'profile_url' => 'default.jpg',
-            'remember_token' => Str::random(60),
         ]);
 
         event(new Registered($user));
