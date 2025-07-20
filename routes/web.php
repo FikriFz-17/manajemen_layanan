@@ -5,9 +5,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ExpirationEmailTimer;
-use App\Http\Controllers\ImportController;
 use App\Http\Controllers\LaporanExportController;
 
 // Public Routes
@@ -18,16 +18,11 @@ Route::get('/', function () {
 Route::get('/public/data', [LaporanController::class, "getPublicData"]);
 
 // Auth Routes (Login, Register)
-Route::middleware('guest')->group(function () {
+Route::middleware('custom_guest')->group(function () {
     // view login
     Route::get('/login', function(){
         return view('auth.login');
     })->name('login');
-
-    // Google Login
-    Route::get('/login/google', function(){
-        return 'Maintenance';
-    })->name('login.google');
 
     // login controller
     Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
@@ -102,7 +97,7 @@ Route::get('/expiration', [ExpirationEmailTimer::class, "showVerifyPage"]);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout.submit');
 
 // User Route
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'user'])->group(function () {
     Route::get('/dashboard', function () {
         return view('userDashboard');
     })->name('dashboard');
@@ -123,21 +118,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // Admin Routes
-Route::get('/adminDash', function () {
-    return view('adminDashboard');
-})->name('adminDashboard');
+Route::middleware(['auth', 'admin'])->group(function(){
+    Route::get('/adminDash', function () {
+        return view('adminDashboard');
+    })->name('adminDashboard');
 
-Route::get('/userManagement', function(){
-    return view('userManagement');
-})->name('userManagement');
+    Route::get('/userManagement', function(){
+        return view('userManagement');
+    })->name('userManagement');
 
-Route::get('/user/all', [UserController::class, "getAllUser"]);
+    Route::get('/user/all', [UserController::class, "getAllUser"]);
 
-Route::get('/laporan/all', [LaporanController::class, "getAllData"]);
+    Route::get('/laporan/all', [LaporanController::class, "getAllData"]);
 
-Route::post('/admin/laporan/{id}/update', [LaporanController::class, 'tanganiLaporan'])->name('admin.laporan.update');
+    Route::post('/admin/laporan/{id}/update', [LaporanController::class, 'tanganiLaporan'])->name('admin.laporan.update');
 
-Route::get('/export-laporan', [LaporanExportController::class, 'export']);
+    Route::get('/export-laporan', [LaporanExportController::class, 'export']);
+});
 
 // import route
 Route::post('/import/kecamatan', [ImportController::class, 'importKecamatan'])->name('import.kecamatan');
