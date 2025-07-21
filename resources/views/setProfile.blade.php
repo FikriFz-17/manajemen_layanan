@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Ajukan Laporan - Kominfo Kebumen</title>
   <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.css" rel="stylesheet">
+  <!-- CropperJS CDN -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@fortawesome/fontawesome-free@6.4.0/js/all.min.js" crossorigin="anonymous"></script>
@@ -133,9 +136,9 @@
     <!-- main content -->
     <main class="flex-1 p-4 lg:p-8">
         <div class="max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-lg shadow-md">
-
             <h2 class="text-2xl font-bold text-gray-800 mb-8">Akun Pengguna</h2>
-            <form action="{{ route('update.submit') }}" method="POST">
+            <!-- Form update photo profile -->
+            <form action="{{ route('uploadPhoto.submit') }}" method="post" enctype="multipart/form-data">
                 @csrf
                 <div class="flex flex-col sm:flex-row sm:items-center gap-6 mb-8 pb-8 border-b">
                     <img src="{{Auth::user()->profile_url === 'default.jpg' ? 'images/user.png' : 'storage/' .Auth::user()->profile_url}}" alt="Foto Profil" class="w-24 h-24 rounded-full object-cover border-2 border-gray-200">
@@ -144,10 +147,29 @@
                             Ubah
                         </label>
                         <input type="file" id="photo-upload" name="photo" class="hidden">
-                        <p class="text-xs text-gray-500 mt-2">JPG, GIF atau PNG. Ukuran maks 800K.</p>
+                        <p class="text-xs text-gray-500 mt-2">JPG, JPEG, atau PNG</p>
                     </div>
                 </div>
 
+                <!-- Modal untuk Crop Foto -->
+                <div id="cropModal" class="fixed inset-0 z-50 bg-black bg-opacity-50 hidden items-start justify-center py-12">
+                    <div class="bg-white rounded-lg p-6 shadow-md w-96 relative">
+                        <h2 class="text-lg font-bold mb-4">Crop your new profile picture</h2>
+                        <div class="w-full h-64 overflow-hidden rounded-md mb-4">
+                            <img id="cropper-image" class="max-w-full" src="" alt="Preview">
+                        </div>
+                        <div class="flex justify-end gap-2">
+                            <button type="button" onclick="closeCropModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md">Cancel</button>
+                            <button onclick="uploadCroppedImage()" class="px-4 py-2 bg-green-600 text-white rounded-md">Set new profile picture</button>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="cropped_photo" id="cropped-photo">
+            </form>
+
+            <!-- Form update data -->
+            <form action="{{ route('update.submit') }}" method="POST">
+                @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                     <div>
                         <label for="nama-lengkap" class="block text-sm font-medium text-gray-700">Nama</label>
@@ -446,21 +468,26 @@
     let desaSelectInstance;
     document.addEventListener('DOMContentLoaded', () => {
         desaSelectInstance = new TomSelect("#desa", {
-            placeholder: "-- Pilih Desa --"
+            placeholder: "-- Pilih Desa --",
+            persist: false,
+            create: false,
         });
 
     });
 
     function loadDesa() {
-        const desaSelect = document.getElementById('desa');
         const kecamatanId = document.getElementById('kecamatan').value;
+        const desaSelect = document.getElementById('desa');
 
-        if (!kecamatanId) {
-            desaSelectInstance.clearOptions();
-            desaSelectInstance.addOption({ value: '', text: '-- Pilih Desa --' });
-            desaSelectInstance.setValue('');
-            return;
-        }
+        // Bersihkan elemen <select> asli
+        desaSelect.innerHTML = '';
+
+        // Clear TomSelect internal state
+        desaSelectInstance.clear(true); // hapus value
+        desaSelectInstance.clearOptions(); // hapus opsi
+        desaSelectInstance.setValue('');
+
+        if (!kecamatanId) return;
 
         fetch(`/api/desa?kecamatan_id=${kecamatanId}`)
             .then(res => res.json())
@@ -470,13 +497,11 @@
                     text: item.nama_desa
                 }));
 
-                // Reset dan isi ulang opsi TomSelect
-                desaSelectInstance.clearOptions();
                 desaSelectInstance.addOptions(dataDesa);
-                desaSelectInstance.setValue('');
             })
             .catch(err => console.error('Gagal mengambil data desa:', err));
     }
+
 
     let pemdaData = [];
     document.addEventListener('DOMContentLoaded', () => {
@@ -507,6 +532,55 @@
         pemdaInstance = new TomSelect("#pemda", {
             maxOptions: pemdaData.length
         })
+    }
+
+    let cropper;
+    const input = document.getElementById('photo-upload');
+    const modal = document.getElementById('cropModal');
+    const cropperImg = document.getElementById('cropper-image');
+
+    input.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            cropperImg.src = e.target.result;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            cropper = new Cropper(cropperImg, {
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 1,
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+
+    function closeCropModal() {
+        cropper.destroy();
+        modal.classList.add('hidden');
+        input.value = '';
+    }
+
+    function uploadCroppedImage() {
+        cropper.getCroppedCanvas().toBlob((blob) => {
+            const file = new File([blob], "cropped_profile.jpg", { type: "image/jpeg" });
+
+            // Masukkan file ke input type="file"
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+
+            const inputFile = document.getElementById('photo-upload');
+            inputFile.files = dataTransfer.files;
+
+            // Optional: tutup modal dan destroy cropper
+            modal.classList.add('hidden');
+            cropper.destroy();
+
+            // Submit form
+            inputFile.form.submit();
+        }, 'image/jpeg');
     }
   </script>
 

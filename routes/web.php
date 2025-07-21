@@ -115,6 +115,8 @@ Route::middleware(['auth', 'verified', 'user'])->group(function () {
     })->name('setProfile');
 
     Route::post('/setProfile', [UserController::class, 'update'])->name('update.submit');
+
+    Route::post('/upload-photo', [UserController::class, 'updatePhotoProfile'])->name('uploadPhoto.submit');
 });
 
 // Admin Routes

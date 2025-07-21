@@ -21,14 +21,11 @@ Route::post('/logout', [AuthApiController::class, 'logout'])->middleware('auth:s
 
 Route::middleware('auth:sanctum')->post('update-profile', [UserApiController::class, "update"]);
 
-// Laporan
-Route::get('all-laporans', [LaporanApiController::class, "getAllData"]);
-
 Route::middleware('auth:sanctum')->get('/user-laporans', [LaporanApiController::class, 'getUserData']);
 
-Route::get('all-users', [UserApiController::class, "getAllUser"]);
-
 Route::middleware('auth:sanctum')->post('/ajukanLaporan', [LaporanApiController::class, "createLaporan"]);
+
+Route::middleware('auth:sanctum')->post('/update-photo', [UserApiController::class, 'updatePhotoProfile']);
 
 Route::get('public/data', [LaporanApiController::class, "getPublicData"]);
 
@@ -48,6 +45,10 @@ Route::post('kirim-verifikasi', function (Request $request) {
 
     return response()->json(['message' => 'Email verifikasi telah dikirim.']);
 });
+
+Route::get('all-users', [UserApiController::class, "getAllUser"]);
+
+Route::get('all-laporans', [LaporanApiController::class, "getAllData"]);
 
 // wilayah API
 Route::get('/kecamatan', [InstansiApiController::class, "getKecamatan"]);
