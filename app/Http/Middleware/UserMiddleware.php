@@ -22,6 +22,6 @@ class UserMiddleware
             return $next($request);
         }
 
-        abort(403, 'Unauthorised Access');
+        abort(403, 'Unauthorized Access');
     }
 }

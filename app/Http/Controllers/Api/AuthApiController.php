@@ -29,15 +29,7 @@ class AuthApiController extends Controller
             return response()->json(['message' => 'Akun belum diverifikasi'], 403);
         }
 
-        // Cek apakah user sudah memiliki token
-        if ($user->tokens()->count() > 0) {
-            $existingToken = $user->tokens()->first();
-
-            return response()->json([
-                'message' => 'Login berhasil (menggunakan token yang sudah ada)',
-                'user' => $user
-            ]);
-        }
+        $user->tokens()->delete();
 
         $token = $user->createToken('api-token')->plainTextToken;
 

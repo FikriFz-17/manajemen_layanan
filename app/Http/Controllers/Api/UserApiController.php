@@ -6,12 +6,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class UserApiController extends Controller
 {
     public function getAllUser(){
-        $user_data = DB::table('users')->orderByRaw('email_verified_at IS NOT NULL')->get();
+        $user_data = DB::table('users')->orderByRaw('email_verified_at IS NOT NULL')
+        ->get()
+        ->map(function ($item){
+            $item->profile_url = $item->profile_url && $item->profile_url !== 'default.jpg' ? asset('storage/' . rawurlencode($item->profile_url)) : null;
+            return $item;
+        });
 
         return response()->json([
             'message' => 'Succes',
@@ -58,5 +64,48 @@ class UserApiController extends Controller
             'user_data_updated' => $updated_user
         ], 201);
 
+    }
+
+    public function updatePhotoProfile(Request $request)
+    {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ], [
+            'photo.max' => 'File maksimal 2 MB',
+            'photo.mimes' => 'Format gambar harus JPG atau PNG.',
+            'photo.image' => 'File harus berupa gambar',
+        ]);
+
+        $profile_url = $user->profile_url;
+
+        if ($request->hasFile('photo')) {
+            $file = $request->file('photo');
+
+            // Ubah nama file agar unik
+            $filename = uniqid('profile_') . '.' . $file->getClientOriginalExtension();
+
+            // Simpan file ke storage/app/public/profile_photo
+            $file->storeAs('profile_photo', $filename, 'public');
+
+            // hapus file lama
+            if ($user->profile_url) {
+                Storage::disk('public')->delete($user->profile_url);
+            }
+
+            // Simpan path baru
+            $profile_url = 'profile_photo/' . $filename;
+        }
+
+        // Update kolom di database
+        DB::table('users')->where('id', $user->id)->update([
+            'profile_url' => $profile_url,
+        ]);
+
+        return response()->json([
+            'message' => 'Foto profil berhasil diperbarui.',
+            'profile_url' => $profile_url ? asset('storage/' . $profile_url) : null,
+        ]);
     }
 }
