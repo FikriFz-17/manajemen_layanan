@@ -375,53 +375,77 @@
 
     // Render pagination
     function renderPagination() {
-      const paginationContainer = document.getElementById('paginationButtons');
-      const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+        const paginationContainer = document.getElementById('paginationButtons');
+        const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
-      if (totalPages <= 1) {
-        paginationContainer.innerHTML = '';
-        return;
-      }
-
-      let paginationHTML = '';
-
-      // Previous button
-      paginationHTML += `
-        <button onclick="changePage(${currentPage - 1})"
-                class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 transition-colors duration-200 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}"
-                ${currentPage === 1 ? 'disabled' : ''}>
-          <i class="fas fa-chevron-left"></i>
-        </button>
-      `;
-
-      // Page numbers
-      for (let i = 1; i <= totalPages; i++) {
-        if (i === currentPage) {
-          paginationHTML += `
-            <button class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600">
-              ${i}
-            </button>
-          `;
-        } else {
-          paginationHTML += `
-            <button onclick="changePage(${i})"
-                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors duration-200">
-              ${i}
-            </button>
-          `;
+        if (totalPages <= 1) {
+            paginationContainer.innerHTML = '';
+            return;
         }
-      }
 
-      // Next button
-      paginationHTML += `
-        <button onclick="changePage(${currentPage + 1})"
-                class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 transition-colors duration-200 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}"
-                ${currentPage === totalPages ? 'disabled' : ''}>
-          <i class="fas fa-chevron-right"></i>
-        </button>
-      `;
+        let paginationHTML = '';
 
-      paginationContainer.innerHTML = paginationHTML;
+        // Tombol Previous
+        paginationHTML += `
+            <button onclick="changePage(${currentPage - 1})"
+                    class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 transition-colors duration-200 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}"
+                    ${currentPage === 1 ? 'disabled' : ''}>
+            <i class="fas fa-chevron-left"></i>
+            </button>
+        `;
+
+        // Logic page numbers
+        if (totalPages <= 5) {
+            // Tampilkan semua jika <= 5
+            for (let i = 1; i <= totalPages; i++) {
+            paginationHTML += renderPageButton(i);
+            }
+        } else {
+            // Halaman 1
+            paginationHTML += renderPageButton(1);
+
+            if (currentPage <= 2) {
+            paginationHTML += renderPageButton(2);
+            paginationHTML += renderEllipsis();
+            } else if (currentPage >= totalPages - 1) {
+            paginationHTML += renderEllipsis();
+            paginationHTML += renderPageButton(totalPages - 1);
+            } else {
+            paginationHTML += renderEllipsis();
+            paginationHTML += renderPageButton(currentPage);
+            paginationHTML += renderEllipsis();
+            }
+
+            // Halaman terakhir
+            paginationHTML += renderPageButton(totalPages);
+        }
+
+        // Tombol Next
+        paginationHTML += `
+            <button onclick="changePage(${currentPage + 1})"
+                    class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 transition-colors duration-200 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}"
+                    ${currentPage === totalPages ? 'disabled' : ''}>
+            <i class="fas fa-chevron-right"></i>
+            </button>
+        `;
+
+        paginationContainer.innerHTML = paginationHTML;
+
+        // Helper
+        function renderPageButton(page) {
+            if (page === currentPage) {
+            return `<button class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600">${page}</button>`;
+            } else {
+            return `<button onclick="changePage(${page})"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors duration-200">
+                        ${page}
+                    </button>`;
+            }
+        }
+
+        function renderEllipsis() {
+            return `<span class="px-2 py-2 text-sm text-gray-500">...</span>`;
+        }
     }
 
     // Change page
