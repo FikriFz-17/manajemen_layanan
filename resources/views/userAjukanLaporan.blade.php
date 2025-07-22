@@ -57,7 +57,7 @@
                 <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"><i class="fas fa-sign-out-alt mr-2"></i>Logout</button>
             </form>
           <!-- set Profile -->
-          <a href="{{route('setProfile')}}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fa-solid fa-user mr-2"></i>Set Profile</a>
+          <a href="{{ route('setProfile', ['return_to' => url()->current()]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fa-solid fa-user mr-2"></i>Set Profile</a>
         </div>
       </div>
     </div>
@@ -81,7 +81,7 @@
             <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"><i class="fas fa-sign-out-alt mr-2"></i>Logout</button>
           </form>
           <!-- set Profile -->
-          <a href="{{ route('setProfile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" id="reset-btn"><i class="fa-solid fa-user mr-2"></i>Set Profile</a>
+          <a href="{{ route('setProfile', ['return_to' => url()->current()]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" id="reset-btn"><i class="fa-solid fa-user mr-2"></i>Set Profile</a>
         </div>
       </div>
     </div>

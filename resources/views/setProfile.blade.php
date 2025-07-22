@@ -146,7 +146,7 @@
                         <label for="photo-upload" class="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium">
                             Ubah
                         </label>
-                        <input type="file" id="photo-upload" name="photo" class="hidden">
+                        <input type="file" id="photo-upload" name="photo" class="hidden" accept=".jpg,.jpeg,.png">
                         <p class="text-xs text-gray-500 mt-2">JPG, JPEG, atau PNG</p>
                     </div>
                 </div>
@@ -264,7 +264,7 @@
                 </div>
 
                 <div class="flex justify-end items-center gap-4 mt-10 pt-6 border-t">
-                    <a href="{{ url()->previous() }}" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-300 transition-colors font-medium">
+                    <a href="{{ request('return_to', route('dashboard')) }}" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-300 transition-colors font-medium">
                         Batal
                     </a>
                     <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors font-medium">
