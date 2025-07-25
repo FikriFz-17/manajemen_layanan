@@ -13,6 +13,7 @@ class UserApiController extends Controller
 {
     public function getAllUser(){
         $user_data = DB::table('users')->orderByRaw('email_verified_at IS NOT NULL')
+        ->select('id', 'nama', 'email', 'instansi', 'email_verified_at', 'created_at', 'profile_url')
         ->get()
         ->map(function ($item){
             $item->profile_url = $item->profile_url && $item->profile_url !== 'default.jpg' ? asset('storage/' . rawurlencode($item->profile_url)) : null;

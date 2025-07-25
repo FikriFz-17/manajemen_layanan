@@ -91,6 +91,7 @@ class LaporanApiController extends Controller
     public function getUserData(Request $request){
         $user = Auth::user();
         $laporan = DB::table('laporans')
+            ->select('id', 'resi', 'judul_masalah', 'status', 'kategori', 'tanggal_pengajuan', 'tanggal_selesai', 'estimasi', 'deskripsi', 'lampiran')
             ->where('user_id', $user->id)
             ->orderByRaw("FIELD(status, 'Selesai', 'Progress', 'Pengajuan'),tanggal_pengajuan DESC")
             ->get()

@@ -12,43 +12,49 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-// Authentication & user functionality
+// Public api data
+Route::get('public/data', [LaporanApiController::class, "getPublicData"]);
+
+// Authentication api
 Route::post('/login', [AuthApiController::class, "login"]);
 
 Route::post('/register', [AuthApiController::class, "register"]);
 
 Route::post('/logout', [AuthApiController::class, 'logout'])->middleware('auth:sanctum');
 
-Route::middleware('auth:sanctum')->post('update-profile', [UserApiController::class, "update"]);
+// User api functionality
+Route::middleware(['auth:sanctum', 'user'])->group(function(){
+    Route::post('update-profile', [UserApiController::class, "update"]);
 
-Route::middleware('auth:sanctum')->get('/user-laporans', [LaporanApiController::class, 'getUserData']);
+    Route::get('/user-laporans', [LaporanApiController::class, 'getUserData']);
 
-Route::middleware('auth:sanctum')->post('/ajukanLaporan', [LaporanApiController::class, "createLaporan"]);
+    Route::post('/ajukanLaporan', [LaporanApiController::class, "createLaporan"]);
 
-Route::middleware('auth:sanctum')->post('/update-photo', [UserApiController::class, 'updatePhotoProfile']);
-
-Route::get('public/data', [LaporanApiController::class, "getPublicData"]);
-
-// admin functionality
-Route::post('kirim-verifikasi', function (Request $request) {
-    $request->validate([
-        'email' => 'required|email|exists:users,email'
-    ]);
-
-    $user = User::where('email', $request->email)->first();
-
-    if ($user->hasVerifiedEmail()) {
-        return response()->json(['message' => 'Email sudah diverifikasi'], 400);
-    }
-
-    $user->sendEmailVerificationNotification();
-
-    return response()->json(['message' => 'Email verifikasi telah dikirim.']);
+    Route::post('/update-photo', [UserApiController::class, 'updatePhotoProfile']);
 });
 
-Route::get('all-users', [UserApiController::class, "getAllUser"]);
+// Admin api functionality
+Route::middleware(['auth:sanctum', 'admin'])->group(function(){
+    Route::post('kirim-verifikasi', function (Request $request) {
+        $request->validate([
+            'email' => 'required|email|exists:users,email'
+        ]);
 
-Route::get('all-laporans', [LaporanApiController::class, "getAllData"]);
+        $user = User::where('email', $request->email)->first();
+
+        if ($user->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Email sudah diverifikasi'], 400);
+        }
+
+        $user->sendEmailVerificationNotification();
+
+        return response()->json(['message' => 'Email verifikasi telah dikirim.']);
+    });
+
+    Route::get('all-users', [UserApiController::class, "getAllUser"]);
+
+    Route::get('all-laporans', [LaporanApiController::class, "getAllData"]);
+});
 
 // wilayah API
 Route::get('/kecamatan', [InstansiApiController::class, "getKecamatan"]);

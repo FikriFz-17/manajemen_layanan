@@ -327,7 +327,7 @@
                     </select>
                     </div>
                     <div>
-                        <label for="modalSetTanggalSelesai" class="block text-sm font-medium text-gray-700 mb-2 mt-2">Set Tanggal Selesai</label>
+                        <label for="modalSetTanggalSelesai" class="block text-sm font-medium text-gray-700 mb-2 mt-2">Tanggal Selesai/Perkiraan Selesai</label>
                         <input type="date" id="modalSetTanggalSelesai" name="tanggal_selesai" class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                     </div>
                     <div>
