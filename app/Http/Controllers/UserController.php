@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -84,5 +85,20 @@ class UserController extends Controller
         ]);
 
         return back()->with('success', 'Foto profil berhasil diperbarui.');
+    }
+
+    public function deleteUser($id){
+        $user = DB::table('users')->where('id', $id)->first();
+
+        if(!$user){
+            return redirect()->back()->with('error', 'User tidak ditemukan.');
+        }
+
+        try{
+            DB::table('users')->where('id', $id)->delete();
+            return redirect()->back()->with('success', 'User berhasil dihapus.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menghapus user.');
+        }
     }
 }

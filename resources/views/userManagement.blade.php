@@ -18,6 +18,7 @@
     <nav class="flex flex-col gap-4">
       <a href="{{ route('adminDashboard') }}" class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors"><i class="fas fa-home"></i> Dashboard</a>
       <a href="{{route('userManagement')}}" class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors bg-white bg-opacity-20"><i class="fa-solid fa-user"></i>User Management</a>
+      <a href="{{ asset('storage/user_manual/Panduan Admin.pdf') }}" download class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors"><i class="fa-solid fa-file-arrow-down"></i> User Manual</a>
 
       <div class="mt-auto pt-4 border-t border-white border-opacity-20">
         <div class="flex items-center gap-2 p-2 rounded transition-colors hover:bg-white hover:bg-opacity-10 cursor-pointer">
@@ -298,8 +299,9 @@
                     </td>
                     <td class="px-2 lg:px-4 py-2 text-sm lg:text-base">${user.created}</td>
                     <td class="px-2 lg:px-4 py-2">
-                        <div class="flex flex-col gap-2 justify-center">
+                        <div class="flex flex-row gap-2 justify-center">
                             <i class="fas fa-envelope ${emailBtnClass} email-btn" title="${emailBtnTitle}" ${user.active ? 'data-disabled="true"' : ''}></i>
+                            <i class="fa-solid fa-trash-can text-red-500 delete-btn cursor-pointer" title="Delete User"></i>
                         </div>
                     </td>
                 </tr>
@@ -498,6 +500,37 @@
                 }
             }
         });
+
+        document.getElementById('usersTable').addEventListener('click', function(e){
+            const deleteBtn = e.target.closest('.delete-btn');
+            if (deleteBtn) {
+                const row = deleteBtn.closest('tr');
+                const userId = row.getAttribute('data-user-id');
+                const user = laporanData.find(u => u.id == userId);
+                if (user) {
+                    console.log('Delete button clicked for user ID:', userId);
+                    console.log('User data:', user);
+                    // Buat form dinamis untuk submit
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '/delete-user/' + userId;
+                    form.style.display = 'none';
+                    // Tambahkan CSRF token
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                    if (csrfToken) {
+                        const csrfInput = document.createElement('input');
+                        csrfInput.type = 'hidden';
+                        csrfInput.name = '_token';
+                        csrfInput.value = csrfToken;
+                        form.appendChild(csrfInput);
+                    }
+
+                    // Append form ke body dan submit
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            }
+        })
     });
 
     document.addEventListener('DOMContentLoaded', function () {

@@ -64,8 +64,8 @@
             </a>
           </button>
           <button class="border-2 border-white text-white px-4 sm:px- md:px-3 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all duration-300">
-            <a href="#" class="flex items-center">
-                <i class="fa-solid fa-file-arrow-down mr-2"></i>Panduan Pengguna
+            <a href="{{ asset('storage/user_manual/Panduan Registrasi Pengguna.pdf') }}" download class="flex items-center">
+                <i class="fa-solid fa-file-arrow-down mr-2"></i>Panduan Registrasi
             </a>
           </button>
         </div>
