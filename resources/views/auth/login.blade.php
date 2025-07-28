@@ -94,7 +94,7 @@
 
                 <!-- Remember Me & Forgot Password -->
                     <div class="flex items-center justify-end text-sm">
-                        <a href="#" class="text-[#262394] hover:text-[#1e1b75] font-medium">Lupa password?</a>
+                        <a href="{{ route('password.request') }}" class="text-[#262394] hover:text-[#1e1b75] font-medium">Lupa password?</a>
                     </div>
 
                 <!-- Tombol Login -->

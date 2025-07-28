@@ -1,10 +1,14 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Auth\Events\PasswordReset;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ExpirationEmailTimer;
@@ -34,6 +38,65 @@ Route::middleware('custom_guest')->group(function () {
 
     // register controller
     Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
+
+    // Forgot password route
+    Route::get('/forgot-password', function () {
+        return view('auth.forgot-password');
+    })->name('password.request');
+
+    Route::post('/forgot-password', function (Request $request) {
+        $request->validate(['email' => 'required|email']);
+
+        $status = Password::sendResetLink(
+            $request->only('email')
+        );
+
+        return $status === Password::ResetLinkSent
+            ? back()->with(['status' => 'Link reset password berhasil dikirim ke email anda'])
+            : back()->withErrors(['email' => 'Gagal mengirim link reset password']);
+    })->name('password.email');
+
+    Route::get('/reset-password/{token}', function (string $token, Request $request) {
+        return view('auth.reset-password', [
+            'token' => $token,
+            'email' => $request->query('email'),
+        ]);
+    })->name('password.reset');
+
+    Route::post('/reset-password', function (Request $request) {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/'
+            ],
+        ], [
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+            'password.regex' => 'Password harus memiliki huruf besar, kecil, angka, dan simbol.',
+            'password.min' => 'Password harus memiliki minimal 8 karakter.'
+        ]);
+
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password)
+                ])->setRememberToken(Str::random(60));
+
+                $user->save();
+
+                event(new PasswordReset($user));
+            }
+        );
+
+        return $status === Password::PasswordReset
+            ? redirect()->route('login')->with('status', __($status))
+            : back()->withErrors(['email' => [__($status)]]);
+    })->name('password.update');
 });
 
 // Email Verification Routes
