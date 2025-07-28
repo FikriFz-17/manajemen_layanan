@@ -21,7 +21,7 @@
     <!-- Pesan -->
     <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
       Hai <span style="color: #2563eb; font-weight: 600;">{{ $user->nama }}</span>,<br>
-      Terima kasih telah mendaftar di <strong>LAPOR KOMINFO</strong>.<br>
+      Terima kasih telah mendaftar di layanan kami.<br>
       Klik tombol di bawah ini untuk memverifikasi alamat email Anda.
     </p>
 

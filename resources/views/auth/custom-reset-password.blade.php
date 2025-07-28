@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Verifikasi Email - LAPOR KOMINFO</title>
+  <title>Reset Password - LAPOR KOMINFO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body style="background-color: #f3f4f6; margin: 0; padding: 40px 0; font-family: Arial, sans-serif;">
@@ -15,14 +15,14 @@
 
     <!-- Judul -->
     <h2 style="color: #1f2937; font-size: 22px; font-weight: bold; margin-bottom: 10px;">
-      Verifikasi Email Anda
+      Reset Password
     </h2>
 
     <!-- Pesan -->
     <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
       Hai <span style="color: #2563eb; font-weight: 600;">{{ $user->nama }}</span>,<br>
-      Terima kasih telah mendaftar di <strong>LAPOR KOMINFO</strong>.<br>
-      Klik tombol di bawah ini untuk memverifikasi alamat email Anda.
+      Terima kasih telah mendaftar di layanan kami.<br>
+      Klik tombol di bawah ini untuk reset password Anda.
     </p>
 
     <!-- Tombol Verifikasi -->
