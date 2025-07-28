@@ -18,7 +18,7 @@
     <nav class="flex flex-col gap-4">
       <a href="{{ route('dashboard') }}" class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors"><i class="fas fa-home"></i> Dashboard</a>
       <a href="{{ route('ajukanLaporan') }}" class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors bg-white bg-opacity-20"><i class="fas fa-plus-circle"></i> Ajukan Laporan</a>
-      <a href="#" class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors"><i class="fa-solid fa-file-arrow-down"></i> User Manual</a>
+      <a href="{{ asset('storage/user_manual/Panduan Pengajuan Pengguna.pdf') }}" download class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors"><i class="fa-solid fa-file-arrow-down"></i> User Manual</a>
 
       <!-- Customer Service Section -->
         <div class="mt-auto pt-4 border-t border-white border-opacity-20">
@@ -49,15 +49,13 @@
         </button>
         <!-- Mobile Dropdown Menu -->
         <div id="userDropdown" class="absolute right-0 mt-2 w-40 bg-white rounded shadow hidden z-20 border">
-          <!-- Ganti password -->
-          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fas fa-key mr-2"></i>Ganti Password</a>
+           <!-- set Profile -->
+           <a href="{{ route('setProfile', ['return_to' => url()->current()]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fa-solid fa-user mr-2"></i>Set Profile</a>
            <!-- logout -->
             <form action="{{ route('logout.submit') }}" method="post">
                 @csrf
                 <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"><i class="fas fa-sign-out-alt mr-2"></i>Logout</button>
             </form>
-          <!-- set Profile -->
-          <a href="{{ route('setProfile', ['return_to' => url()->current()]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fa-solid fa-user mr-2"></i>Set Profile</a>
         </div>
       </div>
     </div>
@@ -73,15 +71,13 @@
 
         <!-- Desktop Dropdown Menu -->
         <div id="userDropdownDesktop" class="absolute right-0 mt-2 w-40 bg-white rounded shadow hidden z-20">
-          <!-- ganti password -->
-          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fas fa-key mr-2"></i>Ganti Password</a>
+          <!-- set Profile -->
+          <a href="{{ route('setProfile', ['return_to' => url()->current()]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" id="reset-btn"><i class="fa-solid fa-user mr-2"></i>Set Profile</a>
           <!-- logout -->
           <form action="{{ route('logout.submit') }}" method="post">
             @csrf
             <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"><i class="fas fa-sign-out-alt mr-2"></i>Logout</button>
           </form>
-          <!-- set Profile -->
-          <a href="{{ route('setProfile', ['return_to' => url()->current()]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" id="reset-btn"><i class="fa-solid fa-user mr-2"></i>Set Profile</a>
         </div>
       </div>
     </div>

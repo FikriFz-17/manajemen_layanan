@@ -15,13 +15,16 @@ class LaporanController extends Controller
     public function createlaporan(Request $request){
         $user = Auth::user();
         $validated = $request->validate([
-            'tanggal' => 'required|date',
-            'masalah' => 'required|string',
+            'tanggal' => 'required|date|before_or_equal:today|after_or_equal:1900-01-01',
+            'masalah' => 'required|string|max:50',
             'deskripsi' => 'required|string',
             'lampiran' => 'nullable|file|mimes:pdf,jpg,png,jpeg|max:5120'
         ], [
             'tanggal.required' => 'Tanggal tidak boleh kosong',
+            'tanggal.before_or_equal' => 'Emangnya bisa liat masa depan? awokwokw',
+            'tanggal.after_or_equal' => 'Orang purba jir',
             'masalah.required' => 'Masalah tidak boleh kosong',
+            'masalah.max' => 'Masukkan judul masalah secara umum',
             'deskripsi.required' => 'Deskripsi tidak boleh kosong',
             'lampiran.mimes' => 'Lampiran harus berupa PDF, JPG, PNG, DOC, atau DOCX',
             'lampiran.max' => 'Lampiran maksimal 5MB',

@@ -55,8 +55,8 @@
         </button>
         <!-- Mobile Dropdown Menu -->
         <div id="userDropdown" class="absolute right-0 mt-2 w-40 bg-white rounded shadow hidden z-20 border">
-          <!-- Ganti password -->
-          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fas fa-key mr-2"></i>Ganti Password</a>
+          <!-- set Profile -->
+          <a href="{{ route('setProfile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fa-solid fa-user mr-2"></i>Set Profile</a>
           <!-- Logout -->
           <form action="{{ route('logout.submit') }}" method="post">
             @csrf
@@ -76,15 +76,13 @@
         </button>
         <!-- Desktop Dropdown Menu -->
         <div id="userDropdownDesktop" class="absolute right-0 mt-2 w-40 bg-white rounded shadow hidden z-20">
-          <!-- ganti password -->
-          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fas fa-key mr-2"></i>Ganti Password</a>
+          <!-- set Profile -->
+          <a href="{{ route('setProfile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fa-solid fa-user mr-2"></i>Set Profile</a>
           <!-- logout -->
           <form action="{{ route('logout.submit') }}" method="post">
             @csrf
             <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"><i class="fas fa-sign-out-alt mr-2"></i>Logout</button>
           </form>
-          <!-- set Profile -->
-          <a href="{{ route('setProfile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fa-solid fa-user mr-2"></i>Set Profile</a>
         </div>
       </div>
     </div>

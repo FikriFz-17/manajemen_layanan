@@ -199,6 +199,8 @@ Route::middleware(['auth', 'admin'])->group(function(){
     Route::post('/admin/laporan/{id}/update', [LaporanController::class, 'tanganiLaporan'])->name('admin.laporan.update');
 
     Route::get('/export-laporan', [LaporanExportController::class, 'export']);
+
+    Route::post('/delete-user/{id}', [UserController::class, 'deleteUser'])->name('users.destroy');
 });
 
 // import route
