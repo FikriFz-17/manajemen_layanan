@@ -6,6 +6,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@fortawesome/fontawesome-free@6.4.0/js/all.min.js" crossorigin="anonymous"></script>
 </head>
 <body class="bg-gray-100 py-10 font-sans">
     <div class="max-w-md mx-auto bg-white rounded-xl shadow-md p-8 text-center">
@@ -44,7 +45,7 @@
 
         <!-- Error Message -->
         @if ($errors->any())
-            <div class="bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-500 p-4 mb-6 rounded-lg shadow-sm">
+            <div id="error-box" class="bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-500 p-4 mb-6 rounded-lg shadow-sm">
                 <!-- Judul "ERRORS!" -->
                 <div class="flex items-center mb-2">
                     <i class="fas fa-exclamation-circle text-red-500 text-lg mr-2"></i>
@@ -65,7 +66,8 @@
                     </div>
 
                     <!-- Tombol close -->
-                    <button type="button" onclick="this.closest('div').style.display='none'"
+                    <button type="button"
+                        onclick="document.getElementById('error-box').style.display='none'"
                         class="ml-3 text-red-400 hover:text-red-600 transition-colors duration-200">
                         <i class="fas fa-times text-sm"></i>
                     </button>
@@ -73,14 +75,14 @@
             </div>
         @endif
 
-        {{-- Form Reset Password --}}
+        <!-- Form Reset Password -->
         <form method="POST" action="{{ route('password.update') }}" class="space-y-3 text-left">
             @csrf
 
-            {{-- Token --}}
+            <!-- Token -->
             <input type="hidden" name="token" value="{{ $token }}">
 
-            {{-- Email --}}
+            <!-- Email -->
             <div>
                 <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                 <input type="email" name="email" id="email" required readonly
@@ -88,40 +90,48 @@
                     class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
-            {{-- Password Baru --}}
+            <!-- Password -->
             <div>
-                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Kata Sandi Baru</label>
-                <input type="password" name="password" id="password" required
-                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                <div class="flex items-center border-2 border-gray-300 rounded-lg px-4 py-3 focus-within:border-[#262394] transition">
+                    <i class="fas fa-lock text-gray-400 mr-3"></i>
+                    <input type="password" name="password" id="password" placeholder="Password"
+                            class="w-full outline-none bg-transparent text-gray-900 placeholder-gray-500" required>
+                    <button type="button" onclick="togglePassword()" class="ml-2 text-gray-400 hover:text-gray-600 focus:outline-none">
+                        <i id="toggleIcon" class="fas fa-eye"></i>
+                    </button>
+                </div>
             </div>
 
-            {{-- Konfirmasi Password --}}
+            <!-- Konfirmasi Password -->
             <div>
-                <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Kata Sandi</label>
-                <input type="password" name="password_confirmation" id="password_confirmation" required
-                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">Konfirmasi Password</label>
+                <div class="flex items-center border-2 border-gray-300 rounded-lg px-4 py-3 focus-within:border-[#262394] transition">
+                    <i class="fas fa-lock text-gray-400 mr-3"></i>
+                    <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Konfirmasi Password"
+                            class="w-full outline-none bg-transparent text-gray-900 placeholder-gray-500" required>
+                    <button type="button" onclick="toggleConfirmPassword()" class="ml-2 text-gray-400 hover:text-gray-600 focus:outline-none">
+                        <i id="toggleConfirmIcon" class="fas fa-eye"></i>
+                    </button>
+                </div>
             </div>
 
-            {{-- Token --}}
-            <div>
-                <input type="hidden" name="token" id="token" value="{{$token}}" required
-                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-
-            {{-- Tombol Submit --}}
+            <!-- Tombol Submit -->
             <button type="submit"
                     class="w-full inline-flex justify-center items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded transition duration-200">
                 <i class="fas fa-lock mr-2"></i> Atur Ulang Kata Sandi
             </button>
         </form>
 
-        {{-- Footer --}}
+        <!-- Footer -->
         <p class="text-xs text-gray-400 mt-8">
             © 2025 Dinas Komunikasi dan Informatika Kabupaten Kebumen
         </p>
 
     </div>
 
+<!-- Script -->
+  <script src="{{ asset('js/reset-password.js') }}"></script>
 </body>
 </html>
 
