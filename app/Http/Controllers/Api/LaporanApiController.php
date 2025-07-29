@@ -8,9 +8,19 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SendEmail;
+use App\Mail\sendSelesaiEmail;
 
 class LaporanApiController extends Controller
 {
+    /**
+     * Ajukan Laporan
+     *
+     * Endpoint untuk mengajukan laporan pengguna (User Akses)
+     *
+     * @authenticated
+    */
     public function createLaporan(Request $request)
     {
         $user = Auth::user();
@@ -88,6 +98,13 @@ class LaporanApiController extends Controller
         ], 201);
     }
 
+    /**
+     * Laporan Pengguna
+     *
+     * Endpoint untuk menampilkan data laporan pengguna (Users Akses)
+     *
+     * @authenticated
+    */
     public function getUserData(Request $request){
         $user = Auth::user();
         $laporan = DB::table('laporans')
@@ -107,6 +124,13 @@ class LaporanApiController extends Controller
         ]);
     }
 
+    /**
+     * Laporan Semua Pengguna
+     *
+     * Endpoint untuk menampilkan semua data pengguna (Admin Akses)
+     *
+     * @authenticated
+    */
     public function getAllData(Request $request){
         $laporan = DB::table('laporans')
             ->join('users', 'laporans.user_id', '=', 'users.id')
@@ -130,6 +154,13 @@ class LaporanApiController extends Controller
         ]);
     }
 
+    /**
+     * Laporan Publik
+     *
+     * Endpoint untuk menampilkan data laporan publik
+     *
+     * @unauthenticated
+    */
     public function getPublicData(){
         $data = DB::table('laporans')
             ->select(
@@ -143,6 +174,74 @@ class LaporanApiController extends Controller
         return response()->json([
             'message' => 'Success',
             'laporan' => $data
+        ]);
+    }
+
+    /**
+     * Tangani Laporan
+     *
+     * Endpoint untuk menangani laporan pengguna (Admin Akses)
+     *
+     * @authenticated
+    */
+    public function tanganiLaporan(Request $request, $id){
+        $validated = $request->validate([
+            'status' => 'required|string',
+            'kategori' => 'required|string',
+            'tanggal_selesai' => 'required|date',
+            'deskripsi_penanganan' => 'required|string',
+        ], [
+            'status.required' => 'Silakan ubah status laporan terlebih dahulu.',
+            'kategori.required' => 'Kategori laporan harus ditentukan.',
+            'tanggal_selesai.required' => 'Tanggal selesai wajib diisi.',
+            'deskripsi_penanganan.required' => 'Deskripsi penanganan tidak boleh kosong.',
+        ]);
+
+        // Ambil tanggal pengajuan
+        $laporan = DB::table('laporans')->where('id', $id)->first();
+        $tanggal_pengajuan = $laporan->tanggal_pengajuan;
+
+        if ($laporan->status === $validated['status']) {
+            return response()->json(['message' => 'Status laporan belum diubah.'], 422);
+        }
+
+        // Hitung estimasi
+        $estimasi = abs(\Carbon\Carbon::parse($validated['tanggal_selesai'])->diffInDays(\Carbon\Carbon::parse($tanggal_pengajuan)));
+        DB::table('laporans')->where('id', $id)->update([
+            'status' => $validated['status'],
+            'kategori' => $validated['kategori'],
+            'tanggal_selesai' => $validated['tanggal_selesai'],
+            'penyelesaian' => $validated['deskripsi_penanganan'],
+            'estimasi' => $estimasi,
+        ]);
+
+        // Ambil data user
+        $user = DB::table('users')->where('id', $laporan->user_id)->first();
+
+        // Kirim Email ke user
+        $emailData = [
+            'nama' => $user->nama,
+            'email' => $user->email,
+            'resi' => $laporan->resi,
+            'masalah' => $laporan->judul_masalah,
+            'tanggal_pengajuan' => $laporan->tanggal_pengajuan,
+            'tanggal_selesai' => $validated['tanggal_selesai'],
+            'estimasi' => $estimasi,
+            'penyelesaian' => $validated['deskripsi_penanganan'],
+            'status' => $validated['status'],
+        ];
+
+        if (strtolower($validated['status']) === 'selesai') {
+            Mail::to($user->email)->send(new SendSelesaiEmail($emailData));
+        } else {
+            Mail::to($user->email)->send(new SendEmail($emailData));
+        }
+
+        return response()->json([
+            'message' => 'Laporan berhasil diproses dan email notifikasi telah dikirim.',
+            'laporan_id' => $id,
+            'status' => $validated['status'],
+            'estimasi' => $estimasi
         ]);
     }
 }

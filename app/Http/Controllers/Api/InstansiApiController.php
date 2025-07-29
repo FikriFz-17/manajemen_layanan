@@ -9,6 +9,13 @@ use App\Models\Kecamatan;
 
 class InstansiApiController extends Controller
 {
+    /**
+     * Kecamatan
+     *
+     * Menampilkan list kecamatan di Kabupaten Kebumen
+     *
+     * @unauthenticated
+    */
     public function getKecamatan(){
         $data = DB::table('kecamatans')
             ->select(
@@ -22,6 +29,13 @@ class InstansiApiController extends Controller
         ]);
     }
 
+    /**
+     * Desa
+     *
+     * Menampilkan list desa berdasarkan kecamatan di Kabupaten Kebumen
+     *
+     * @unauthenticated
+    */
     public function getDesa(Request $request){
         $kecamatanId = $request->query('kecamatan_id');
 
@@ -45,6 +59,13 @@ class InstansiApiController extends Controller
         ]);
     }
 
+    /**
+     * Pemerintah Daerah
+     *
+     * Menampilkan list pemerintah daerah di Kabupaten Kebumen
+     *
+     * @unauthenticated
+    */
     public function getPemda(){
         $data = DB::table('pemdas')
             ->select('pemdas.id as pemda_id', 'pemdas.nama as pemda_nama')
