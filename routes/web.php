@@ -177,9 +177,9 @@ Route::middleware(['auth', 'verified', 'user'])->group(function () {
         return view('setProfile');
     })->name('setProfile');
 
-    Route::post('/setProfile', [UserController::class, 'update'])->name('update.submit');
+    Route::put('/setProfile', [UserController::class, 'update'])->name('update.submit');
 
-    Route::post('/upload-photo', [UserController::class, 'updatePhotoProfile'])->name('uploadPhoto.submit');
+    Route::put('/upload-photo', [UserController::class, 'updatePhotoProfile'])->name('uploadPhoto.submit');
 });
 
 // Admin Routes
@@ -196,11 +196,11 @@ Route::middleware(['auth', 'admin'])->group(function(){
 
     Route::get('/laporan/all', [LaporanController::class, "getAllData"]);
 
-    Route::post('/admin/laporan/{id}/update', [LaporanController::class, 'tanganiLaporan'])->name('admin.laporan.update');
+    Route::put('/admin/laporan/{id}/update', [LaporanController::class, 'tanganiLaporan'])->name('admin.laporan.update');
 
     Route::get('/export-laporan', [LaporanExportController::class, 'export']);
 
-    Route::post('/delete-user/{id}', [UserController::class, 'deleteUser'])->name('users.destroy');
+    Route::delete('/delete-user/{id}', [UserController::class, 'deleteUser'])->name('users.destroy');
 });
 
 // import route

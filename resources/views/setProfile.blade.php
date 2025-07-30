@@ -138,6 +138,7 @@
             <!-- Form update photo profile -->
             <form action="{{ route('uploadPhoto.submit') }}" method="post" enctype="multipart/form-data">
                 @csrf
+                @method('PUT')
                 <div class="flex flex-col sm:flex-row sm:items-center gap-6 mb-8 pb-8 border-b">
                     <img src="{{Auth::user()->profile_url === 'default.jpg' ? 'images/user.png' : 'storage/' .Auth::user()->profile_url}}" alt="Foto Profil" class="w-24 h-24 rounded-full object-cover border-2 border-gray-200">
                     <div>
@@ -168,6 +169,7 @@
             <!-- Form update data -->
             <form action="{{ route('update.submit') }}" method="POST">
                 @csrf
+                @method('PUT')
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                     <div>
                         <label for="nama-lengkap" class="block text-sm font-medium text-gray-700">Nama</label>

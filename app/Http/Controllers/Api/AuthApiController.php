@@ -12,6 +12,13 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthApiController extends Controller
 {
+    /**
+     * Login
+     *
+     * Endpoint untuk login
+     *
+     * @unauthenticated
+    */
     public function login(Request $request)
     {
         $request->validate([
@@ -20,6 +27,10 @@ class AuthApiController extends Controller
         ]);
 
         $user = User::where('email', $request->email)->first();
+
+        if (!$user){
+            return response()->json(['message' => 'Akun tidak terdaftar'], 402);
+        }
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Email atau password salah'], 401);
@@ -40,6 +51,13 @@ class AuthApiController extends Controller
         ]);
     }
 
+    /**
+     * Register
+     *
+     * Endpoint untuk registrasi
+     *
+     * @unauthenticated
+    */
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -92,6 +110,13 @@ class AuthApiController extends Controller
         ], 201);
     }
 
+    /**
+     * Logout
+     *
+     * Endpoint untuk logout dan hapus access token
+     *
+     * @authenticated
+    */
     public function logout(Request $request){
         $request->user()->currentAccessToken()->delete();
 

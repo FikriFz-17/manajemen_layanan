@@ -22,6 +22,12 @@ class UserMiddleware
             return $next($request);
         }
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Unauthorized access.'
+            ], 403);
+        }
+
         abort(403, 'Unauthorized Access');
     }
 }

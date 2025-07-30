@@ -320,6 +320,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     csrfInput.name = '_token';
                     csrfInput.value = csrfToken;
                     form.appendChild(csrfInput);
+
+                    // Method spoofing DELETE
+                    const methodInput = document.createElement('input');
+                    methodInput.type = 'hidden';
+                    methodInput.name = '_method';
+                    methodInput.value = 'DELETE';
+                    form.appendChild(methodInput);
                 }
 
                 // Append form ke body dan submit

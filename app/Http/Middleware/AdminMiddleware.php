@@ -20,6 +20,12 @@ class AdminMiddleware
         if ($user && $user->role === 'admin'){
             return $next($request);
         }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Unauthorized access.'
+            ], 403);
+        }
         abort(403, 'Unauthorized Acess');
     }
 }

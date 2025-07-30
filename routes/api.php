@@ -24,7 +24,7 @@ Route::post('/logout', [AuthApiController::class, 'logout'])->middleware('auth:s
 
 // User api functionality
 Route::middleware(['auth:sanctum', 'user'])->group(function(){
-    Route::post('update-profile', [UserApiController::class, "update"]);
+    Route::put('update-profile', [UserApiController::class, "update"]);
 
     Route::get('/user-laporans', [LaporanApiController::class, 'getUserData']);
 
@@ -54,6 +54,10 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function(){
     Route::get('all-users', [UserApiController::class, "getAllUser"]);
 
     Route::get('all-laporans', [LaporanApiController::class, "getAllData"]);
+
+    Route::put('/laporan/{id}/tangani', [LaporanApiController::class, 'tanganiLaporan']);
+
+    Route::delete('/delete-user/{id}', [UserApiController::class, 'deleteUserApi']);
 });
 
 // wilayah API

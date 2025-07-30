@@ -40,7 +40,9 @@ class UserController extends Controller
     }
 
     public function getAllUser(Request $request){
-        $user_data = DB::table('users')->orderByRaw('email_verified_at IS NOT NULL')
+        $user_data = DB::table('users')
+        ->where('role', '!=', 'admin')
+        ->orderByRaw('email_verified_at IS NOT NULL')
         ->select('id', 'nama', 'email', 'instansi', 'email_verified_at', 'created_at')
         ->get();
 

@@ -11,8 +11,17 @@ use Illuminate\Support\Facades\Validator;
 
 class UserApiController extends Controller
 {
+    /**
+     * Semua Pengguna
+     *
+     * Endpoint untuk menampilkan semua data pengguna yang terdaftar
+     *
+     * @authenticated
+    */
     public function getAllUser(){
-        $user_data = DB::table('users')->orderByRaw('email_verified_at IS NOT NULL')
+        $user_data = DB::table('users')
+        ->where('role', '!=', 'admin')
+        ->orderByRaw('email_verified_at IS NOT NULL')
         ->select('id', 'nama', 'email', 'instansi', 'email_verified_at', 'created_at', 'profile_url')
         ->get()
         ->map(function ($item){
@@ -26,6 +35,13 @@ class UserApiController extends Controller
         ]);
     }
 
+    /**
+     * Update Profil Pengguna
+     *
+     * Endpoint yang digunakan untuk update profile pengguna
+     *
+     * @authenticated
+    */
     public function update(Request $request){
         $user = Auth::user();
 
@@ -67,12 +83,19 @@ class UserApiController extends Controller
 
     }
 
+    /**
+     * Update Foto Profil Pengguna
+     *
+     * Endpoint yang digunakan untuk update foto profil pengguna
+     *
+     * @authenticated
+    */
     public function updatePhotoProfile(Request $request)
     {
         $user = Auth::user();
 
         $validated = $request->validate([
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'photo' => 'file|image|mimes:jpeg,png,jpg|max:2048',
         ], [
             'photo.max' => 'File maksimal 2 MB',
             'photo.mimes' => 'Format gambar harus JPG atau PNG.',
@@ -108,5 +131,37 @@ class UserApiController extends Controller
             'message' => 'Foto profil berhasil diperbarui.',
             'profile_url' => $profile_url ? asset('storage/' . $profile_url) : null,
         ]);
+    }
+
+
+    /**
+     * Delete Pengguna
+     *
+     * Endpoint yang digunakan untuk menghapus pengguna (Admin Askses)
+     *
+     * @authenticated
+    */
+    public function deleteUserApi($id)
+    {
+        $user = DB::table('users')->where('id', $id)->first();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User tidak ditemukan.'
+            ], 404);
+        }
+
+        try {
+            DB::table('users')->where('id', $id)->delete();
+            return response()->json([
+                'message' => 'User berhasil dihapus.',
+                'data' => $user
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Gagal menghapus user.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
