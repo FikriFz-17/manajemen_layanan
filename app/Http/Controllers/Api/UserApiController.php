@@ -51,11 +51,13 @@ class UserApiController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'phone' => 'required|string|max:20',
             'instansi' => 'required|string',
+            'jenis_instansi' => 'required|string|in:desa,pemda',
         ], [
             'nama.required' => 'Nama tidak boleh kosong',
             'email.required' => 'Email tidak boleh kosong',
             'phone.required' => 'No.Hp tidak boleh kosong',
             'instansi.required' => 'Instansi tidak boleh kosong',
+            'jenis_instansi.in' => 'Jenis Instansi tidak valid',
         ]);
 
         if ($validator->fails()) {
@@ -72,6 +74,7 @@ class UserApiController extends Controller
             'email' => $validated['email'],
             'phone' => $validated['phone'],
             'instansi' => $validated['instansi'],
+            'jenis_instansi' => $validated['jenis_instansi'],
             'updated_at' => now()
         ]);
 

@@ -102,7 +102,7 @@
         </div>
     @endif
 
-    <!-- Validation Errors -->
+    <!-- Validation Errors
     @if ($errors->any())
         <div id="errorToast" class="fixed top-0 left-1/2 z-50 transform -translate-x-1/2 -translate-y-full opacity-0 transition duration-500 ease-out">
             <div class="bg-gradient-to-r from-green-50 to-emerald-100 border-l-4 border-red-500 p-4 rounded-lg shadow-lg w-80">
@@ -125,7 +125,7 @@
                 </div>
             </div>
         </div>
-    @endif
+    @endif -->
 
     <!-- FORM PENGAJUAN - Responsive -->
     <div class="bg-white p-4 md:p-6 lg:p-8 shadow-md rounded-lg w-full max-w-none">
@@ -160,6 +160,9 @@
             </label>
             <input type="date" id="tanggal" name="tanggal"
                    class="w-full border-b-2 border-gray-300 focus:outline-none focus:border-[#262394] py-3 px-2 text-base transition-colors duration-200">
+                @error('tanggal')
+                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                @enderror
           </div>
         </div>
 
@@ -171,6 +174,9 @@
           <input type="text" id="masalah" name="masalah"
                  class="w-full border-b-2 border-gray-300 focus:outline-none focus:border-[#262394] py-3 px-2 text-base transition-colors duration-200"
                  placeholder="Judul atau topik permasalahan">
+                @error('masalah')
+                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                @enderror
         </div>
 
         <!-- Deskripsi -->
@@ -181,6 +187,9 @@
           <textarea id="deskripsi" name="deskripsi" rows="5"
                     class="w-full border-2 border-gray-300 focus:outline-none focus:border-[#262394] py-3 px-3 text-base rounded-md transition-colors duration-200 resize-none"
                     placeholder="Jelaskan permasalahan secara detail, termasuk kapan terjadi, dampak yang dirasakan, dan informasi lain yang relevan..."></textarea>
+                @error('deskripsi')
+                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                @enderror
         </div>
 
         <!-- File Upload (Optional) -->
@@ -233,6 +242,6 @@
 
   <!-- Script -->
   <script src="{{ asset('js/userAjukanLaporan.js') }}"></script>
-  
+
 </body>
 </html>

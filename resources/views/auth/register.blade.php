@@ -46,89 +46,77 @@
             <!-- Form Container -->
             <div class="w-full max-w-md mx-auto">
                 <h2 class="text-2xl lg:text-2xl font-bold mb-2 text-black max-sm:hidden">LAPOR KOMINFO</h2>
-
-                <!-- Success Message -->
-                @if (session('success'))
-                    <div class="bg-gradient-to-r from-green-50 to-emerald-100 border-l-4 border-green-500 p-4 mb-6 rounded-lg shadow-sm">
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0">
-                                <i class="fas fa-check-circle text-green-500 text-lg"></i>
-                            </div>
-                            <div class="ml-3 flex-1">
-                                <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
-                            </div>
-                            <button type="button" onclick="this.parentElement.parentElement.style.display='none'"
-                                    class="flex-shrink-0 ml-3 text-green-400 hover:text-green-600 transition-colors duration-200">
-                                <i class="fas fa-times text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
-                @endif
-                <!-- Validation Errors -->
-                @if ($errors->any())
-                    <div class="bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-500 p-4 mb-6 rounded-lg shadow-sm">
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0">
-                                <i class="fas fa-exclamation-circle text-red-500 text-lg"></i>
-                            </div>
-                            <div class="ml-3 flex-1">
-                                <p class="text-sm font-medium text-red-800">Terdapat Kesalahan:</p>
-                                <ul class="mt-2 space-y-1 text-sm text-red-700">
-                                    @foreach ($errors->all() as $error)
-                                        <li class="flex gap-2 text-justify">
-                                            <span>•</span>
-                                            <span class="flex-1">{{ $error }}</span>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                            <button type="button" onclick="this.parentElement.parentElement.style.display='none'"
-                                    class="flex-shrink-0 ml-3 text-red-400 hover:text-red-600 transition-colors duration-200">
-                                <i class="fas fa-times text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
-                @endif
-
                 <form method="POST" action="{{ route('register.submit') }}" class="space-y-6">
                     @csrf
 
                     <!-- Nama Lengkap -->
-                    <div class="flex items-center border border-gray-300 rounded px-3 py-2">
-                        <i class="fas fa-user text-gray-400 mr-3"></i>
-                        <input type="text" value="{{old('nama')}}" name="nama" placeholder="Nama Lengkap" class="w-full outline-none bg-transparent" required>
+                    <div>
+                        <div class="flex items-center border border-gray-300 rounded px-3 py-2">
+                            <i class="fas fa-user text-gray-400 mr-3"></i>
+                            <input type="text" value="{{ old('nama') }}" name="nama" placeholder="Nama Lengkap"
+                                class="w-full outline-none bg-transparent" required>
+                        </div>
+                        @error('nama')
+                            <p class="error-message text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Email -->
-                    <div class="flex items-center border border-gray-300 rounded px-3 py-2">
-                        <i class="fa-solid fa-envelope text-gray-400 mr-3"></i>
-                        <input type="email" value="{{old ('email')}}" name="email" placeholder="Email" class="w-full outline-none bg-transparent" required>
+                    <div>
+                        <div class="flex items-center border border-gray-300 rounded px-3 py-2">
+                            <i class="fa-solid fa-envelope text-gray-400 mr-3"></i>
+                            <input type="email" value="{{ old('email') }}" name="email" placeholder="Email"
+                                class="w-full outline-none bg-transparent" required>
+                        </div>
+                        @error('email')
+                            <p class="error-message text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Nomor Telepon -->
-                    <div class="flex items-center border border-gray-300 rounded px-3 py-2">
-                        <i class="fa-brands fa-whatsapp text-gray-400 mr-3"></i>
-                        <input type="text" value="{{old ('phone')}}" name="phone" placeholder="Nomor Telepon/WhatsApp" class="w-full outline-none bg-transparent" required>
+                    <div>
+                        <div class="flex items-center border border-gray-300 rounded px-3 py-2">
+                            <i class="fa-brands fa-whatsapp text-gray-400 mr-3"></i>
+                            <input type="text" value="{{ old('phone') }}" name="phone" placeholder="Nomor Telepon/WhatsApp"
+                                class="w-full outline-none bg-transparent" required>
+                        </div>
+                        @error('phone')
+                            <p class="error-message text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Password -->
-                    <div class="flex items-center border border-gray-300 rounded px-3 py-2">
-                        <i class="fas fa-lock text-gray-400 mr-3"></i>
-                        <input type="password" id="password" name="password" placeholder="Password"
-                            class="w-full outline-none bg-transparent" required>
-                        <button type="button" onclick="togglePassword()" class="ml-2 text-gray-500 hover:text-gray-700">
-                            <i id="toggleIcon" class="fas fa-eye"></i>
-                        </button>
+                    <div>
+                        <div class="flex items-center border border-gray-300 rounded px-3 py-2">
+                            <i class="fas fa-lock text-gray-400 mr-3"></i>
+                            <input type="password" id="password" name="password" placeholder="Password"
+                                class="w-full outline-none bg-transparent" required>
+                            <button type="button" onclick="togglePassword()" class="ml-2 text-gray-500 hover:text-gray-700">
+                                <i id="toggleIcon" class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        @error('password')
+                                @if(!str_contains($message, 'Konfirmasi password'))
+                                    <p class="error-message text-sm text-red-600 mt-1">{{ $message }}</p>
+                                @endif
+                        @enderror
                     </div>
 
                     <!-- Konfirmasi Password -->
-                    <div class="flex items-center border border-gray-300 rounded px-3 py-2">
-                        <i class="fas fa-lock text-gray-400 mr-3"></i>
-                        <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Konfirmasi Password"
-                            class="w-full outline-none bg-transparent" required>
-                        <button type="button" onclick="togglePasswordConfirm()" class="ml-2 text-gray-500 hover:text-gray-700">
-                            <i id="toggleConfirmIcon" class="fas fa-eye"></i>
-                        </button>
+                    <div>
+                        <div class="flex items-center border border-gray-300 rounded px-3 py-2">
+                            <i class="fas fa-lock text-gray-400 mr-3"></i>
+                            <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Konfirmasi Password"
+                                class="w-full outline-none bg-transparent" required>
+                            <button type="button" onclick="togglePasswordConfirm()" class="ml-2 text-gray-500 hover:text-gray-700">
+                                <i id="toggleConfirmIcon" class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        @error('password')
+                                @if(str_contains($message, 'Konfirmasi password'))
+                                    <p class="error-message text-sm text-red-600 mt-1">{{ $message }}</p>
+                                @endif
+                        @enderror
                     </div>
 
                     <!-- Tombol Register -->
