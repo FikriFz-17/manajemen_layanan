@@ -35,21 +35,7 @@ Route::middleware(['auth:sanctum', 'user'])->group(function(){
 
 // Admin api functionality
 Route::middleware(['auth:sanctum', 'admin'])->group(function(){
-    Route::post('kirim-verifikasi', function (Request $request) {
-        $request->validate([
-            'email' => 'required|email|exists:users,email'
-        ]);
-
-        $user = User::where('email', $request->email)->first();
-
-        if ($user->hasVerifiedEmail()) {
-            return response()->json(['message' => 'Email sudah diverifikasi'], 400);
-        }
-
-        $user->sendEmailVerificationNotification();
-
-        return response()->json(['message' => 'Email verifikasi telah dikirim.']);
-    });
+    Route::post('/kirim-verifikasi', [UserApiController::class, 'kirimVerifikasi']);
 
     Route::get('all-users', [UserApiController::class, "getAllUser"]);
 

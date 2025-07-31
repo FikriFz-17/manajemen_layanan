@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 
 class LaporanController extends Controller
 {
@@ -104,8 +105,9 @@ class LaporanController extends Controller
         return response()->json($data);
     }
 
-    public function tanganiLaporan(Request $request, $id){
-        $validated = $request->validate([
+    public function tanganiLaporan(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
             'status' => 'required|string',
             'kategori' => 'required|string',
             'tanggal_selesai' => 'required|date',
@@ -113,20 +115,30 @@ class LaporanController extends Controller
         ], [
             'status.required' => 'Silakan ubah status laporan terlebih dahulu.',
             'kategori.required' => 'Kategori laporan harus ditentukan.',
-            'tanggal_selesai.required' => 'Tanggal selesai wajib diisi.',
+            'tanggal_selesai.required' => 'Tanggal selesai/Perkiraan selesai wajib diisi.',
             'deskripsi_penanganan.required' => 'Deskripsi penanganan tidak boleh kosong.',
         ]);
 
-        // Ambil tanggal pengajuan
+        // Jika gagal validasi, kembalikan semua pesan error
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+
         $laporan = DB::table('laporans')->where('id', $id)->first();
         $tanggal_pengajuan = $laporan->tanggal_pengajuan;
 
         if ($laporan->status === $validated['status']) {
-            return back()->withErrors(['Status laporan belum diubah. Silakan ubah status sebelum menyimpan.'])->withInput();
+            return response()->json([
+                'message' => 'Status laporan belum berubah'
+            ], 400);
         }
 
-        // Hitung estimasi
         $estimasi = abs(\Carbon\Carbon::parse($validated['tanggal_selesai'])->diffInDays(\Carbon\Carbon::parse($tanggal_pengajuan)));
+
         DB::table('laporans')->where('id', $id)->update([
             'status' => $validated['status'],
             'kategori' => $validated['kategori'],
@@ -135,10 +147,8 @@ class LaporanController extends Controller
             'estimasi' => $estimasi,
         ]);
 
-        // Ambil data user
         $user = DB::table('users')->where('id', $laporan->user_id)->first();
 
-        // Kirim Email ke user
         $emailData = [
             'nama' => $user->nama,
             'email' => $user->email,
@@ -153,10 +163,12 @@ class LaporanController extends Controller
 
         if (strtolower($validated['status']) === 'selesai') {
             Mail::to($user->email)->send(new SendSelesaiEmail($emailData));
-        } else {
+        } else if(strtolower($validated['status']) === 'progress') {
             Mail::to($user->email)->send(new SendEmail($emailData));
         }
 
-        return back()->with('success', "Laporan berhasil diproses dan notifikasi telah dikirim.");
+        return response()->json([
+            'message' => 'Laporan berhasil diperbarui'
+        ], 200);
     }
 }
