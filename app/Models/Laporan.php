@@ -27,4 +27,8 @@ class Laporan extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function statusLaporan()
+    {
+        return $this->hasOne(StatusLaporan::class, 'laporan_id');
+    }
 }

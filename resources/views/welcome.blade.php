@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard Publik - Kominfo Kebumen</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@fortawesome/fontawesome-free@6.4.0/js/all.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
@@ -20,6 +22,21 @@
       }
     }
   </script>
+  <style>
+    /* Custom Swiper Styles */
+    .laporan-swiper .swiper-button-prev:hover,
+    .laporan-swiper .swiper-button-next:hover {
+        transform: scale(1.05) !important;
+        box-shadow: 0 8px 25px rgba(37, 99, 235, 0.25) !important;
+    }
+
+    /* Mengecilkan ukuran panah */
+    .laporan-swiper .swiper-button-prev::after,
+    .laporan-swiper .swiper-button-next::after {
+        font-size: 12px !important;
+        font-weight: 600 !important;
+    }
+  </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
 
@@ -31,9 +48,9 @@
           <img src="{{ asset('images/logo-kebumen.png') }}" alt="Logo Kebumen" class="w-20 h-20 object-contain">
           <div>
             <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Dashboard Publik
+              Sistem Informasi Manajemen Layanan TIK
             </h1>
-            <p class="text-gray-600 text-sm md:text-base">Kominfo Kebumen - Pantau Status Laporan Anda</p>
+            <p class="text-gray-600 text-sm md:text-base">Diskominfo Kabupaten Kebumen</p>
           </div>
         </div>
         <div class="flex items-center space-x-2 text-sm text-gray-500">
@@ -52,15 +69,12 @@
       <div class="absolute bottom-0 left-0 w-24 h-24 bg-white bg-opacity-10 rounded-full -ml-12 -mb-12"></div>
       <div class="relative z-10">
         <h2 class="text-2xl md:text-4xl font-bold mb-4 animate-pulse-slow">
-          Selamat Datang di Portal Layanan Digital
+          Pantau Perkembangan Laporan Anda
         </h2>
-        <p class="text-lg md:text-xl mb-6 opacity-90">
-          Pantau perkembangan laporan dan layanan Anda
-        </p>
         <div class="flex flex-col sm:flex-row gap-4">
           <button class="border-2 border-white text-white px-4 md:px-3 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all duration-300">
             <a href="{{route('login')}}" class="flex items-center">
-                <i class="fas fa-plus-circle mr-2"></i>Buat Laporan Baru
+                <i class="fas fa-plus-circle mr-2"></i>Buat Aduan Baru
             </a>
           </button>
           <button class="border-2 border-white text-white px-4 sm:px- md:px-3 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all duration-300">
@@ -112,17 +126,19 @@
     </div>
 
     <!-- statistik charts -->
-    <div class="flex flex-col lg:flex-row gap-4">
+    <div class="lg:flex lg:gap-4 mb-4">
+    <!-- Wrapper untuk mobile swipe -->
+    <div class="flex gap-4 overflow-x-auto scroll-smooth lg:overflow-visible lg:flex-1 w-full">
+
         <!-- Statistik Harian -->
-        <div id="dailyChart" class="bg-white rounded shadow p-4 mb-4 w-full lg:w-1/2">
-            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
-            <h2 class="text-lg font-semibold">Statistik Laporan Harian</h2>
+        <div id="dailyChart" class="bg-white rounded shadow p-4 mb-4 w-[90vw] lg:w-1/2 shrink-0 lg:shrink lg:mb-0">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
+            <h2 class="text-lg font-semibold">Statistik Aduan Harian</h2>
             <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                <select id="tahunHarianSelect"
+            <select id="tahunHarianSelect"
                 class="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring w-full sm:w-auto">
-                <!-- Tahun akan diisi lewat JS -->
-                </select>
-                <select id="bulanHarianSelect"
+            </select>
+            <select id="bulanHarianSelect"
                 class="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring w-full sm:w-auto">
                 <option value="0">Jan</option>
                 <option value="1">Feb</option>
@@ -136,106 +152,109 @@
                 <option value="9">Okt</option>
                 <option value="10">Nov</option>
                 <option value="11">Des</option>
-                </select>
+            </select>
             </div>
-            </div>
-            <div id="dailyChartContainer" class="overflow-x-hidden overflow-y-hidden"></div>
+        </div>
+        <div id="dailyChartContainer" class="overflow-x-hidden overflow-y-hidden"></div>
         </div>
 
         <!-- Statistik Bulanan -->
-        <div id="chart" class="bg-white rounded shadow p-4 mb-4 w-full lg:w-1/2">
-            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
-            <h2 class="text-lg font-semibold">Statistik Laporan Bulanan</h2>
+        <div id="chart" class="bg-white rounded shadow p-4 mb-4 w-[90vw] lg:w-1/2 shrink-0 lg:shrink lg:mb-0">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
+            <h2 class="text-lg font-semibold">Statistik Aduan Bulanan</h2>
             <select id="tahunChartSelect"
-                class="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring focus:border-blue-300 w-full sm:w-auto">
-                <!-- Tahun diisi via JS -->
+            class="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring focus:border-blue-300 w-full sm:w-auto">
             </select>
+        </div>
+        <div id="chartContainer" class="overflow-x-auto"></div>
+        </div>
+
+    </div>
+    </div>
+
+    <!-- laporan terbaru -->
+    <section class="relative bg-gray-50 py-10">
+        <div class="container mx-auto px-4">
+            <!-- Header Section -->
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-6 mx-3">
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">
+                Aduan Terbaru
+            </h2>
+            <a href="/semua/laporan" class="text-blue-600 hover:underline font-medium text-base sm:text-sm">
+                Jelajah Aduan
+            </a>
             </div>
-            <div id="chartContainer" class="overflow-x-auto"></div>
-        </div>
-    </div>
 
-    <!-- Quick Info -->
-    <div class="bg-white rounded-xl p-6 mb-8 shadow-lg">
-      <div class="flex items-center mb-4">
-        <div class="bg-gradient-to-r from-blue-500 to-purple-600 p-2 rounded-lg mr-3">
-          <i class="fas fa-info-circle text-white"></i>
-        </div>
-        <h3 class="text-xl font-bold text-gray-800">Informasi Layanan</h3>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div class="text-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg">
-          <i class="fas fa-clock text-blue-500 text-2xl mb-2"></i>
-          <p class="text-sm text-gray-600">Jam Operasional</p>
-          <p class="font-semibold text-gray-800">07:30 - 16:00 WIB</p>
-        </div>
-        <div class="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg">
-            <a href="#">
-                <i class="fas fa-headset text-green-500 text-2xl mb-2"></i>
-                <p class="text-sm text-gray-600">Customer Services</p>
-                <p class="font-semibold text-gray-800">(0287) 123-456</p>
-            </a>
-        </div>
-        <div class="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg">
-            <a href="#">
-                <i class="fas fa-envelope text-purple-500 text-2xl mb-2"></i>
-                <p class="text-sm text-gray-600">Email</p>
-                <p class="font-semibold text-gray-800">kominfo@kebumenkab.go.id</p>
-            </a>
-        </div>
-      </div>
-    </div>
+            <div class="laporan-swiper swiper relative px-4">
+            <!-- Wrapper untuk slide -->
+            <div id="laporanCarousel" class="swiper-wrapper">
+                <!-- Isi slide akan di-render otomatis oleh JS -->
+            </div>
 
-    <!-- Search & Filter -->
-    <div class="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center mb-4">
-        <div class="relative w-full sm:w-1/3 lg:w-1/4">
-            <input type="text" id="searchInput" placeholder="Cari Laporan..."
-                    class="border px-4 py-2 rounded w-full pr-10">
-            <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+            <!-- Panah navigasi dengan styling yang lebih baik -->
+            <div class="swiper-button-prev !w-10 !h-10 !bg-white !text-gray-800 !rounded-full !shadow-md hover:!bg-blue-600 hover:!text-white"></div>
+            <div class="swiper-button-next !w-10 !h-10 !bg-white !text-gray-800 !rounded-full !shadow-md hover:!bg-blue-600 hover:!text-white"></div>
+
+            <!-- Bullet pagination dengan styling custom -->
+            <div class="swiper-pagination !relative !mt-8"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- informasi layanan-->
+    <div class="bg-white rounded-xl p-6 mb-8 shadow-lg mt-4">
+        <div class="flex items-center mb-4">
+            <div class="bg-gradient-to-r from-blue-500 to-purple-600 p-2 rounded-lg mr-3">
+            <i class="fas fa-info-circle text-white"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800">Informasi Layanan</h3>
         </div>
 
-        <div class="flex flex-col sm:flex-row gap-2">
-            <select id="filterStatus" class="border px-3 py-2 rounded w-full sm:w-auto">
-                <option value="">Semua Status</option>
-                <option value="Pengajuan">Pengajuan</option>
-                <option value="Progress">Progress</option>
-                <option value="Selesai">Selesai</option>
-            </select>
+        <!-- Wrapper scroll untuk mobile, grid untuk md+ -->
+        <div class="overflow-x-auto scroll-smooth md:overflow-visible">
+            <div class="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 w-max md:w-full">
+                <!-- Jam Operasional -->
+                <div class="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shrink-0 w-[80vw] md:w-auto">
+                    <div class="flex flex-col items-center mb-3">
+                        <i class="fas fa-clock text-blue-500 text-2xl"></i>
+                        <p class="text-sm text-gray-600 mt-1">Jam Operasional</p>
+                    </div>
+                    <!-- Carousel scroll -->
+                    <div class="flex gap-4 overflow-x-auto scroll-smooth">
+                        <!-- Senin - Kamis -->
+                        <div class="flex-shrink-0 w-48 bg-white rounded-lg p-3 shadow">
+                        <p class="font-semibold text-gray-800 text-center">Senin - Kamis</p>
+                        <p class="text-center text-gray-700">07:30 - 16:00 WIB</p>
+                        </div>
+                        <!-- Jumat -->
+                        <div class="flex-shrink-0 w-48 bg-white rounded-lg p-3 shadow">
+                        <p class="font-semibold text-gray-800 text-center">Jumat</p>
+                        <p class="text-center text-gray-700">07:30 - 11:00 WIB</p>
+                        </div>
+                    </div>
+                </div>
 
-            <select id="showEntries" class="border px-3 py-2 rounded w-full sm:w-auto">
-                <option value="5">Show 5 entries</option>
-                <option value="10">Show 10 entries</option>
-                <option value="25">Show 25 entries</option>
-                <option value="50">Show 50 entries</option>
-            </select>
+                <!-- Customer Service -->
+                <div class="flex flex-col items-center text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg shrink-0 w-[80vw] md:w-auto">
+                    <i class="fas fa-headset text-green-500 text-2xl mb-2"></i>
+                    <p class="text-sm text-gray-600">Customer Services</p>
+                    <p class="font-semibold text-gray-800 mb-2">(0813) 2556-8441</p>
+                    <a href="https://wa.me/6281325568441" target="_blank" class="inline-flex items-center gap-1 px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition">
+                        <i class="fab fa-whatsapp"></i> Chat via WhatsApp
+                    </a>
+                </div>
+
+                <!-- Email -->
+                <div class="flex flex-col items-center text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg shrink-0 w-[80vw] md:w-auto">
+                    <i class="fas fa-envelope text-purple-500 text-2xl mb-2"></i>
+                    <p class="text-sm text-gray-600">Email</p>
+                    <p class="font-semibold text-gray-800 mb-2">kominfo@kebumenkab.go.id</p>
+                    <a href="mailto:kominfo@kebumenkab.go.id" target="_blank" class="inline-flex items-center gap-1 px-3 py-1 bg-purple-500 text-white text-sm rounded hover:bg-purple-600 transition">
+                        <i class="fas fa-paper-plane"></i> Kirim Email
+                    </a>
+                </div>
+            </div>
         </div>
-    </div>
-
-    <!-- Table -->
-    <div class="overflow-auto bg-white shadow rounded">
-        <table class="min-w-full text-center border">
-            <thead class="bg-black text-white">
-                <tr>
-                    <th class="px-2 lg:px-4 py-2 text-sm lg:text-base">No Resi</th>
-                    <th class="px-2 lg:px-4 py-2 text-sm lg:text-base">Masalah</th>
-                    <th class="px-2 lg:px-4 py-2 text-sm lg:text-base">Tanggal</th>
-                    <th class="px-2 lg:px-4 py-2 text-sm lg:text-base">Status</th>
-                </tr>
-            </thead>
-            <tbody id="laporanTable">
-                <!-- Data will be populated by JavaScript -->
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Pagination -->
-    <div class="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white rounded-xl p-4 shadow-lg">
-      <div class="text-sm text-gray-600">
-        <span id="paginationInfo">Menampilkan 1 hingga 10 dari 15 entri</span>
-      </div>
-      <div class="flex space-x-1" id="paginationButtons">
-        <!-- Pagination buttons akan diisi oleh JavaScript -->
-      </div>
     </div>
 
   </div>

@@ -19,7 +19,17 @@ Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
+Route::get('/detail/{resi}', function($resi){
+    return view('detail-laporan');
+})->name('detail-laporan');
+
+Route::get('/detail/{resi}', [LaporanController::class, 'detailLaporan'])->name('detail-laporan');
+
 Route::get('/public/data', [LaporanController::class, "getPublicData"]);
+
+Route::get('/semua/laporan', function(){
+    return view('semua-laporan');
+})->name('semua-laporan');
 
 // Auth Routes (Login, Register)
 Route::middleware('custom_guest')->group(function () {

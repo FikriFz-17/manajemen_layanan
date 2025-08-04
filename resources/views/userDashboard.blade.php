@@ -119,7 +119,7 @@
     <!-- Search & Filter -->
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4 flex-wrap">
         <!-- Search input -->
-        <div class="relative w-full lg:w-1/3">
+        <div class="relative w-full lg:w-1/3 mt-4">
             <input type="text" id="searchInput" placeholder="Cari laporan berdasarkan No. Resi atau Masalah..."
                 class="border border-gray-300 px-4 py-2.5 rounded-lg w-full pr-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
             <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>

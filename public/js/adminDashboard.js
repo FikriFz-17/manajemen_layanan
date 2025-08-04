@@ -408,7 +408,7 @@ function openModal(dataIndex) {
         data.jenis_instansi === "desa"
             ? "Desa"
             : data.jenis_instansi === "pemda"
-            ? "Pemerintah Daerah"
+            ? "Perangkat Daerah"
             : "-";
     document.getElementById("modalResi").innerText = data.resi;
     document.getElementById("modalNama").innerText = data.masalah;

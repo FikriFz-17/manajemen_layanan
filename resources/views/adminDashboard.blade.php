@@ -189,7 +189,7 @@
                 <select id="filterJenisInstansi" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <option value="">Semua Instansi</option>
                     <option value="desa">Desa</option>
-                    <option value="pemda">Pemerintah Daerah</option>
+                    <option value="pemda">Perangkat Daerah</option>
                 </select>
             </div>
 
@@ -327,7 +327,7 @@
                         <option value="">-- Pilih Jenis --</option>
                         <option value="desa">Desa</option>
                         <option value="kecamatan">Kecamatan</option>
-                        <option value="pemda">Pemerintah Daerah</option>
+                        <option value="pemda">Perangkat Daerah</option>
                     </select>
                 </div>
 

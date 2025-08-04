@@ -33,7 +33,7 @@ class LaporanController extends Controller
 
         // Generate resi format: dmy-no
         $tanggal = \Carbon\Carbon::parse($request->tanggal);
-        $tanggalFormat = $tanggal->format('dmy'); // Contoh: 010725
+        $tanggalFormat = $tanggal->format('dmy'); // Contoh: 010825
 
         $no = 1;
         $resi = '';
@@ -53,17 +53,35 @@ class LaporanController extends Controller
             $lampiranPath = $file->storeAs('lampiran', $originalName, 'public');
         }
 
-        DB::table('laporans')->insert([
-            'user_id' => $user->id,
-            'resi' => $resi,
-            'judul_masalah' => $validated['masalah'],
-            'status' => 'Pengajuan',
-            'tanggal_pengajuan' => $validated['tanggal'],
-            'deskripsi' => $validated['deskripsi'],
-            'lampiran' => $lampiranPath
-        ]);
+        // Mulai transaksi DB
+        DB::beginTransaction();
 
-        return back()->with('success', 'Laporan berhasil diajukan, Pantau status laporan Anda di dashboard');
+        try {
+            // Insert laporan dan ambil ID-nya
+            $laporanId = DB::table('laporans')->insertGetId([
+                'user_id' => $user->id,
+                'resi' => $resi,
+                'judul_masalah' => $validated['masalah'],
+                'status' => 'Pengajuan',
+                'tanggal_pengajuan' => $validated['tanggal'],
+                'deskripsi' => $validated['deskripsi'],
+                'lampiran' => $lampiranPath
+            ]);
+
+            // Insert ke tabel status_laporans
+            DB::table('status_laporans')->insert([
+                'laporan_id' => $laporanId,
+                'pengajuan_tanggal' => $validated['tanggal'],
+                'progress_tanggal' => null,
+                'selesai_tanggal' => null,
+            ]);
+
+            DB::commit();
+            return back()->with('success', 'Laporan berhasil diajukan. Pantau status laporan Anda di dashboard.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->with('error', 'Terjadi kesalahan saat menyimpan laporan: ' . $e->getMessage());
+        }
     }
 
     public function getAllData(Request $request){
@@ -87,9 +105,15 @@ class LaporanController extends Controller
                 'laporans.resi as resi',
                 'laporans.judul_masalah as masalah',
                 'laporans.tanggal_pengajuan as tanggal_pengajuan',
-                'laporans.status as status'
+                'laporans.status as status',
+                'laporans.lampiran as lampiran'
             )
-            ->orderByRaw("laporans.tanggal_pengajuan DESC")->get();
+            ->orderByRaw("laporans.tanggal_pengajuan DESC")
+            ->get()
+            ->map(function($item){
+                $item->lampiran_url = $item->lampiran ? asset('storage/' . $item->lampiran) : null;
+                return $item;
+            });
 
         return response()->json($data);
     }
@@ -147,6 +171,19 @@ class LaporanController extends Controller
             'estimasi' => $estimasi,
         ]);
 
+          // Update tanggal status jika belum diisi
+        if (strtolower($validated['status']) === 'progress') {
+            DB::table('status_laporans')->where('laporan_id', $id)->update([
+                'progress_tanggal' => \Carbon\Carbon::now()->format('Y-m-d'),
+            ]);
+        }
+
+        if (strtolower($validated['status']) === 'selesai') {
+            DB::table('status_laporans')->where('laporan_id', $id)->update([
+                'selesai_tanggal' => \Carbon\Carbon::now()->format('Y-m-d'),
+            ]);
+        }
+
         $user = DB::table('users')->where('id', $laporan->user_id)->first();
 
         $emailData = [
@@ -170,5 +207,26 @@ class LaporanController extends Controller
         return response()->json([
             'message' => 'Laporan berhasil diperbarui'
         ], 200);
+    }
+
+    public function detailLaporan(Request $request)
+    {
+        $laporan = DB::table('laporans')
+            ->where('resi', '=', $request->resi)
+            ->first();
+
+        if (!$laporan) {
+            abort(404, 'Laporan tidak ditemukan');
+        }
+
+        // Ambil data status proses dari tabel status_laporans
+        $statusLaporan = DB::table('status_laporans')
+            ->where('laporan_id', $laporan->id)
+            ->first();
+
+        return view('detail-laporan', [
+            'laporan' => $laporan,
+            'statusLaporan' => $statusLaporan
+        ]);
     }
 }

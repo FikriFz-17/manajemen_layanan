@@ -50,171 +50,6 @@ function animateCounter(elementId, targetValue) {
     }, 50);
 }
 
-// Render table
-function renderTable() {
-    const tableBody = document.getElementById("laporanTable");
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex =
-        itemsPerPage === 50 ? filteredData.length : startIndex + itemsPerPage;
-    const currentData = filteredData.slice(startIndex, endIndex);
-
-    tableBody.innerHTML = "";
-
-    currentData.forEach((item, index) => {
-        let statusClass = "";
-        if (item.status === "Progress") {
-            statusClass = "bg-yellow-100 text-blue-800";
-        } else if (item.status === "Selesai") {
-            statusClass = "bg-green-100 text-green-800";
-        } else if (item.status === "Pengajuan") {
-            statusClass = "bg-red-100 text-yellow-800";
-        }
-
-        const globalIndex = laporanData.findIndex((d) => d.id === item.id);
-        const row = `
-            <tr class="border-b hover:bg-gray-50" data-index="${globalIndex}">
-                <td class="px-2 lg:px-4 py-2 text-sm lg:text-base">${item.resi}</td>
-                <td class="px-2 lg:px-4 py-2 text-sm lg:text-base">${item.masalah}</td>
-                <td class="px-2 lg:px-4 py-2 text-sm lg:text-base">${item.tanggal}</td>
-                <td class="px-2 lg:px-4 py-2 text-sm lg:text-base"><span class="px-2 py-1 ${statusClass} rounded text-xs">${item.status}</span></td>
-            </tr>
-        `;
-        tableBody.innerHTML += row;
-    });
-
-    updatePaginationInfo();
-    renderPagination();
-}
-
-// Update pagination info
-function updatePaginationInfo() {
-    const startIndex = (currentPage - 1) * itemsPerPage + 1;
-    const endIndex = Math.min(currentPage * itemsPerPage, filteredData.length);
-    const totalEntries = filteredData.length;
-
-    document.getElementById(
-        "paginationInfo"
-    ).textContent = `Menampilkan ${startIndex} hingga ${endIndex} dari ${totalEntries} entri`;
-}
-
-// Render pagination
-function renderPagination() {
-    const paginationContainer = document.getElementById("paginationButtons");
-    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-
-    if (totalPages <= 1) {
-        paginationContainer.innerHTML = "";
-        return;
-    }
-
-    let paginationHTML = "";
-
-    // Tombol Previous
-    paginationHTML += `
-        <button onclick="changePage(${currentPage - 1})"
-                class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 transition-colors duration-200 ${
-                    currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
-                }"
-                ${currentPage === 1 ? "disabled" : ""}>
-        <i class="fas fa-chevron-left"></i>
-        </button>
-    `;
-
-    // Logic page numbers
-    if (totalPages <= 5) {
-        // Tampilkan semua jika <= 5
-        for (let i = 1; i <= totalPages; i++) {
-            paginationHTML += renderPageButton(i);
-        }
-    } else {
-        // Halaman 1
-        paginationHTML += renderPageButton(1);
-
-        if (currentPage <= 2) {
-            paginationHTML += renderPageButton(2);
-            paginationHTML += renderEllipsis();
-        } else if (currentPage >= totalPages - 1) {
-            paginationHTML += renderEllipsis();
-            paginationHTML += renderPageButton(totalPages - 1);
-        } else {
-            paginationHTML += renderEllipsis();
-            paginationHTML += renderPageButton(currentPage);
-            paginationHTML += renderEllipsis();
-        }
-
-        // Halaman terakhir
-        paginationHTML += renderPageButton(totalPages);
-    }
-
-    // Tombol Next
-    paginationHTML += `
-        <button onclick="changePage(${currentPage + 1})"
-                class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 transition-colors duration-200 ${
-                    currentPage === totalPages
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
-                }"
-                ${currentPage === totalPages ? "disabled" : ""}>
-        <i class="fas fa-chevron-right"></i>
-        </button>
-    `;
-
-    paginationContainer.innerHTML = paginationHTML;
-
-    // Helper
-    function renderPageButton(page) {
-        if (page === currentPage) {
-            return `<button class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600">${page}</button>`;
-        } else {
-            return `<button onclick="changePage(${page})"
-                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors duration-200">
-                    ${page}
-                </button>`;
-        }
-    }
-
-    function renderEllipsis() {
-        return `<span class="px-2 py-2 text-sm text-gray-500">...</span>`;
-    }
-}
-
-// Change page
-function changePage(page) {
-    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-    if (page >= 1 && page <= totalPages) {
-        currentPage = page;
-        renderTable();
-    }
-}
-
-// Filter table
-function filterTable() {
-    const keyword = document
-        .getElementById("searchInput")
-        .value.toLowerCase()
-        .trim();
-    const status = document.getElementById("filterStatus").value;
-
-    filteredData = laporanData.filter((item) => {
-        const idMatch = item.resi.toString().includes(keyword);
-        const masalahMatch = item.masalah.toLowerCase().includes(keyword);
-        const statusMatch = status === "" || item.status === status;
-
-        return (idMatch || masalahMatch) && statusMatch;
-    });
-
-    currentPage = 1;
-    renderTable();
-}
-
-// Handle entries change
-function handleEntriesChange() {
-    const showEntries = parseInt(document.getElementById("showEntries").value);
-    itemsPerPage = showEntries;
-    currentPage = 1;
-    renderTable();
-}
-
 document.addEventListener("DOMContentLoaded", async function () {
     updateTime();
     setInterval(updateTime, 60000);
@@ -229,7 +64,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         console.error("Gagal memuat data laporan:", error);
     }
 
-    pasangEventListenerLainnya();
+    // pasangEventListenerLainnya();
 });
 
 async function fetchDataLaporan() {
@@ -239,26 +74,134 @@ async function fetchDataLaporan() {
     return data.map((item) => ({
         resi: item.resi,
         masalah: item.masalah,
+        lampiran_url: item.lampiran_url,
         status: item.status,
         tanggal: item.tanggal_pengajuan,
     }));
+}
+
+function renderLaporanCards(data) {
+  const container = document.getElementById("laporanCarousel");
+  container.innerHTML = "";
+
+  // Ambil maksimal 6 data yang statusnya bukan "pengajuan"
+  const filteredData = data.filter(item => item.status.toLowerCase() !== "pengajuan").slice(0, 6);
+
+  filteredData.forEach((item) => {
+    const card = document.createElement("div");
+    card.className = "swiper-slide h-auto";
+
+    // Tentukan warna status
+    let statusColorClass = "bg-gray-200 text-gray-800";
+    if (item.status.toLowerCase() === "progress" || item.status.toLowerCase() === "proses") {
+      statusColorClass = "bg-yellow-100 text-yellow-800";
+    } else if (item.status.toLowerCase() === "selesai") {
+      statusColorClass = "bg-green-100 text-green-800";
+    } else if (item.status.toLowerCase() === "pengajuan") {
+      statusColorClass = "bg-red-100 text-red-800";
+    }
+
+    card.innerHTML = `
+    <div class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg transition-shadow duration-300 flex flex-col h-full">
+        <!-- Lampiran Gambar -->
+        <div class="relative bg-gray-100 w-full h-48 flex items-center justify-center rounded-t-lg">
+        <img src="${item.lampiran_url || 'https://placehold.co/800x400?text=Tidak+Ada+Lampiran'}"
+            loading="lazy" class="h-full object-contain ${item.lampiran_url ? '' : 'opacity-60'}">
+        </div>
+
+        <!-- Konten -->
+        <div class="flex flex-col flex-1 px-5 pb-5 justify-between">
+        <div>
+            <!-- Judul -->
+            <a href="/detail/${item.resi}">
+            <h5 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 min-h-[3rem]">${item.masalah || 'Laporan Layanan Publik'}</h5>
+            </a>
+
+            <!-- Status -->
+            <div class="flex items-center mb-4">
+            <span class="${statusColorClass} text-xs font-semibold px-2 py-1 rounded">
+                ${item.status}
+            </span>
+            </div>
+
+            <!-- Informasi Resi dan Tanggal -->
+            <div class="mb-4">
+            <div class="text-sm text-gray-500">Tanggal:</div>
+            <div class="text-lg font-bold text-gray-900">${item.tanggal}</div>
+            </div>
+        </div>
+
+        <!-- Tombol Lihat Detail dengan tanda panah -->
+        <a href="/detail/${item.resi}"
+            class="w-full flex items-center justify-center gap-2 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 transition-colors duration-200">
+            Lihat Detail
+            <i class="fas fa-arrow-right"></i>
+        </a>
+        </div>
+    </div>
+    `;
+
+
+    container.appendChild(card);
+  });
+
+  // Inisialisasi ulang swiper
+  if (window.laporanSwiper) {
+    window.laporanSwiper.destroy(true, true);
+  }
+
+  window.laporanSwiper = new Swiper(".laporan-swiper", {
+    slidesPerView: 1.1,
+    spaceBetween: 16,
+    loop: true,
+    autoplay: {
+      delay: 1500,
+      disableOnInteraction: false,
+      pauseOnMouseEnter: false
+    },
+    pagination: {
+      el: ".swiper-pagination",
+      clickable: true,
+      dynamicBullets: true
+    },
+    navigation: {
+      nextEl: ".swiper-button-next",
+      prevEl: ".swiper-button-prev",
+    },
+    breakpoints: {
+      480: { slidesPerView: 1.3 },
+      640: { slidesPerView: 2 },
+      768: { slidesPerView: 2.2 },
+      1024: { slidesPerView: 3 },
+      1280: { slidesPerView: 3.2 }
+    },
+    speed: 600,
+    lazy: { loadPrevNext: true },
+    a11y: {
+      enabled: true,
+      prevSlideMessage: 'Slide sebelumnya',
+      nextSlideMessage: 'Slide selanjutnya',
+    }
+  });
 }
 
 function inisialisasiData(data) {
     laporanData = data;
     filteredData = [...laporanData];
     updateStatistics();
-    renderTable();
+    renderLaporanCards(filteredData);
 }
 
 function inisialisasiDropdownTahun(data) {
     const tahunSet = new Set();
+    const now = new Date();
     data.forEach((item) => {
         if (item.resi) {
             const tahun = "20" + item.resi.substring(4, 6);
             tahunSet.add(tahun);
         }
     });
+    tahunSet.add(now.getFullYear().toString());
 
     const tahunSelect = document.getElementById("tahunChartSelect");
     tahunSelect.innerHTML = "";
@@ -277,12 +220,14 @@ function inisialisasiDropdownTahun(data) {
 
 function inisialisasiDropdownHarian(data) {
     const tahunSet = new Set();
+    const now = new Date();
     data.forEach((item) => {
         if (item.resi) {
             const tahun = "20" + item.resi.substring(4, 6);
             tahunSet.add(tahun);
         }
     });
+    tahunSet.add(now.getFullYear().toString());
 
     const tahunHarianSelect = document.getElementById("tahunHarianSelect");
     const bulanHarianSelect = document.getElementById("bulanHarianSelect");
@@ -294,9 +239,9 @@ function inisialisasiDropdownHarian(data) {
         tahunHarianSelect.appendChild(opt);
     });
 
-    const now = new Date();
-    tahunHarianSelect.value = now.getFullYear().toString();
-    bulanHarianSelect.value = now.getMonth().toString(); // 0 - 11
+    const current = new Date();
+    tahunHarianSelect.value = current.getFullYear().toString();
+    bulanHarianSelect.value = current.getMonth().toString(); // 0 - 11
 
     generateDailyChart(tahunHarianSelect.value, bulanHarianSelect.value);
 }
@@ -317,18 +262,6 @@ function pasangEventListenerDropdown() {
     bulanHarianSelect.addEventListener("change", () => {
         generateDailyChart(tahunHarianSelect.value, bulanHarianSelect.value);
     });
-}
-
-function pasangEventListenerLainnya() {
-    document
-        .getElementById("searchInput")
-        .addEventListener("input", filterTable);
-    document
-        .getElementById("filterStatus")
-        .addEventListener("change", filterTable);
-    document
-        .getElementById("showEntries")
-        .addEventListener("change", handleEntriesChange);
 }
 
 // monthly chart
