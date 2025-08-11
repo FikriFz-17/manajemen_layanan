@@ -102,31 +102,6 @@
         </div>
     @endif
 
-    <!-- Validation Errors
-    @if ($errors->any())
-        <div id="errorToast" class="fixed top-0 left-1/2 z-50 transform -translate-x-1/2 -translate-y-full opacity-0 transition duration-500 ease-out">
-            <div class="bg-gradient-to-r from-green-50 to-emerald-100 border-l-4 border-red-500 p-4 rounded-lg shadow-lg w-80">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-check-circle text-red-500 text-lg"></i>
-                    </div>
-                    <div class="ml-3 flex-1">
-                        <p class="text-sm font-semibold text-red-800 mb-1">Terjadi beberapa kesalahan:</p>
-                        <ul class="list-disc pl-4 text-sm text-red-700 space-y-1">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    <button type="button" onclick="document.getElementById('errorToast').remove()"
-                            class="flex-shrink-0 ml-3 text-red-400 hover:text-red-600 transition-colors duration-200">
-                        <i class="fas fa-times text-sm"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    @endif -->
-
     <!-- FORM PENGAJUAN - Responsive -->
     <div class="bg-white p-4 md:p-6 lg:p-8 shadow-md rounded-lg w-full max-w-none">
       <h2 class="text-xl md:text-2xl font-semibold mb-4 md:mb-6 text-[#262394] text-center lg:text-left">Ajukan Laporan Permasalahan</h2>
@@ -200,11 +175,11 @@
           </label>
           <!-- Area Upload -->
           <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-[#262394] transition-colors duration-200">
-            <input type="file" id="lampiran" name="lampiran" class="hidden" accept="image/*,.pdf" onchange="previewLampiran(event)">
+            <input type="file" id="lampiran" name="lampiran" class="hidden" accept="image/*" onchange="previewLampiran(event)">
             <label for="lampiran" class="cursor-pointer flex flex-col items-center justify-center text-gray-500 hover:text-[#262394]">
               <i class="fas fa-cloud-upload-alt text-3xl mb-2"></i>
               <span class="text-sm text-center">Klik untuk upload file</span>
-              <span class="text-xs text-gray-400 mt-1">Format: JPG, PNG, PDF (Max: 5MB)</span>
+              <span class="text-xs text-gray-400 mt-1">Format: JPG, PNG (Max: 5MB)</span>
             </label>
           </div>
         </div>

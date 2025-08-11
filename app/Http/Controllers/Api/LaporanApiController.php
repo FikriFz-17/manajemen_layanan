@@ -25,6 +25,7 @@ class LaporanApiController extends Controller
     {
         $user = Auth::user();
 
+        // Cek kelengkapan data user
         if (empty($user->nama) || empty($user->instansi)) {
             return response()->json([
                 'message' => 'Data pengguna tidak lengkap.',
@@ -35,28 +36,26 @@ class LaporanApiController extends Controller
             ], 400);
         }
 
-        $validator = Validator::make($request->all(), [
-            'tanggal' => 'required|date',
-            'masalah' => 'required|string',
+        // Validasi request
+        $validated = $request->validate([
+            'tanggal' => 'required|date|before_or_equal:today|after_or_equal:1900-01-01',
+            'masalah' => 'required|string|max:50',
             'deskripsi' => 'required|string',
+            'lampiran' => 'file|mimes:pdf,jpg,png,jpeg|max:5120'
         ], [
             'tanggal.required' => 'Tanggal tidak boleh kosong',
+            'tanggal.before_or_equal' => 'Emangnya bisa liat masa depan? awokwokw',
+            'tanggal.after_or_equal' => 'Orang purba jir',
             'masalah.required' => 'Masalah tidak boleh kosong',
+            'masalah.max' => 'Masukkan judul masalah secara umum',
             'deskripsi.required' => 'Deskripsi tidak boleh kosong',
+            'lampiran.mimes' => 'Lampiran harus berupa PDF, JPG, PNG, atau JPEG',
+            'lampiran.max' => 'Lampiran maksimal 5MB',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validasi gagal.',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $validated = $validator->validated();
-
         // Generate resi format: dmy-no
-        $tanggal = \Carbon\Carbon::parse($request->tanggal);
-        $tanggalFormat = $tanggal->format('dmy'); // Contoh: 010725
+        $tanggal = \Carbon\Carbon::parse($validated['tanggal']);
+        $tanggalFormat = $tanggal->format('dmy');
 
         $no = 1;
         $resi = '';
@@ -65,7 +64,7 @@ class LaporanApiController extends Controller
         while ($exists) {
             $no_str = str_pad($no, 2, '0', STR_PAD_LEFT);
             $resi = $tanggalFormat . '-' . $no_str;
-            $exists = Laporan::where('resi', $resi)->exists();
+            $exists = \App\Models\Laporan::where('resi', $resi)->exists();
             $no++;
         }
 
@@ -76,27 +75,49 @@ class LaporanApiController extends Controller
             $lampiranPath = $file->storeAs('lampiran', $originalName, 'public');
         }
 
-        // Simpan laporan ke DB
-        $laporan_id = DB::table('laporans')->insertGetId([
-            'user_id' => $user->id,
-            'resi' => $resi,
-            'judul_masalah' => $validated['masalah'],
-            'status' => 'Pengajuan',
-            'tanggal_pengajuan' => $validated['tanggal'],
-            'deskripsi' => $validated['deskripsi'],
-            'lampiran' => $lampiranPath,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        DB::beginTransaction();
 
-        // Ambil kembali data lengkap laporan
-        $laporan = DB::table('laporans')->where('id', $laporan_id)->first();
+        try {
+            // Insert laporan
+            $laporanId = DB::table('laporans')->insertGetId([
+                'user_id' => $user->id,
+                'resi' => $resi,
+                'judul_masalah' => $validated['masalah'],
+                'status' => 'Pengajuan',
+                'tanggal_pengajuan' => $validated['tanggal'],
+                'deskripsi' => $validated['deskripsi'],
+                'lampiran' => $lampiranPath,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-        return response()->json([
-            'message' => 'Laporan berhasil dibuat.',
-            'laporan' => $laporan
-        ], 201);
+            // Insert status laporan
+            DB::table('status_laporans')->insert([
+                'laporan_id' => $laporanId,
+                'pengajuan_tanggal' => $validated['tanggal'],
+                'progress_tanggal' => null,
+                'selesai_tanggal' => null,
+            ]);
+
+            DB::commit();
+
+            // Ambil data lengkap laporan
+            $laporan = DB::table('laporans')->where('id', $laporanId)->first();
+
+            return response()->json([
+                'message' => 'Laporan berhasil diajukan.',
+                'laporan' => $laporan
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Terjadi kesalahan saat menyimpan laporan.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
+
 
     /**
      * Laporan Pengguna
