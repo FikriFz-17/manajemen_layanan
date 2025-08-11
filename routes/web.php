@@ -208,7 +208,11 @@ Route::middleware(['auth', 'admin'])->group(function(){
 
     Route::put('/admin/laporan/{id}/update', [LaporanController::class, 'tanganiLaporan'])->name('admin.laporan.update');
 
-    Route::get('/export-laporan', [LaporanExportController::class, 'export']);
+    Route::get('/export-laporan/All', [LaporanExportController::class, 'exportAll']);
+
+    Route::get('/export-laporan/perTahun', [LaporanExportController::class, 'exportPerTahun']);
+
+    Route::get('/export-laporan/perBulan', [LaporanExportController::class, 'exportPerBulan']);
 
     Route::delete('/delete-user/{id}', [UserController::class, 'deleteUser'])->name('users.destroy');
 });

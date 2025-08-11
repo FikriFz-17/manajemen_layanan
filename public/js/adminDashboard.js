@@ -234,21 +234,135 @@ document.getElementById("filterBtn").addEventListener("click", function () {
     }
 });
 
-// Export function placeholder (untuk implementasi selanjutnya)
-document.getElementById("exportBtn").addEventListener("click", function () {
-    window.location.href = "/export-laporan";
-});
-
 function openImportModal() {
     const modal = document.getElementById("uploadModal");
     modal.classList.remove("hidden");
     modal.classList.add("flex");
 }
 
-function closeImportModal() {
-    const modal = document.getElementById("uploadModal");
-    modal.classList.remove("flex");
-    modal.classList.add("hidden");
+function openExportModal(){
+    const modal = document.getElementById("exportModal");
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+}
+
+let bulanTomSelect = null;
+let tahunTomSelect = null;
+function onWaktuChange() {
+  const waktu = document.getElementById('waktu').value;
+  const tahunContainer = document.getElementById('tahunContainer');
+  const bulanContainer = document.getElementById('bulanContainer');
+
+  if (waktu === 'per_tahun') {
+    tahunContainer.classList.remove('hidden');
+    bulanContainer.classList.add('hidden');
+
+    if (!tahunTomSelect) {
+      tahunTomSelect = new TomSelect("#tahun", {
+        create: false,
+        placeholder: "--- Pilih Tahun ---",
+      });
+    }
+
+  } else if (waktu === 'per_bulan') {
+    tahunContainer.classList.remove('hidden');
+    bulanContainer.classList.remove('hidden');
+
+    if (!tahunTomSelect) {
+      tahunTomSelect = new TomSelect("#tahun", {
+        create: false,
+        placeholder: "--- Pilih Tahun ---",
+      });
+    }
+
+    if (!bulanTomSelect) {
+      bulanTomSelect = new TomSelect("#bulan", {
+        create: false,
+        placeholder: "--- Pilih Bulan ---",
+      });
+    }
+
+  } else {
+    tahunContainer.classList.add('hidden');
+    bulanContainer.classList.add('hidden');
+  }
+}
+
+function isiDropdownTahun(data){
+    const tahunSelect = document.getElementById('tahun');
+    const tahunSet = new Set();
+
+    data.forEach((item) => {
+        if (item.tanggal) {
+            const tahun = new Date(item.tanggal).getFullYear();
+            tahunSet.add(tahun);
+        }
+    });
+
+    const sortedTahun = Array.from(tahunSet).sort();
+
+    console.log(sortedTahun);
+
+    tahunSelect.innerHTML = '<option value="">-- Tahun --</option>';
+
+    sortedTahun.forEach((tahun) => {
+        const option = document.createElement("option");
+        option.value = tahun;
+        option.textContent = tahun;
+        tahunSelect.appendChild(option);
+    });
+}
+
+function closeImportExportModal() {
+    const importModal = document.getElementById("uploadModal");
+    const exportModal = document.getElementById("exportModal");
+
+    if (!importModal.classList.contains("hidden")) {
+        importModal.classList.remove("flex");
+        importModal.classList.add("hidden");
+    } else if (!exportModal.classList.contains("hidden")) {
+        exportModal.classList.remove("flex");
+        exportModal.classList.add("hidden");
+        const waktuSelect = document.getElementById("waktu");
+        const tahunSelect = document.getElementById('tahun');
+        if (waktuSelect){
+            waktuSelect.value = "";
+            onWaktuChange();
+        }
+
+        tahunTomSelect.clear(true);
+        tahunTomSelect.setValue('');
+        bulanTomSelect.clear(true);
+        bulanTomSelect.setValue('');
+    }
+}
+
+function submitExport() {
+    const waktu = document.getElementById('waktu').value;
+    const tahun = document.getElementById('tahun').value;
+    const bulan = document.getElementById('bulan').value;
+
+    if (!waktu) {
+        return;
+    }
+
+    let url = '';
+
+    if (waktu === 'semua') {
+        url = '/export-laporan/All';
+    } else if (waktu === 'per_tahun') {
+        if (!tahun) {
+            return;
+        }
+        url = `/export-laporan/perTahun?tahun=${tahun}`;
+    } else if (waktu === 'per_bulan') {
+        if (!tahun || !bulan) {
+            return;
+        }
+        url = `/export-laporan/perBulan?tahun=${tahun}&bulan=${bulan}`;
+    }
+
+    window.location.href = url;
 }
 
 document.getElementById("uploadModal").addEventListener("click", function (e) {
@@ -469,7 +583,6 @@ document.getElementById("editForm").addEventListener("submit", async (e) => {
         const result = await response.json();
 
         if (response.ok) {
-            // Jika sukses
             await fetchData();
             closeModal();
             filterTable();
@@ -479,10 +592,8 @@ document.getElementById("editForm").addEventListener("submit", async (e) => {
             );
         } else {
             if (result.errors) {
-                // Jika error validasi dari Laravel
-                showInputErrors(result.errors); // Fungsi ini akan tampilkan error di bawah input
+                showInputErrors(result.errors);
             } else {
-                // Jika error umum
                 showToast("error", result.message || "Terjadi kesalahan.");
             }
         }
@@ -490,7 +601,6 @@ document.getElementById("editForm").addEventListener("submit", async (e) => {
     } catch (error) {
         console.error("Terjadi kesalahan saat submit:", error);
     } finally {
-        // Kembalikan tombol submit dan sembunyikan loader
         loadingBtn.classList.add("hidden");
         submitBtn.classList.remove("hidden");
     }
@@ -535,6 +645,8 @@ async function fetchData() {
         filteredData = [...laporanData];
         updateStatistics();
         renderTable();
+
+        isiDropdownTahun(laporanData)
     } catch (error) {
         console.error("Gagal memuat data laporan:", error);
     }

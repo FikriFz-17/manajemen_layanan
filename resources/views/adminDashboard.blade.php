@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>Dashboard Admin - Kominfo Kebumen</title>
+  <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@fortawesome/fontawesome-free@6.4.0/js/all.min.js" crossorigin="anonymous"></script>
 </head>
@@ -112,13 +114,13 @@
             <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
         </div>
 
-        <!-- Export Buttons -->
+        <!-- Export & Import & Filter Buttons -->
         <div class="flex flex-wrap gap-2">
             <button id="filterBtn" class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2.5 rounded-lg border transition-colors">
                 <i class="fas fa-filter text-gray-600"></i>
                 <span class="text-gray-700">Filter</span>
             </button>
-            <button id="exportBtn" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg transition-colors">
+            <button onclick="openExportModal()" id="exportBtn" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg transition-colors">
                 <i class="fas fa-download"></i>
                 <span>Export</span>
             </button>
@@ -293,9 +295,17 @@
                         <label for="modalDeskripsiPenanganan" class="block text-sm font-medium text-gray-700 mb-2 mt-2">Deskripsi Penanganan</label>
                         <textarea id="modalDeskripsiPenanganan" name="deskripsi_penanganan" rows="4" class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Jelaskan bagaimana masalah ditangani..."></textarea>
                     </div>
-                    <div class="flex justify-end items-center border-t px-6 py-4 gap-2">
+                    <div class="flex justify-end items-center border-t px-2 py-4 gap-2">
+                        <!-- Button Tolak Aduan -->
+                        <!-- <button type="button" id="tolakAduanBtn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+                            Tolak Aduan
+                        </button> -->
+
                         <!-- Submit edit btn -->
-                        <button type="submit" id="adminEditBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Simpan Perubahan</button>
+                        <button type="submit" id="adminEditBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                            Tangani Aduan
+                        </button>
+
                         <!-- Loading button -->
                         <button disabled type="button" id="loadingBtn" class="hidden items-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                             <svg aria-hidden="true" role="status" class="inline w-4 h-4 me-3 text-white animate-spin" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -346,7 +356,85 @@
             </form>
 
             <!-- Tombol Close (pojok kanan atas) -->
-            <button onclick="closeImportModal()" class="absolute top-3 right-3 text-gray-500 hover:text-red-500">
+            <button onclick="closeImportExportModal()" class="absolute top-3 right-3 text-gray-500 hover:text-red-500">
+                ✕
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Export -->
+    <div id="exportModal" class="fixed inset-0 bg-black bg-opacity-50 {{ session('error') ? 'flex' : 'hidden' }} items-center justify-center z-50">
+        <div class="bg-white w-full max-w-lg mx-4 sm:mx-auto rounded-lg shadow-lg p-6 relative">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Export Data</h2>
+
+            <!-- Pesan Error -->
+            @if (session('error'))
+            <div class="relative bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+                <strong class="font-bold">Error!</strong>
+                <span class="block sm:inline">{{ session('error') }}</span>
+                <button type="button" onclick="this.parentElement.style.display='none';"
+                    class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                    <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20">
+                        <title>Close</title>
+                        <path
+                            d="M14.348 5.652a1 1 0 0 0-1.414 0L10 8.586 7.066 5.652a1 1 0 1 0-1.414 1.414L8.586 10l-2.934 2.934a1 1 0 1 0 1.414 1.414L10 11.414l2.934 2.934a1 1 0 0 0 1.414-1.414L11.414 10l2.934-2.934a1 1 0 0 0 0-1.414z" />
+                    </svg>
+                </button>
+            </div>
+            @endif
+
+            <!-- Pilihan Waktu -->
+            <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Waktu</label>
+            <select id="waktu" name="waktu" onchange="onWaktuChange()" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500">
+                <option value="">-- Pilih Waktu --</option>
+                <option value="semua">Semua Waktu</option>
+                <option value="per_tahun">Per Tahun</option>
+                <option value="per_bulan">Per Bulan</option>
+            </select>
+            </div>
+
+            <!-- Pilih Tahun -->
+            <div id="tahunContainer" class="mb-4 hidden">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Tahun</label>
+                <select id="tahun" name="tahun">
+                    <option value="">-- Tahun --</option>
+                </select>
+            </div>
+
+            <!-- Pilih Bulan -->
+            <div id="bulanContainer" class="mb-4 hidden">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Bulan</label>
+                <select id="bulan" name="bulan">
+                    <option value="">-- Bulan --</option>
+                    <option value="1">Januari</option>
+                    <option value="2">Februari</option>
+                    <option value="3">Maret</option>
+                    <option value="4">April</option>
+                    <option value="5">Mei</option>
+                    <option value="6">Juni</option>
+                    <option value="7">Juli</option>
+                    <option value="8">Agustus</option>
+                    <option value="9">September</option>
+                    <option value="10">Oktober</option>
+                    <option value="11">November</option>
+                    <option value="12">Desember</option>
+                </select>
+            </div>
+            @error('empty')
+                <p class="error-message text-sm text-red-600 mt-1">{{ $message }}</p>
+            @enderror
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end gap-3 mt-6 border-t pt-4">
+            <button type="button" onclick="submitExport()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                Export
+            </button>
+            </div>
+
+            <!-- Tombol Close -->
+            <button onclick="closeImportExportModal()" class="absolute top-3 right-3 text-gray-500 hover:text-red-500">
                 ✕
             </button>
         </div>

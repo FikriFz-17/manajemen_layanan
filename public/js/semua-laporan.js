@@ -20,6 +20,16 @@ async function fetchDataLaporan() {
     }));
 }
 
+function getVisibleData() {
+    const search = document.getElementById("searchInput").value.toLowerCase().trim();
+
+    if (!search) {
+        return filteredData.filter(item => item.status.toLowerCase() !== "pengajuan");
+    }
+
+    return filteredData;
+}
+
 function applyFilterAndSearch() {
     const status = document.getElementById("filterStatus").value.toLowerCase();
     const search = document.getElementById("searchInput").value.toLowerCase().trim();
@@ -36,9 +46,11 @@ function applyFilterAndSearch() {
 
 function renderCards() {
     const container = document.getElementById("laporanCards");
+    const visibleData = getVisibleData();
+
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = Math.min(startIndex + itemsPerPage, filteredData.length);
-    const currentData = filteredData.slice(startIndex, endIndex);
+    const endIndex = Math.min(startIndex + itemsPerPage, visibleData.length);
+    const currentData = visibleData.slice(startIndex, endIndex);
 
     container.innerHTML = "";
 
@@ -75,18 +87,19 @@ function renderCards() {
     renderPagination();
 }
 
-
 function updatePaginationInfo() {
+    const visibleData = getVisibleData();
     const startIndex = (currentPage - 1) * itemsPerPage + 1;
-    const endIndex = Math.min(currentPage * itemsPerPage, filteredData.length);
-    const totalEntries = filteredData.length;
+    const endIndex = Math.min(currentPage * itemsPerPage, visibleData.length);
+    const totalEntries = visibleData.length;
 
     document.getElementById("paginationInfo").textContent = `Menampilkan ${startIndex} hingga ${endIndex} dari ${totalEntries} entri`;
 }
 
 function renderPagination() {
     const paginationContainer = document.getElementById("paginationButtons");
-    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    const visibleData = getVisibleData();
+    const totalPages = Math.ceil(visibleData.length / itemsPerPage);
 
     if (totalPages <= 1) {
         paginationContainer.innerHTML = "";
@@ -95,7 +108,6 @@ function renderPagination() {
 
     let paginationHTML = "";
 
-    // Tombol prev
     paginationHTML += `
         <button onclick="changePage(${currentPage - 1})"
             class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors duration-200 ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""}"
@@ -104,7 +116,6 @@ function renderPagination() {
         </button>
     `;
 
-    // Tampilkan max 5 tombol page dengan ellipsis
     let pagesToShow = [];
 
     if (totalPages <= 5) {
@@ -121,7 +132,6 @@ function renderPagination() {
         }
     }
 
-    // Generate tombol page
     pagesToShow.forEach(p => {
         if (p === "...") {
             paginationHTML += `<span class="px-3 py-2 text-sm text-gray-500">...</span>`;
@@ -140,7 +150,6 @@ function renderPagination() {
         }
     });
 
-    // Tombol next
     paginationHTML += `
         <button onclick="changePage(${currentPage + 1})"
             class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors duration-200 ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""}"
