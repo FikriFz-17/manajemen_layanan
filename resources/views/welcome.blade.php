@@ -271,31 +271,30 @@
           <h4 class="text-lg font-semibold mb-4">Kontak</h4>
           <div class="space-y-2 text-sm text-gray-300">
             <p><i class="fas fa-map-marker-alt mr-2"></i>Jalan K.H. Hasyim Asy’ari No. 6 Kebumen, Kodepos 54312</p>
-            <p><i class="fas fa-phone mr-2"></i>(0287) 123-456</p>
-            <p><i class="fas fa-envelope mr-2"></i>info@kebumen.go.id</p>
-            <p><i class="fas fa-headset mr-2"></i>Customer Service</p>
+            <p><i class="fas fa-phone mr-2"></i>(0813) 2556-8441</p>
+            <p><i class="fas fa-envelope mr-2"></i>kominfo@kebumenkab.go.id</p>
           </div>
         </div>
         <div>
           <h4 class="text-lg font-semibold mb-4">Media Sosial</h4>
           <div class="flex space-x-4">
-            <a href="#" class="text-gray-300 hover:text-blue-400 transition-colors duration-300">
+            <a href="https://www.facebook.com/profile.php?id=100015621966895&locale=id_ID" target="_blank" class="text-gray-300 hover:text-blue-400 transition-colors duration-300">
               <i class="fab fa-facebook text-2xl"></i>
             </a>
-            <a href="#" class="text-gray-300 hover:text-blue-400 transition-colors duration-300">
+            <a href="https://x.com/diskominfokbm" target="_blank" class="text-gray-300 hover:text-blue-400 transition-colors duration-300">
               <i class="fab fa-twitter text-2xl"></i>
             </a>
-            <a href="#" class="text-gray-300 hover:text-red-400 transition-colors duration-300">
+            <a href="https://www.youtube.com/c/RatihTVNews" target="_blank" class="text-gray-300 hover:text-red-400 transition-colors duration-300">
               <i class="fab fa-youtube text-2xl"></i>
             </a>
-            <a href="#" class="text-gray-300 hover:text-pink-400 transition-colors duration-300">
+            <a href="https://www.instagram.com/kominfo_kebumen/" target="_blank" class="text-gray-300 hover:text-pink-400 transition-colors duration-300">
               <i class="fab fa-instagram text-2xl"></i>
             </a>
           </div>
         </div>
       </div>
       <div class="border-t border-gray-700 mt-8 pt-4 text-center text-sm text-gray-400">
-        <p>&copy; 2024 Kominfo Kebumen. Semua hak dilindungi undang-undang.</p>
+        <p>&copy; 2025 Dinas Komunikasi dan Informatika Kabupaten Kebumen</p>
       </div>
     </div>
   </footer>

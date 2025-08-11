@@ -36,7 +36,6 @@
       <select id="filterStatus"
         class="w-full sm:w-48 border border-gray-300 rounded-lg px-4 py-2 text-sm bg-white">
         <option value="">Semua Status</option>
-        <option value="Pengajuan">Pengajuan</option>
         <option value="Progress">Progress</option>
         <option value="Selesai">Selesai</option>
       </select>
@@ -54,6 +53,6 @@
         </div>
     </div>
 
-  <script src="{{ asset('js/semua-data.js') }}"></script>
+  <script src="{{ asset('js/semua-laporan.js') }}"></script>
 </body>
 </html>
