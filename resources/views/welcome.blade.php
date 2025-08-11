@@ -6,22 +6,9 @@
   <title>Dashboard Publik - Kominfo Kebumen</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  @vite('resources/css/app.css')
   <script src="https://unpkg.com/@fortawesome/fontawesome-free@6.4.0/js/all.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          animation: {
-            'bounce-slow': 'bounce 3s infinite',
-            'pulse-slow': 'pulse 3s infinite',
-            'spin-slow': 'spin 8s linear infinite',
-          }
-        }
-      }
-    }
-  </script>
   <style>
     /* Custom Swiper Styles */
     .laporan-swiper .swiper-button-prev:hover,
@@ -40,48 +27,45 @@
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
 
-  <!-- Header -->
-  <header class="bg-white shadow-lg border-b-4 border-gradient-to-r from-blue-500 to-purple-600">
+    <!-- Header -->
+    <header class="bg-white shadow-lg">
     <div class="container mx-auto px-4 py-6">
-      <div class="flex flex-col md:flex-row items-center justify-between">
+        <div class="flex flex-col md:flex-row items-center justify-between">
         <div class="flex items-center space-x-4 mb-4 md:mb-0">
-          <img src="{{ asset('images/logo-kebumen.png') }}" alt="Logo Kebumen" class="w-20 h-20 object-contain">
-          <div>
-            <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Sistem Informasi Manajemen Layanan TIK
+            <img src="{{ asset('images/logo-kebumen.png') }}" alt="Logo Kebumen" class="w-20 h-20 object-contain">
+            <div>
+            <h1 class="text-2xl md:text-3xl font-bold text-blue-600">
+                Sistem Informasi Manajemen Layanan TIK
             </h1>
             <p class="text-gray-600 text-sm md:text-base">Diskominfo Kabupaten Kebumen</p>
-          </div>
+            </div>
         </div>
         <div class="flex items-center space-x-2 text-sm text-gray-500">
-          <i class="fas fa-clock animate-spin-slow"></i>
-          <span id="currentTime" class="font-medium"></span>
+            <i class="fas fa-clock animate-spin-slow"></i>
+            <span id="currentTime" class="font-medium"></span>
         </div>
-      </div>
+        </div>
     </div>
-  </header>
+    </header>
+
 
   <div class="container mx-auto px-4 py-8">
 
     <!-- Hero Section -->
-    <div class="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-2xl p-8 mb-8 text-white relative overflow-hidden">
-      <div class="absolute top-0 right-0 w-32 h-32 bg-white bg-opacity-10 rounded-full -mr-16 -mt-16"></div>
-      <div class="absolute bottom-0 left-0 w-24 h-24 bg-white bg-opacity-10 rounded-full -ml-12 -mb-12"></div>
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 mb-8 text-white relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-32 h-32 bg-white/25 bg-opacity-10 rounded-full -mr-16 -mt-16"></div>
+      <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/25 bg-opacity-10 rounded-full -ml-12 -mb-12"></div>
       <div class="relative z-10">
         <h2 class="text-2xl md:text-4xl font-bold mb-4 animate-pulse-slow">
           Pantau Perkembangan Laporan Anda
         </h2>
         <div class="flex flex-col sm:flex-row gap-4">
-          <button class="border-2 border-white text-white px-4 md:px-3 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all duration-300">
-            <a href="{{route('login')}}" class="flex items-center">
-                <i class="fas fa-plus-circle mr-2"></i>Buat Aduan Baru
+            <a href="{{route('login')}}" class="inline-flex items-center border-2 border-white text-white px-6 py-3 rounded-xl font-medium hover:bg-white hover:text-blue-600 transition-all duration-300 text-sm">
+                    <i class="fas fa-plus-circle mr-2"></i>Buat Aduan Baru
             </a>
-          </button>
-          <button class="border-2 border-white text-white px-4 sm:px- md:px-3 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all duration-300">
-            <a href="{{ asset('storage/user_manual/Panduan Registrasi Pengguna.pdf') }}" download class="flex items-center">
-                <i class="fa-solid fa-file-arrow-down mr-2"></i>Panduan Registrasi
+            <a href="{{ asset('storage/user_manual/Panduan Registrasi Pengguna.pdf') }}" download class="inline-flex items-center border-2 border-white text-white px-6 py-3 rounded-xl font-medium hover:bg-white hover:text-blue-600 transition-all duration-300 text-sm">
+                <i class="fas fa-download mr-2"></i>Panduan Registrasi
             </a>
-          </button>
         </div>
       </div>
     </div>

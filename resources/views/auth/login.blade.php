@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LOGIN - LAPOR KOMINFO</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite('resources/css/app.css')
     <script src="https://unpkg.com/@fortawesome/fontawesome-free@6.4.0/js/all.min.js" crossorigin="anonymous"></script>
 </head>
 <body class="h-screen w-screen bg-white overflow-hidden">
@@ -99,7 +99,7 @@
 
                 <!-- Tombol Login -->
                 <button type="submit"
-                        class="bg-[#262394] text-white w-full py-3 rounded-lg font-semibold hover:bg-[#1e1b75] transition">
+                        class="bg-[#262394] text-white w-full py-3 rounded-lg font-semibold hover:bg-[#1e1b75] transition cursor-pointer">
                     <i class="fas fa-sign-in-alt mr-2"></i>Log In
                 </button>
 

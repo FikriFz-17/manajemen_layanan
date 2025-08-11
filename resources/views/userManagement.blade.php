@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>User Management - Kominfo Kebumen</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  @vite('resources/css/app.css')
   <script src="https://unpkg.com/@fortawesome/fontawesome-free@6.4.0/js/all.min.js" crossorigin="anonymous"></script>
 </head>
 <body class="bg-gray-100 h-screen flex">
@@ -17,11 +17,11 @@
     <h1 class="text-lg font-bold text-center mb-8">Diskominfo Kebumen</h1>
     <nav class="flex flex-col gap-4">
       <a href="{{ route('adminDashboard') }}" class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors"><i class="fas fa-home"></i> Dashboard</a>
-      <a href="{{route('userManagement')}}" class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors bg-white bg-opacity-20"><i class="fa-solid fa-user"></i>User Management</a>
+      <a href="{{route('userManagement')}}" class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors bg-white/20 bg-opacity-10"><i class="fa-solid fa-user"></i>User Management</a>
       <a href="{{ asset('storage/user_manual/Panduan Admin.pdf') }}" download class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors"><i class="fa-solid fa-file-arrow-down"></i> User Manual</a>
 
-      <div class="mt-auto pt-4 border-t border-white border-opacity-20">
-        <div class="flex items-center gap-2 p-2 rounded transition-colors hover:bg-white hover:bg-opacity-10 cursor-pointer">
+      <div class="mt-auto pt-4 border-t border-white/20 border-opacity-20">
+        <div class="flex items-center gap-2 p-2 rounded transition-colors hover:bg-white/20 hover:bg-opacity-10 cursor-pointer">
           <div class="relative">
             <i class="fas fa-headset text-xl"></i>
             <span class="absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full"></span>
@@ -174,7 +174,7 @@
 
     <!-- Users Table -->
     <div class="overflow-auto bg-white shadow rounded">
-        <table class="min-w-full text-center border">
+        <table class="min-w-full text-center border border-gray-200">
             <thead class="bg-black text-white">
                 <tr>
                     <th class="px-2 lg:px-4 py-2 text-sm lg:text-base">Nama</th>

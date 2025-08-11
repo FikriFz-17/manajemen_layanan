@@ -99,7 +99,7 @@ function renderTable() {
 
         const globalIndex = laporanData.findIndex(d => d.id === item.id);
         const row = `
-            <tr class="border-b hover:bg-gray-50" data-index="${globalIndex}">
+            <tr class="border-b border-gray-200 hover:bg-gray-50" data-index="${globalIndex}">
                 <td class="px-2 lg:px-4 py-2 text-sm lg:text-base">${item.resi}</td>
                 <td class="px-2 lg:px-4 py-2 text-sm lg:text-base">${item.masalah}</td>
                 <td class="px-2 lg:px-4 py-2 text-sm lg:text-base"><span class="px-2 py-1 ${statusClass} rounded text-xs">${item.status}</span></td>

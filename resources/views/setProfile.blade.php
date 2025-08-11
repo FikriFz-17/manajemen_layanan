@@ -9,13 +9,13 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  @vite('resources/css/app.css')
   <script src="https://unpkg.com/@fortawesome/fontawesome-free@6.4.0/js/all.min.js" crossorigin="anonymous"></script>
 </head>
 <body class="bg-gray-100 h-screen flex">
 
   <!-- Mobile Overlay -->
-  <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+  <div id="mobileOverlay" class="fixed inset-0 bg-black/30 bg-opacity-50 z-40 hidden lg:hidden"></div>
 
   <!-- Sidebar -->
   <div id="sidebar" class="w-64 bg-[#262394] text-white flex flex-col p-6 fixed lg:relative h-full z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
@@ -139,8 +139,14 @@
             <form action="{{ route('uploadPhoto.submit') }}" method="post" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
-                <div class="flex flex-col sm:flex-row sm:items-center gap-6 mb-8 pb-8 border-b">
-                    <img src="{{Auth::user()->profile_url === 'default.jpg' ? 'images/user.png' : 'storage/' .Auth::user()->profile_url}}" alt="Foto Profil" class="w-24 h-24 rounded-full object-cover border-2 border-gray-200">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-6 mb-8 pb-8 border-b border-gray-200">
+                    <a href="{{ Auth::user()->profile_url === 'default.jpg' ? asset('images/user.png') : asset('storage/' . Auth::user()->profile_url) }}" target="_blank">
+                        <img
+                            src="{{ Auth::user()->profile_url === 'default.jpg' ? asset('images/user.png') : asset('storage/' . Auth::user()->profile_url) }}"
+                            alt="Foto Profil"
+                            class="w-24 h-24 rounded-full object-cover border-2 border-gray-200"
+                        >
+                    </a>
                     <div>
                         <label for="photo-upload" class="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium">
                             Ubah
@@ -151,7 +157,7 @@
                 </div>
 
                 <!-- Modal untuk Crop Foto -->
-                <div id="cropModal" class="fixed inset-0 z-50 bg-black bg-opacity-50 hidden items-start justify-center py-12">
+                <div id="cropModal" class="fixed inset-0 z-50 bg-black/50 bg-opacity-50 hidden items-start justify-center py-12">
                     <div class="bg-white rounded-lg p-6 shadow-md w-96 relative">
                         <h2 class="text-lg font-bold mb-4">Crop your new profile picture</h2>
                         <div class="w-full h-64 overflow-hidden rounded-md mb-4">
@@ -198,7 +204,7 @@
                             name="instansi"
                         >
                         <!-- Modal -->
-                        <div id="InstanceModal" class="fixed inset-0 z-50 items-start justify-center bg-black bg-opacity-40 py-12 hidden">
+                        <div id="InstanceModal" class="fixed inset-0 z-50 items-start justify-center bg-black/50 bg-opacity-40 py-12 hidden">
                             <div class="bg-white rounded-lg shadow-lg w-full max-w-xl p-6 relative">
                                 <!-- Tombol close -->
                                 <button type="button" onclick="closeInstanceModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl font-bold">
@@ -263,7 +269,7 @@
                     </div>
                 </div>
 
-                <div class="flex justify-end items-center gap-4 mt-10 pt-6 border-t">
+                <div class="flex justify-end items-center gap-4 mt-10 pt-6 border-t border-gray-200">
                     <a href="{{ request('return_to', route('dashboard')) }}" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-300 transition-colors font-medium">
                         Batal
                     </a>

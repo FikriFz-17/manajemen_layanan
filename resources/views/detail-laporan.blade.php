@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Detail Aduan</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  @vite('resources/css/app.css')
   <script src="https://unpkg.com/@fortawesome/fontawesome-free@6.4.0/js/all.min.js" crossorigin="anonymous"></script>
   <style>
     .logo-bg {
@@ -14,7 +14,7 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Breadcrumb -->
-    <div class="bg-white border-b">
+    <div class="bg-white border-b border-gray-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
         <!-- Title -->
@@ -78,8 +78,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     @if ($laporan->lampiran)
                         <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden">
-                            <img src="{{ asset('storage/' . $laporan->lampiran) }}" alt="Dokumentasi 1"
-                                class="w-full h-full object-cover">
+                            <a href="{{ asset('storage/' . $laporan->lampiran) }}">
+                                <img src="{{ asset('storage/' . $laporan->lampiran) }}"
+                                    alt="Dokumentasi 1"
+                                    class="w-full h-full object-cover">
+                            </a>
                         </div>
                     @else
                         <div class="aspect-video bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
