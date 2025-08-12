@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Detail Aduan</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  @vite('resources/css/app.css')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-pQ0ZJ+...etc" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
     .logo-bg {
@@ -14,7 +14,7 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
   <!-- Breadcrumb -->
-  <div class="bg-white border-b">
+  <div class="bg-white border-b border-gray-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
         <h2 class="text-2xl font-bold text-gray-900">Semua Aduan</h2>

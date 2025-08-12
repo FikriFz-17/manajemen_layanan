@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Ajukan Laporan - Kominfo Kebumen</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  @vite('resources/css/app.css')
   <script src="https://unpkg.com/@fortawesome/fontawesome-free@6.4.0/js/all.min.js" crossorigin="anonymous"></script>
 </head>
 <body class="bg-gray-100 h-screen flex">
   <!-- Mobile Overlay -->
-  <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+  <div id="mobileOverlay" class="fixed inset-0 bg-black/50 bg-opacity-50 z-40 hidden lg:hidden"></div>
 
   <!-- Sidebar -->
   <div id="sidebar" class="w-64 bg-[#262394] text-white flex flex-col p-6 fixed lg:relative h-full z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
@@ -17,7 +17,7 @@
     <h1 class="text-lg font-bold text-center mb-8">Diskominfo Kebumen</h1>
     <nav class="flex flex-col gap-4">
       <a href="{{ route('dashboard') }}" class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors"><i class="fas fa-home"></i> Dashboard</a>
-      <a href="{{ route('ajukanLaporan') }}" class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors bg-white bg-opacity-20"><i class="fas fa-plus-circle"></i> Ajukan Laporan</a>
+      <a href="{{ route('ajukanLaporan') }}" class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors bg-white/20 bg-opacity-20"><i class="fas fa-plus-circle"></i> Ajukan Laporan</a>
       <a href="{{ asset('storage/user_manual/Panduan Pengajuan Pengguna.pdf') }}" download class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors"><i class="fa-solid fa-file-arrow-down"></i> User Manual</a>
 
       <!-- Customer Service Section -->

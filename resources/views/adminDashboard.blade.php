@@ -7,7 +7,7 @@
   <title>Dashboard Admin - Kominfo Kebumen</title>
   <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  @vite('resources/css/app.css')
   <script src="https://unpkg.com/@fortawesome/fontawesome-free@6.4.0/js/all.min.js" crossorigin="anonymous"></script>
 </head>
 <body class="bg-gray-100 h-screen flex">
@@ -18,12 +18,12 @@
     <img src="{{ asset('images/logo-kebumen.png') }}" alt="Logo" class="w-20 mx-auto mb-4">
     <h1 class="text-lg font-bold text-center mb-8">Diskominfo Kebumen</h1>
     <nav class="flex flex-col gap-4">
-      <a href="{{ route('adminDashboard') }}" class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors bg-white bg-opacity-20"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="{{ route('adminDashboard') }}" class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors bg-white/20 bg-opacity-20"><i class="fas fa-home"></i> Dashboard</a>
       <a href="{{route('userManagement')}}" class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors"><i class="fa-solid fa-user"></i></i>User Management</a>
       <a href="{{ asset('storage/user_manual/Panduan Admin.pdf') }}" download class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors"><i class="fa-solid fa-file-arrow-down"></i> User Manual</a>
 
-      <div class="mt-auto pt-4 border-t border-white border-opacity-20">
-        <div class="flex items-center gap-2 p-2 rounded transition-colors hover:bg-white hover:bg-opacity-10 cursor-pointer">
+      <div class="mt-auto pt-4 border-t border-white/20 border-opacity-20">
+        <div class="flex items-center gap-2 p-2 rounded transition-colors hover:bg-white/20 hover:bg-opacity-10 cursor-pointer">
           <div class="relative">
             <i class="fas fa-headset text-xl"></i>
             <span class="absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full"></span>
@@ -116,7 +116,7 @@
 
         <!-- Export & Import & Filter Buttons -->
         <div class="flex flex-wrap gap-2">
-            <button id="filterBtn" class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2.5 rounded-lg border transition-colors">
+            <button id="filterBtn" class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2.5 rounded-lg border border-gray-200 transition-colors">
                 <i class="fas fa-filter text-gray-600"></i>
                 <span class="text-gray-700">Filter</span>
             </button>
@@ -229,7 +229,7 @@
 
     <!-- table -->
     <div class="overflow-auto bg-white shadow rounded">
-        <table class="min-w-full text-center border">
+        <table class="min-w-full text-center border border-gray-200">
             <thead class="bg-black text-white">
                 <tr>
                     <th class="px-2 lg:px-4 py-2 text-sm lg:text-base">No. Resi</th>
@@ -244,9 +244,9 @@
     </div>
 
     <!-- modal/popup -->
-    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div id="editModal" class="fixed inset-0 bg-black/60 bg-opacity-50 z-50 hidden items-center justify-center p-4">
       <div class="bg-white rounded-lg w-full max-w-2xl shadow-lg overflow-auto max-h-[90vh]">
-        <div class="flex justify-between items-center border-b px-6 py-4">
+        <div class="flex justify-between items-center border-b border-gray-200 px-6 py-4">
           <h3 class="text-lg font-semibold">Edit Laporan</h3>
           <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
             <i class="fas fa-times"></i>
@@ -265,7 +265,7 @@
             <p><strong>Lampiran:</strong></p><p id="modalLampiran">-</p>
           </div>
 
-            <div class="space-y-4 border-t pt-4">
+            <div class="space-y-4 border-t border-gray-200 pt-4">
                 <form method="post" id="editForm">
                     @csrf
                     @method('PUT')
@@ -293,9 +293,9 @@
                     </div>
                     <div>
                         <label for="modalDeskripsiPenanganan" class="block text-sm font-medium text-gray-700 mb-2 mt-2">Deskripsi Penanganan</label>
-                        <textarea id="modalDeskripsiPenanganan" name="deskripsi_penanganan" rows="4" class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Jelaskan bagaimana masalah ditangani..."></textarea>
+                        <textarea id="modalDeskripsiPenanganan" name="deskripsi_penanganan" rows="4" class="mt-1 block w-full py-2 px-3 border-b border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Jelaskan bagaimana masalah ditangani..."></textarea>
                     </div>
-                    <div class="flex justify-end items-center border-t px-2 py-4 gap-2">
+                    <div class="flex justify-end items-center px-2 py-4 gap-2">
                         <!-- Button Tolak Aduan -->
                         <!-- <button type="button" id="tolakAduanBtn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
                             Tolak Aduan
@@ -322,7 +322,7 @@
     </div>
 
     <!-- modal import -->
-    <div id="uploadModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div id="uploadModal" class="fixed inset-0 bg-black/60 bg-opacity-50 hidden items-center justify-center z-50">
         <div class="bg-white w-full max-w-lg mx-4 sm:mx-auto rounded-lg shadow-lg p-6 relative">
             <h2 class="text-lg font-semibold text-gray-800 mb-4">Upload Data Excel</h2>
 
@@ -348,7 +348,7 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex justify-end gap-3 mt-6 border-t pt-4">
+                <div class="flex justify-end gap-3 mt-6 border-t border-gray-200 pt-4">
                     <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                         Upload
                     </button>
@@ -363,7 +363,7 @@
     </div>
 
     <!-- Modal Export -->
-    <div id="exportModal" class="fixed inset-0 bg-black bg-opacity-50 {{ session('error') ? 'flex' : 'hidden' }} items-center justify-center z-50">
+    <div id="exportModal" class="fixed inset-0 bg-black/60 bg-opacity-50 {{ session('error') ? 'flex' : 'hidden' }} items-center justify-center z-50">
         <div class="bg-white w-full max-w-lg mx-4 sm:mx-auto rounded-lg shadow-lg p-6 relative">
             <h2 class="text-lg font-semibold text-gray-800 mb-4">Export Data</h2>
 
@@ -427,7 +427,7 @@
             @enderror
 
             <!-- Action Buttons -->
-            <div class="flex justify-end gap-3 mt-6 border-t pt-4">
+            <div class="flex justify-end gap-3 mt-6 border-t border-gray-200 pt-4">
             <button type="button" onclick="submitExport()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                 Export
             </button>
