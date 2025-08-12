@@ -21,8 +21,8 @@
       <a href="{{ asset('storage/user_manual/Panduan Pengajuan Pengguna.pdf') }}" download class="flex items-center gap-2 hover:text-gray-300 p-2 rounded transition-colors"><i class="fa-solid fa-file-arrow-down"></i> User Manual</a>
 
       <!-- Customer Service Section -->
-        <div class="mt-auto pt-4 border-t border-white border-opacity-20">
-            <div class="flex items-center gap-2 p-2 rounded transition-colors hover:bg-white hover:bg-opacity-10 cursor-pointer">
+        <div class="mt-auto pt-4 border-t border-white/20 border-opacity-20">
+            <div class="flex items-center gap-2 p-2 rounded transition-colors hover:bg-white/20 hover:bg-opacity-10 cursor-pointer">
                 <div class="relative">
                     <i class="fas fa-headset text-xl"></i>
                     <span class="absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full"></span>
