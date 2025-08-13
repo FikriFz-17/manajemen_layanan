@@ -155,7 +155,7 @@ function renderLaporanCards(data) {
     spaceBetween: 16,
     loop: true,
     autoplay: {
-      delay: 1500,
+      delay: 3000,
       disableOnInteraction: false,
       pauseOnMouseEnter: false
     },

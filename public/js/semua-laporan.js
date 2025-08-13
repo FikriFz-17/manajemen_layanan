@@ -73,8 +73,8 @@ function renderCards() {
                             <p class="text-sm text-gray-600">${item.tanggal}</p>
                             <div class="mt-1 text-gray-700 text-sm leading-snug line-clamp-2">${item.masalah}</div>
                         </div>
-                        <div class="mt-2 sm:mt-0 flex flex-col sm:items-end gap-2">
-                            <span class="text-xs px-2 py-1 rounded ${statusClass}">${item.status}</span>
+                        <div class="mt-2 sm:mt-0 flex flex-col items-start sm:items-end gap-2">
+                            <span class="text-xs px-2 py-1 rounded ${statusClass} inline-block">${item.status}</span>
                             <span class="text-sm text-blue-600 hover:underline">Lihat Detail</span>
                         </div>
                     </div>

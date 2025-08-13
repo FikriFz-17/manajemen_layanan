@@ -27,14 +27,12 @@ Aplikasi ini dirancang untuk membantu manajemen aduan layanan Dinas Komunikasi d
 
 ## Pembuat
 
-**Nama:** Fikri Fauzi 
-**Posisi:** Full-Stack Developer Intern  
-**Kontak:** fikri36987@gmail.com  
+**Nama:** Fikri Fauzi   
+**Posisi:** Full-Stack Developer Intern   
+**Kontak:** fikri36987@gmail.com   
 **Instansi:** Dinas Komunikasi dan Informatika Kabupaten Kebumen
-
----
 
 ## Lisensi
 
-Proyek ini menggunakan lisensi MIT.  
+Proyek ini menggunakan lisensi [MIT](https://opensource.org/licenses/MIT).  
 Silakan lihat file LICENSE untuk informasi lebih lanjut.

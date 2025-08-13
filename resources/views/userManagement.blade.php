@@ -10,7 +10,7 @@
 </head>
 <body class="bg-gray-100 h-screen flex">
 
-  <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+  <div id="mobileOverlay" class="fixed inset-0 bg-black/50 bg-opacity-50 z-40 hidden lg:hidden"></div>
 
   <div id="sidebar" class="w-64 bg-[#262394] text-white flex flex-col p-6 fixed lg:relative h-full z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
     <img src="{{ asset('images/logo-kebumen.png') }}" alt="Logo" class="w-20 mx-auto mb-4">
@@ -45,7 +45,7 @@
           <i class="fas fa-chevron-down text-sm text-[#262394]"></i>
         </button>
         <div id="userDropdown" class="absolute right-0 mt-2 w-40 bg-white rounded shadow hidden z-20 border">
-          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fas fa-key mr-2"></i>Ganti Password</a>
+          <a href="{{route('adminResetPassword')}}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fas fa-key mr-2"></i>Ganti Password</a>
           <form action="{{ route('logout.submit') }}" method="post">
             @csrf
             <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"><i class="fas fa-sign-out-alt mr-2"></i>Logout</button>
@@ -63,7 +63,7 @@
         </button>
 
         <div id="userDropdownDesktop" class="absolute right-0 mt-2 w-40 bg-white rounded shadow hidden z-20">
-          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fas fa-key mr-2"></i>Ganti Password</a>
+          <a href="{{route('adminResetPassword')}}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fas fa-key mr-2"></i>Ganti Password</a>
           <form action="{{ route('logout.submit') }}" method="post">
             @csrf
             <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"><i class="fas fa-sign-out-alt mr-2"></i>Logout</button>
@@ -157,13 +157,13 @@
         </div>
 
         <div class="flex flex-col sm:flex-row gap-2">
-            <select id="filterStatus" class="border px-3 py-2 rounded w-full sm:w-auto">
+            <select id="filterStatus" class="border border-gray-300 px-3 py-2 rounded w-full sm:w-auto">
                 <option value="">Semua Status</option>
                 <option value="Active">Active</option>
                 <option value="Pending">Pending</option>
             </select>
 
-            <select id="showEntries" class="border px-3 py-2 rounded w-full sm:w-auto">
+            <select id="showEntries" class="border border-gray-300 px-3 py-2 rounded w-full sm:w-auto">
                 <option value="5">Show 5 entries</option>
                 <option value="10">Show 10 entries</option>
                 <option value="25">Show 25 entries</option>

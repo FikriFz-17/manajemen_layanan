@@ -202,6 +202,10 @@ Route::middleware(['auth', 'admin'])->group(function(){
         return view('userManagement');
     })->name('userManagement');
 
+    Route::get('/resetPassAdmin', function(){
+        return view('adminPasswordReset');
+    })->name('adminResetPassword');
+
     Route::get('/user/all', [UserController::class, "getAllUser"]);
 
     Route::get('/laporan/all', [LaporanController::class, "getAllData"]);
@@ -215,6 +219,8 @@ Route::middleware(['auth', 'admin'])->group(function(){
     Route::get('/export-laporan/perBulan', [LaporanExportController::class, 'exportPerBulan']);
 
     Route::delete('/delete-user/{id}', [UserController::class, 'deleteUser'])->name('users.destroy');
+
+    Route::put('/update-admin-pass', [UserController::class, 'updateAdminPass'])->name('updateAdminPass.submit');
 });
 
 // import route
