@@ -535,7 +535,47 @@ function openModal(dataIndex) {
         : "-";
 
     // Fill form fields
-    document.getElementById("modalSetStatus").value = data.status || "";
+    const statusSelect = document.getElementById("modalSetStatus");
+    const currentStatus = data.status || "";
+
+    // Semua opsi lengkap
+    const allOptions = [
+        { value: "", label: "--- Set Status ---" },
+        { value: "Pengajuan", label: "Pengajuan" },
+        { value: "Progress", label: "Progress" },
+        { value: "Selesai", label: "Selesai" },
+    ];
+
+    let filteredOptions = [];
+
+    if (currentStatus.toLowerCase() === "pengajuan") {
+        filteredOptions = allOptions; // semua opsi
+    } else if (currentStatus.toLowerCase() === "progress") {
+        // tampilkan Progress dan Selesai (dan placeholder)
+        filteredOptions = allOptions.filter(opt =>
+            ["", "Progress", "Selesai"].includes(opt.value)
+        );
+    } else if (currentStatus.toLowerCase() === "selesai") {
+        // hanya Selesai (dan placeholder)
+        filteredOptions = allOptions.filter(opt =>
+            ["", "Selesai"].includes(opt.value)
+        );
+    } else {
+        // fallback tampilkan semua opsi
+        filteredOptions = allOptions;
+    }
+
+    // Render ulang opsi di select
+    statusSelect.innerHTML = "";
+    filteredOptions.forEach(opt => {
+        const optionEl = document.createElement("option");
+        optionEl.value = opt.value;
+        optionEl.textContent = opt.label;
+        statusSelect.appendChild(optionEl);
+    });
+
+    // Set value select ke status saat ini
+    statusSelect.value = currentStatus;
     document.getElementById("modalSetKategori").value = data.kategori || "";
     document.getElementById("modalSetTanggalSelesai").value =
         data.tanggal_selesai || "";

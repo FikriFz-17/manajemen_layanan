@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ajukan Laporan - Kominfo Kebumen</title>
+  <title>Update Profile - Kominfo Kebumen</title>
   <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.css" rel="stylesheet">
   <!-- CropperJS CDN -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
@@ -47,7 +47,7 @@
       <button id="hamburgerBtn" class="text-2xl text-[#262394] focus:outline-none">
         <i class="fas fa-bars"></i>
       </button>
-      <h1 class="text-xl font-bold text-[#262394]">Ajukan Laporan</h1>
+      <h1 class="text-xl font-bold text-[#262394]">Update Profile</h1>
       <div class="relative inline-block text-left">
         <button onclick="toggleDropdown()" class="flex items-center gap-2 focus:outline-none">
           <i class="fas fa-user-circle text-2xl text-[#262394]"></i>

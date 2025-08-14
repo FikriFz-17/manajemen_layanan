@@ -41,7 +41,7 @@ class LaporanApiController extends Controller
             'tanggal' => 'required|date|before_or_equal:today|after_or_equal:1900-01-01',
             'masalah' => 'required|string|max:50',
             'deskripsi' => 'required|string',
-            'lampiran' => 'file|mimes:pdf,jpg,png,jpeg|max:5120'
+            'lampiran' => 'file|mimes:jpg,png,jpeg|max:5120'
         ], [
             'tanggal.required' => 'Tanggal tidak boleh kosong',
             'tanggal.before_or_equal' => 'Emangnya bisa liat masa depan? awokwokw',
@@ -49,7 +49,7 @@ class LaporanApiController extends Controller
             'masalah.required' => 'Masalah tidak boleh kosong',
             'masalah.max' => 'Masukkan judul masalah secara umum',
             'deskripsi.required' => 'Deskripsi tidak boleh kosong',
-            'lampiran.mimes' => 'Lampiran harus berupa PDF, JPG, PNG, atau JPEG',
+            'lampiran.mimes' => 'Lampiran harus berupa JPG, PNG, atau JPEG',
             'lampiran.max' => 'Lampiran maksimal 5MB',
         ]);
 
@@ -117,7 +117,6 @@ class LaporanApiController extends Controller
             ], 500);
         }
     }
-
 
     /**
      * Laporan Pengguna

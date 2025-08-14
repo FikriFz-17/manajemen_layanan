@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -101,6 +102,41 @@ class UserController extends Controller
             return redirect()->back()->with('success', 'User berhasil dihapus.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Gagal menghapus user.');
+        }
+    }
+
+    public function updateAdminPass(Request $request){
+        $user = Auth::user();
+
+        if($user->role != 'admin'){
+            abort(403, 'Anda tidak memiliki izin untuk mengganti password admin.');
+        }
+
+        $validated = $request->validate([
+            'password_lama' => 'required|string',
+            'password_baru' => 'required|string|confirmed|min:8|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/',
+        ], [
+            'password_baru.regex' => 'Password harus memiliki kombinasi huruf besar, kecil, angka dan simbol',
+            'password_baru.confirmed' => 'Konfirmasi password tidak sesuai',
+        ]);
+
+        try {
+            // Cek apakah password lama sesuai
+            if (!Hash::check($validated['password_lama'], $user->password)) {
+                return back()->withErrors(['password_lama' => 'Password lama tidak sesuai']);
+            }
+
+            // Update password baru
+            DB::table('users')
+            ->where('id', $user->id)
+            ->update([
+                'password' => Hash::make($validated['password_baru']),
+                'updated_at' => now(),
+            ]);
+
+            return back()->with('success', 'Password admin berhasil diubah.');
+        } catch (\Throwable $th) {
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat mengganti password admin.']);
         }
     }
 }
