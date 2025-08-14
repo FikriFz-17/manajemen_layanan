@@ -35,10 +35,8 @@ function shareToWhatsApp() {
     window.open(url, "_blank", "width=600,height=400");
 }
 
-function shareToLinkedIn() {
-    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-        shareUrl
-    )}`;
+function shareToX() {
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
     window.open(url, "_blank", "width=600,height=400");
 }
 
