@@ -63,20 +63,39 @@ function renderCards() {
 
         container.innerHTML += `
             <a href="/detail/${item.resi}" class="block hover:shadow-lg transition-shadow duration-200 rounded-lg">
-                <div class="bg-white shadow-md rounded-lg p-4 border border-gray-200">
-                    <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-                        <div class="w-14 h-14 bg-gray-100 flex items-center justify-center rounded overflow-hidden">
+                <!-- Desktop Layout (Horizontal) - Hidden on mobile -->
+                <div class="hidden md:block bg-white shadow-md rounded-lg border border-gray-200">
+                    <div class="flex items-center p-4 gap-4">
+                        <div class="w-14 h-14 bg-gray-100 flex items-center justify-center rounded overflow-hidden flex-shrink-0">
                             <img src="${item.lampiran_url || 'https://placehold.co/600x400?text=Tidak+Ada+Lampiran'}" alt="lampiran" loading="lazy" class="w-12 h-12 object-contain" />
                         </div>
-                        <div class="flex-1">
+                        <div class="flex-1 min-w-0">
                             <p class="font-semibold text-gray-900">${item.resi}</p>
                             <p class="text-sm text-gray-600">${item.tanggal}</p>
                             <div class="mt-1 text-gray-700 text-sm leading-snug line-clamp-2">${item.masalah}</div>
                         </div>
-                        <div class="mt-2 sm:mt-0 flex flex-col items-start sm:items-end gap-2">
-                            <span class="text-xs px-2 py-1 rounded ${statusClass} inline-block">${item.status}</span>
+                        <div class="flex flex-col items-end gap-2 flex-shrink-0">
+                            <span class="text-xs px-3 py-1 rounded ${statusClass} inline-block">${item.status}</span>
                             <span class="text-sm text-blue-600 hover:underline">Lihat Detail</span>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Layout (Vertical Card) - Hidden on desktop -->
+                <div class="block md:hidden bg-white shadow-md rounded-lg border border-gray-200 p-4">
+                    <!-- Image at the top -->
+                    <div class="w-full h-36 bg-gray-100 flex items-center justify-center rounded overflow-hidden mb-3">
+                        <img src="${item.lampiran_url || 'https://placehold.co/600x400?text=Tidak+Ada+Lampiran'}" alt="lampiran" loading="lazy" class="w-32 h-32 object-contain" />
+                    </div>
+                    <!-- Resi and Date below image -->
+                    <div class="mb-3">
+                        <p class="font-semibold text-gray-900 text-base">${item.resi}</p>
+                        <p class="text-sm text-gray-600">${item.tanggal}</p>
+                    </div>
+                    <div class="text-gray-700 text-sm leading-relaxed mb-3 line-clamp-3">${item.masalah}</div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs px-2 py-1 rounded ${statusClass} inline-block">${item.status}</span>
+                        <span class="text-sm text-blue-600 hover:underline font-medium">Lihat Detail</span>
                     </div>
                 </div>
             </a>

@@ -135,10 +135,12 @@
                                     <i class="fab fa-whatsapp text-lg"></i>
                                 </button>
 
-                                <!-- LinkedIn -->
-                                <button onclick="shareToLinkedIn()"
-                                    class="w-12 h-12 bg-blue-700 rounded-full flex items-center justify-center text-white hover:bg-blue-800 hover:-translate-y-1 transition-all duration-200">
-                                    <i class="fab fa-linkedin-in text-lg"></i>
+                                <!-- X (Twitter) -->
+                                <button onclick="shareToX()"
+                                    class="w-12 h-12 bg-black rounded-full flex items-center justify-center text-white hover:bg-gray-800 hover:-translate-y-1 transition-all duration-200">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                    </svg>
                                 </button>
 
                                 <!-- Copy Link -->
