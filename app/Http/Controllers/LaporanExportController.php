@@ -63,7 +63,7 @@ class LaporanExportController extends Controller
             ];
         })->toArray();
 
-        return Excel::download(new LaporansExport($data), 'LaporanPerTahun.xlsx');
+        return Excel::download(new LaporansExport($data), "LaporanPerTahun_{$tahun}.xlsx");
     }
 
     public function exportPerBulan(Request $request)

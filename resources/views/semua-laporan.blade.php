@@ -30,7 +30,7 @@
   <!-- Filter dan Search -->
   <div class="max-w-7xl mx-auto px-4 mt-6">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <input type="text" id="searchInput" placeholder="Cari berdasarkan Resi..."
+      <input type="text" id="searchInput" placeholder="Cari berdasarkan Resi atau Masalah..."
         class="w-full sm:w-1/2 border border-gray-300 rounded-lg px-4 py-2 text-sm bg-white" />
 
       <select id="filterStatus"

@@ -15,6 +15,10 @@ Route::get('/user', function (Request $request) {
 // Public api data
 Route::get('public/data', [LaporanApiController::class, "getPublicData"]);
 
+Route::get('/all/public/data', [LaporanApiController::class, "getAllPublicData"]);
+
+Route::get('/laporan/public', [LaporanApiController::class, "publicSearchFilter"]);
+
 // Authentication api
 Route::post('/login', [AuthApiController::class, "login"]);
 
@@ -31,6 +35,8 @@ Route::middleware(['auth:sanctum', 'user'])->group(function(){
     Route::post('/ajukanLaporan', [LaporanApiController::class, "createLaporan"]);
 
     Route::post('/update-photo', [UserApiController::class, 'updatePhotoProfile']);
+
+    Route::get('/laporan/searchFilterLaporanUser', [LaporanApiController::class, "userSearchFilter"]);
 });
 
 // Admin api functionality
@@ -44,6 +50,8 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function(){
     Route::put('/laporan/{id}/tangani', [LaporanApiController::class, 'tanganiLaporan']);
 
     Route::delete('/delete-user/{id}', [UserApiController::class, 'deleteUserApi']);
+
+    Route::get('/laporan/searchFilter', [LaporanApiController::class, "adminSearchFilter"]);
 });
 
 // wilayah API

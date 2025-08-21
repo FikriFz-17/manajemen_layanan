@@ -1,5 +1,6 @@
 // Pagination variables
 let laporanData = [];
+let chartData = [];
 let currentPage = 1;
 let itemsPerPage = 5;
 let filteredData = [];
@@ -18,13 +19,13 @@ function updateTime() {
 
 // Update statistics
 function updateStatistics() {
-    const progressCount = laporanData.filter(
+    const progressCount = chartData.filter(
         (item) => item.status === "Progress"
     ).length;
-    const successCount = laporanData.filter(
+    const successCount = chartData.filter(
         (item) => item.status === "Selesai"
     ).length;
-    const pengajuanCount = laporanData.filter(
+    const pengajuanCount = chartData.filter(
         (item) => item.status === "Pengajuan"
     ).length;
 
@@ -57,37 +58,45 @@ document.addEventListener("DOMContentLoaded", async function () {
     try {
         const data = await fetchDataLaporan();
         inisialisasiData(data);
-        inisialisasiDropdownTahun(data);
-        inisialisasiDropdownHarian(data);
+        inisialisasiDropdownTahun(data.chart);
+        inisialisasiDropdownHarian(data.chart);
         pasangEventListenerDropdown();
     } catch (error) {
         console.error("Gagal memuat data laporan:", error);
     }
-
-    // pasangEventListenerLainnya();
 });
 
 async function fetchDataLaporan() {
     const response = await fetch("/public/data");
     const data = await response.json();
 
-    return data.map((item) => ({
+    // Transform the latest_laporan data to match the expected format
+    const transformedLatestLaporan = data.latest_laporan.map((item) => ({
         resi: item.resi,
         masalah: item.masalah,
         lampiran_url: item.lampiran_url,
         status: item.status,
         tanggal: item.tanggal_pengajuan,
     }));
+
+    // Chart data stays as is
+    const transformedChartData = data.chart.map((item) => ({
+        status: item.status,
+        tanggal: item.tanggal_pengajuan,
+    }));
+
+    return {
+        latest_laporan: transformedLatestLaporan,
+        chart: transformedChartData
+    };
 }
 
 function renderLaporanCards(data) {
   const container = document.getElementById("laporanCarousel");
   container.innerHTML = "";
 
-  // Ambil maksimal 6 data yang statusnya bukan "pengajuan"
-  const filteredData = data.filter(item => item.status.toLowerCase() !== "pengajuan").slice(0, 6);
-
-  filteredData.forEach((item) => {
+  // Use the latest_laporan data directly (it's already limited to 6 items from backend)
+  data.forEach((item) => {
     const card = document.createElement("div");
     card.className = "swiper-slide h-auto";
 
@@ -100,6 +109,13 @@ function renderLaporanCards(data) {
     } else if (item.status.toLowerCase() === "pengajuan") {
       statusColorClass = "bg-red-100 text-red-800";
     }
+
+    // Format tanggal
+    const formattedDate = new Date(item.tanggal).toLocaleDateString("id-ID", {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+    });
 
     card.innerHTML = `
     <div class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg transition-shadow duration-300 flex flex-col h-full">
@@ -127,7 +143,7 @@ function renderLaporanCards(data) {
             <!-- Informasi Resi dan Tanggal -->
             <div class="mb-4">
             <div class="text-sm text-gray-500">Tanggal:</div>
-            <div class="text-lg font-bold text-gray-900">${item.tanggal}</div>
+            <div class="text-lg font-bold text-gray-900">${formattedDate}</div>
             </div>
         </div>
 
@@ -140,7 +156,6 @@ function renderLaporanCards(data) {
         </div>
     </div>
     `;
-
 
     container.appendChild(card);
   });
@@ -186,7 +201,8 @@ function renderLaporanCards(data) {
 }
 
 function inisialisasiData(data) {
-    laporanData = data;
+    laporanData = data.latest_laporan;
+    chartData = data.chart;
     filteredData = [...laporanData];
     updateStatistics();
     renderLaporanCards(filteredData);
@@ -195,12 +211,13 @@ function inisialisasiData(data) {
 function inisialisasiDropdownTahun(data) {
     const tahunSet = new Set();
     const now = new Date();
+
     data.forEach((item) => {
-        if (item.resi) {
-            const tahun = "20" + item.resi.substring(4, 6);
-            tahunSet.add(tahun);
-        }
+        const date = new Date(item.tanggal);
+        const tahun = date.getFullYear();
+        tahunSet.add(tahun.toString());
     });
+
     tahunSet.add(now.getFullYear().toString());
 
     const tahunSelect = document.getElementById("tahunChartSelect");
@@ -221,12 +238,13 @@ function inisialisasiDropdownTahun(data) {
 function inisialisasiDropdownHarian(data) {
     const tahunSet = new Set();
     const now = new Date();
+
     data.forEach((item) => {
-        if (item.resi) {
-            const tahun = "20" + item.resi.substring(4, 6);
-            tahunSet.add(tahun);
-        }
+        const date = new Date(item.tanggal);
+        const tahun = date.getFullYear();
+        tahunSet.add(tahun.toString());
     });
+
     tahunSet.add(now.getFullYear().toString());
 
     const tahunHarianSelect = document.getElementById("tahunHarianSelect");
@@ -264,24 +282,24 @@ function pasangEventListenerDropdown() {
     });
 }
 
-// monthly chart
+// Monthly chart
 let chart;
 function generateChart(tahun) {
     const monthly = {
         Pengajuan: Array(12).fill(0),
         Selesai: Array(12).fill(0),
+        Progress: Array(12).fill(0),
     };
 
-    laporanData.forEach((item) => {
-        if (!item.resi || !item.status) return;
+    chartData.forEach((item) => {
+        const date = new Date(item.tanggal);
+        const tahunItem = date.getFullYear();
+        const bulan = date.getMonth(); // 0-11
 
-        const resi = item.resi;
-        const bulan = parseInt(resi.substring(2, 4), 10) - 1; // ambil MM dari ddmmyy
-        const tahunResi = "20" + resi.substring(4, 6); // ambil YY dari ddmmyy dan ubah ke 20YY
-
-        if (tahunResi === tahun) {
-            if (item.status === "Pengajuan" || item.status === "Selesai") {
-                monthly[item.status][bulan]++;
+        if (tahunItem.toString() === tahun) {
+            const status = item.status;
+            if (monthly[status] !== undefined) {
+                monthly[status][bulan]++;
             }
         }
     });
@@ -298,6 +316,10 @@ function generateChart(tahun) {
             {
                 name: "Pengajuan",
                 data: monthly["Pengajuan"],
+            },
+            {
+                name: "Progress",
+                data: monthly["Progress"],
             },
             {
                 name: "Selesai",
@@ -320,13 +342,13 @@ function generateChart(tahun) {
                 "Des",
             ],
             labels: {
-                rotate: -45, // rotasi label agar tidak tumpang tindih
+                rotate: -45,
                 style: {
                     fontSize: "12px",
                 },
             },
         },
-        colors: ["#FF4560", "#00E396"],
+        colors: ["#FF4560", "#FFA500", "#00E396"],
         plotOptions: {
             bar: {
                 horizontal: false,
@@ -342,7 +364,7 @@ function generateChart(tahun) {
         },
         responsive: [
             {
-                breakpoint: 640, // misal ukuran layar < 640px (mobile)
+                breakpoint: 640,
                 options: {
                     chart: {
                         height: 320,
@@ -379,7 +401,7 @@ function generateChart(tahun) {
     }
 }
 
-// daily chart
+// Daily chart
 let dailyChart;
 function generateDailyChart(tahun, bulan) {
     const daysInMonth = new Date(tahun, parseInt(bulan) + 1, 0).getDate();
@@ -387,17 +409,19 @@ function generateDailyChart(tahun, bulan) {
     const daily = {
         Pengajuan: Array(daysInMonth).fill(0),
         Selesai: Array(daysInMonth).fill(0),
+        Progress: Array(daysInMonth).fill(0),
     };
 
-    laporanData.forEach((item) => {
-        const tgl = new Date(item.tanggal);
-        const tahunItem = tgl.getFullYear();
-        const bulanItem = tgl.getMonth();
+    chartData.forEach((item) => {
+        const date = new Date(item.tanggal);
+        const tahunItem = date.getFullYear();
+        const bulanItem = date.getMonth();
 
-        if (tahunItem == tahun && bulanItem == bulan) {
-            const tanggal = tgl.getDate() - 1;
-            if (item.status === "Pengajuan" || item.status === "Selesai") {
-                daily[item.status][tanggal]++;
+        if (tahunItem.toString() === tahun && bulanItem.toString() === bulan) {
+            const tanggal = date.getDate() - 1; // 0-based index
+            const status = item.status;
+            if (daily[status] !== undefined && tanggal >= 0 && tanggal < daysInMonth) {
+                daily[status][tanggal]++;
             }
         }
     });
@@ -418,6 +442,7 @@ function generateDailyChart(tahun, bulan) {
         },
         series: [
             { name: "Pengajuan", data: daily["Pengajuan"] },
+            { name: "Progress", data: daily["Progress"] },
             { name: "Selesai", data: daily["Selesai"] },
         ],
         xaxis: {
@@ -426,7 +451,7 @@ function generateDailyChart(tahun, bulan) {
             labels: {
                 rotate: -45,
                 style: {
-                    fontSize: window.innerWidth < 640 ? "10px" : "12px", // Lebih kecil di mobile
+                    fontSize: window.innerWidth < 640 ? "10px" : "12px",
                 },
                 hideOverlappingLabels: true,
                 showDuplicates: false,
@@ -438,7 +463,7 @@ function generateDailyChart(tahun, bulan) {
             curve: "smooth",
             width: 2,
         },
-        colors: ["#FF4560", "#00E396"],
+        colors: ["#FF4560", "#FFA500", "#00E396"],
         legend: {
             position: "top",
         },
@@ -447,7 +472,7 @@ function generateDailyChart(tahun, bulan) {
         },
         responsive: [
             {
-                breakpoint: 640, // max-width: 640px
+                breakpoint: 640,
                 options: {
                     chart: {
                         height: 300,
