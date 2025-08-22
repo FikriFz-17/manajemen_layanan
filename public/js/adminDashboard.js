@@ -315,10 +315,7 @@ function isiDropdownTahun(data){
     const tahunSet = new Set();
 
     data.forEach((item) => {
-        if (item.tanggal_pengajuan) {
-            const tahun = new Date(item.tanggal_pengajuan).getFullYear();
-            tahunSet.add(tahun);
-        }
+        tahunSet.add(item)
     });
 
     const sortedTahun = Array.from(tahunSet).sort();
@@ -693,10 +690,6 @@ async function fetchData() {
         if (result.statistics) {
             updateStatistics(result.statistics);
         }
-
-        if (laporanData.length > 0) {
-            isiDropdownTahun(laporanData);
-        }
     } catch (error) {
         console.error("Gagal memuat data laporan:", error);
         showToast("error", "Gagal memuat data laporan.");
@@ -706,6 +699,20 @@ async function fetchData() {
         updateStatistics();
     } finally {
         hideFilterLoading();
+    }
+}
+
+async function fetchAllYears() {
+    try {
+        const response = await fetch(`/all/years`);
+        const result = await response.json();
+
+        if (result.data) {
+            isiDropdownTahun(result.data);
+        }
+
+    } catch (error) {
+        console.error("Error fetch years:", error);
     }
 }
 
@@ -785,7 +792,7 @@ function clearAllFilters() {
 
 document.addEventListener("DOMContentLoaded", function () {
     fetchData();
-
+    fetchAllYears();
     const tableContainer = document.getElementById("laporanTable");
     if (tableContainer) {
         tableContainer.addEventListener("click", function (e) {

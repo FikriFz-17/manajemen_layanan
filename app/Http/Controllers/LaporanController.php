@@ -299,6 +299,18 @@ class LaporanController extends Controller
         ]);
     }
 
+    public function getAllYear(){
+        $data = DB::table('laporans')
+        ->selectRaw('YEAR(tanggal_pengajuan) as tahun')
+        ->distinct()
+        ->orderBy('tahun', 'asc')
+        ->pluck('tahun');
+
+        return response()->json([
+            'data' => $data
+        ]);
+    }
+
     private function searchAndFilter(Request $request, $role)
     {
         $user = Auth::user();

@@ -220,6 +220,8 @@ Route::middleware(['auth', 'admin'])->group(function(){
 
     Route::get('/export-laporan/All', [LaporanExportController::class, 'exportAll']);
 
+    Route::get('/all/years', [LaporanController::class, 'getAllYear']);
+
     Route::get('/export-laporan/perTahun', [LaporanExportController::class, 'exportPerTahun']);
 
     Route::get('/export-laporan/perBulan', [LaporanExportController::class, 'exportPerBulan']);
