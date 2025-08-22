@@ -1,9 +1,22 @@
 // Pagination variables
 let laporanData = [];
+let paginationInfo = {};
 let currentPage = 1;
 let itemsPerPage = 5;
-let filteredData = [];
 let currentEditingIndex = null;
+
+// Filter parameters
+let currentFilters = {
+    search: '',
+    status: '',
+    kategori: '',
+    jenis_instansi: '',
+    start_date: '',
+    end_date: ''
+};
+
+// Track if we're currently filtering
+let isFilterActive = false;
 
 // Mobile hamburger menu
 const hamburgerBtn = document.getElementById("hamburgerBtn");
@@ -69,32 +82,38 @@ window.addEventListener("click", function (e) {
     }
 });
 
-function updateStatistics() {
-    const progressCount = laporanData.filter(
-        (item) => item.status === "Progress"
-    ).length;
-    const successCount = laporanData.filter(
-        (item) => item.status === "Selesai"
-    ).length;
-    const pengajuanCount = laporanData.filter(
-        (item) => item.status === "Pengajuan"
-    ).length;
-
-    document.getElementById("progressCount").textContent = progressCount;
-    document.getElementById("successCount").textContent = successCount;
-    document.getElementById("pengajuanCount").textContent = pengajuanCount;
+function updateStatistics(stats = null) {
+    if (stats) {
+        // Update dengan data statistik yang diterima
+        document.getElementById("progressCount").textContent = stats.progress || 0;
+        document.getElementById("successCount").textContent = stats.selesai || 0;
+        document.getElementById("pengajuanCount").textContent = stats.pengajuan || 0;
+    } else {
+        // Fallback jika tidak ada data statistik
+        document.getElementById("progressCount").textContent = 0;
+        document.getElementById("successCount").textContent = 0;
+        document.getElementById("pengajuanCount").textContent = 0;
+    }
 }
 
 function renderTable() {
     const tableBody = document.getElementById("laporanTable");
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex =
-        itemsPerPage === 50 ? filteredData.length : startIndex + itemsPerPage;
-    const currentData = filteredData.slice(startIndex, endIndex);
-
     tableBody.innerHTML = "";
 
-    currentData.forEach((item, index) => {
+    if (!laporanData || laporanData.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="5" class="px-4 py-8 text-center text-gray-500">
+                    Tidak ada data yang ditemukan
+                </td>
+            </tr>
+        `;
+        updatePaginationInfo();
+        renderPagination();
+        return;
+    }
+
+    laporanData.forEach((item, index) => {
         let statusClass = "";
         if (item.status === "Progress") {
             statusClass = "bg-yellow-100 text-blue-800";
@@ -104,17 +123,19 @@ function renderTable() {
             statusClass = "bg-red-100 text-yellow-800";
         }
 
-        const globalIndex = laporanData.findIndex((d) => d.id === item.id);
-        const row = `
-            <tr class="border-b border-gray-200 hover:bg-gray-50" data-index="${globalIndex}">
-                <td class="px-2 lg:px-4 py-2 text-sm lg:text-base">${item.resi}</td>
-                <td class="px-2 lg:px-4 py-2 text-sm lg:text-base">${item.masalah}</td>
-                <td class="px-2 lg:px-4 py-2 text-sm lg:text-base"><span class="px-2 py-1 ${statusClass} rounded text-xs">${item.status}</span></td>
-                <td class="px-2 lg:px-4 py-2 text-sm lg:text-base">${item.tanggal}</td>
-                <td class="px-2 lg:px-4 py-2"><i class="fas fa-edit text-blue-500 hover:text-blue-700 cursor-pointer edit-btn"></i></td>
-            </tr>
+        const row = document.createElement('tr');
+        row.className = "border-b border-gray-200 hover:bg-gray-50";
+        row.setAttribute('data-id', item.id);
+
+        row.innerHTML = `
+            <td class="px-2 lg:px-4 py-2 text-sm lg:text-base">${item.resi || ''}</td>
+            <td class="px-2 lg:px-4 py-2 text-sm lg:text-base">${item.judul_masalah || item.masalah || ''}</td>
+            <td class="px-2 lg:px-4 py-2 text-sm lg:text-base"><span class="px-2 py-1 ${statusClass} rounded text-xs">${item.status || ''}</span></td>
+            <td class="px-2 lg:px-4 py-2 text-sm lg:text-base">${item.tanggal_pengajuan || ''}</td>
+            <td class="px-2 lg:px-4 py-2"><i class="fas fa-edit text-blue-500 hover:text-blue-700 cursor-pointer edit-btn" data-id="${item.id}"></i></td>
         `;
-        tableBody.innerHTML += row;
+
+        tableBody.appendChild(row);
     });
 
     updatePaginationInfo();
@@ -122,28 +143,29 @@ function renderTable() {
 }
 
 function updatePaginationInfo() {
-    const startIndex = (currentPage - 1) * itemsPerPage + 1;
-    const endIndex = Math.min(currentPage * itemsPerPage, filteredData.length);
-    const totalEntries = filteredData.length;
+    if (!paginationInfo.total) {
+        document.getElementById("paginationInfo").textContent = "Showing 0 to 0 of 0 entries";
+        return;
+    }
 
-    document.getElementById(
-        "paginationInfo"
-    ).textContent = `Showing ${startIndex} to ${endIndex} of ${totalEntries} entries`;
+    const startIndex = ((paginationInfo.current_page - 1) * paginationInfo.per_page) + 1;
+    const endIndex = Math.min(paginationInfo.current_page * paginationInfo.per_page, paginationInfo.total);
+
+    document.getElementById("paginationInfo").textContent = `Showing ${startIndex} to ${endIndex} of ${paginationInfo.total} entries`;
 }
 
-// Render pagination
 function renderPagination() {
     const paginationContainer = document.getElementById("paginationButtons");
-    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
-    if (totalPages <= 1) {
+    if (!paginationInfo.total || paginationInfo.total <= paginationInfo.per_page) {
         paginationContainer.innerHTML = "";
         return;
     }
 
+    const totalPages = Math.ceil(paginationInfo.total / paginationInfo.per_page);
     let paginationHTML = "";
 
-    // Tombol Previous
+    // Previous button
     paginationHTML += `
         <button onclick="changePage(${currentPage - 1})"
                 class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 transition-colors duration-200 ${
@@ -154,14 +176,12 @@ function renderPagination() {
         </button>
     `;
 
-    // Logic page numbers
+    // Page numbers logic
     if (totalPages <= 5) {
-        // Tampilkan semua jika <= 5
         for (let i = 1; i <= totalPages; i++) {
             paginationHTML += renderPageButton(i);
         }
     } else {
-        // Halaman 1
         paginationHTML += renderPageButton(1);
 
         if (currentPage <= 2) {
@@ -176,17 +196,14 @@ function renderPagination() {
             paginationHTML += renderEllipsis();
         }
 
-        // Halaman terakhir
         paginationHTML += renderPageButton(totalPages);
     }
 
-    // Tombol Next
+    // Next button
     paginationHTML += `
         <button onclick="changePage(${currentPage + 1})"
                 class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 transition-colors duration-200 ${
-                    currentPage === totalPages
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
+                    currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""
                 }"
                 ${currentPage === totalPages ? "disabled" : ""}>
         <i class="fas fa-chevron-right"></i>
@@ -195,7 +212,6 @@ function renderPagination() {
 
     paginationContainer.innerHTML = paginationHTML;
 
-    // Helper
     function renderPageButton(page) {
         if (page === currentPage) {
             return `<button class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600">${page}</button>`;
@@ -213,10 +229,17 @@ function renderPagination() {
 }
 
 function changePage(page) {
-    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-    if (page >= 1 && page <= totalPages) {
+    const totalPages = Math.ceil(paginationInfo.total / paginationInfo.per_page);
+    if (page >= 1 && page <= totalPages && page !== currentPage) {
         currentPage = page;
-        renderTable();
+
+        showFilterLoading();
+
+        if (isFilterActive) {
+            fetchFilteredData();
+        } else {
+            fetchData();
+        }
     }
 }
 
@@ -248,44 +271,43 @@ function openExportModal(){
 
 let bulanTomSelect = null;
 let tahunTomSelect = null;
+
 function onWaktuChange() {
-  const waktu = document.getElementById('waktu').value;
-  const tahunContainer = document.getElementById('tahunContainer');
-  const bulanContainer = document.getElementById('bulanContainer');
+    const waktu = document.getElementById('waktu').value;
+    const tahunContainer = document.getElementById('tahunContainer');
+    const bulanContainer = document.getElementById('bulanContainer');
 
-  if (waktu === 'per_tahun') {
-    tahunContainer.classList.remove('hidden');
-    bulanContainer.classList.add('hidden');
+    if (waktu === 'per_tahun') {
+        tahunContainer.classList.remove('hidden');
+        bulanContainer.classList.add('hidden');
 
-    if (!tahunTomSelect) {
-      tahunTomSelect = new TomSelect("#tahun", {
-        create: false,
-        placeholder: "--- Pilih Tahun ---",
-      });
+        if (!tahunTomSelect) {
+            tahunTomSelect = new TomSelect("#tahun", {
+                create: false,
+                placeholder: "--- Pilih Tahun ---",
+            });
+        }
+    } else if (waktu === 'per_bulan') {
+        tahunContainer.classList.remove('hidden');
+        bulanContainer.classList.remove('hidden');
+
+        if (!tahunTomSelect) {
+            tahunTomSelect = new TomSelect("#tahun", {
+                create: false,
+                placeholder: "--- Pilih Tahun ---",
+            });
+        }
+
+        if (!bulanTomSelect) {
+            bulanTomSelect = new TomSelect("#bulan", {
+                create: false,
+                placeholder: "--- Pilih Bulan ---",
+            });
+        }
+    } else {
+        tahunContainer.classList.add('hidden');
+        bulanContainer.classList.add('hidden');
     }
-
-  } else if (waktu === 'per_bulan') {
-    tahunContainer.classList.remove('hidden');
-    bulanContainer.classList.remove('hidden');
-
-    if (!tahunTomSelect) {
-      tahunTomSelect = new TomSelect("#tahun", {
-        create: false,
-        placeholder: "--- Pilih Tahun ---",
-      });
-    }
-
-    if (!bulanTomSelect) {
-      bulanTomSelect = new TomSelect("#bulan", {
-        create: false,
-        placeholder: "--- Pilih Bulan ---",
-      });
-    }
-
-  } else {
-    tahunContainer.classList.add('hidden');
-    bulanContainer.classList.add('hidden');
-  }
 }
 
 function isiDropdownTahun(data){
@@ -293,16 +315,13 @@ function isiDropdownTahun(data){
     const tahunSet = new Set();
 
     data.forEach((item) => {
-        if (item.tanggal) {
-            const tahun = new Date(item.tanggal).getFullYear();
+        if (item.tanggal_pengajuan) {
+            const tahun = new Date(item.tanggal_pengajuan).getFullYear();
             tahunSet.add(tahun);
         }
     });
 
     const sortedTahun = Array.from(tahunSet).sort();
-
-    console.log(sortedTahun);
-
     tahunSelect.innerHTML = '<option value="">-- Tahun --</option>';
 
     sortedTahun.forEach((tahun) => {
@@ -324,16 +343,20 @@ function closeImportExportModal() {
         exportModal.classList.remove("flex");
         exportModal.classList.add("hidden");
         const waktuSelect = document.getElementById("waktu");
-        const tahunSelect = document.getElementById('tahun');
+
         if (waktuSelect){
             waktuSelect.value = "";
             onWaktuChange();
         }
 
-        tahunTomSelect.clear(true);
-        tahunTomSelect.setValue('');
-        bulanTomSelect.clear(true);
-        bulanTomSelect.setValue('');
+        if (tahunTomSelect) {
+            tahunTomSelect.clear(true);
+            tahunTomSelect.setValue('');
+        }
+        if (bulanTomSelect) {
+            bulanTomSelect.clear(true);
+            bulanTomSelect.setValue('');
+        }
     }
 }
 
@@ -367,7 +390,7 @@ function submitExport() {
 
 document.getElementById("uploadModal").addEventListener("click", function (e) {
     if (e.target === this) {
-        closeImportModal();
+        closeImportExportModal();
     }
 });
 
@@ -394,62 +417,44 @@ function filterTable() {
         return `${yyyy}/${mm}/${dd}`;
     };
 
-    const keyword = document
-        .getElementById("searchInput")
-        .value.toLowerCase()
-        .trim();
-    const status = document.getElementById("filterStatus").value;
-    const kategori = document.getElementById("filterKategori").value;
-    const jenis_instansi = document.getElementById("filterJenisInstansi").value;
+    // Update current filters
+    currentFilters.search = document.getElementById("searchInput").value.trim();
+    currentFilters.status = document.getElementById("filterStatus").value;
+    currentFilters.kategori = document.getElementById("filterKategori").value;
+    currentFilters.jenis_instansi = document.getElementById("filterJenisInstansi").value;
 
     const startDateInput = document.getElementById("startDate").value;
     const endDateInput = document.getElementById("endDate").value;
 
-    const startDate = startDateInput ? new Date(startDateInput) : null;
-    const endDate = endDateInput ? new Date(endDateInput) : null;
+    currentFilters.start_date = startDateInput;
+    currentFilters.end_date = endDateInput;
 
-    filteredData = laporanData.filter((item) => {
-        const idMatch = item.resi.toString().includes(keyword);
-        const masalahMatch = item.masalah.toLowerCase().includes(keyword);
-        const statusMatch = status === "" || item.status === status;
-        const kategoriMatch = kategori === "" || item.kategori === kategori;
-        const jenisInstansiMatch =
-            jenis_instansi === "" || item.jenis_instansi === jenis_instansi;
+    // Update date range display
+    if (startDateInput || endDateInput) {
+        const startDate = startDateInput ? new Date(startDateInput) : null;
+        const endDate = endDateInput ? new Date(endDateInput) : null;
 
-        let tanggalMatch = true;
-        if (startDate || endDate) {
-            // Update text input dateRange
-            document.getElementById("dateRange").value = `${formatDate(
-                startDate
-            )} - ${formatDate(endDate)}`;
+        document.getElementById("dateRange").value = `${formatDate(startDate)} - ${formatDate(endDate)}`;
+    }
 
-            const resiDateStr = item.resi.substring(0, 6); // "ddmmyy"
-            const day = resiDateStr.substring(0, 2);
-            const month = resiDateStr.substring(2, 4);
-            const year = "20" + resiDateStr.substring(4, 6);
+    // Check if any filter is active
+    const hasActiveFilters = Object.values(currentFilters).some(value => value && value.trim() !== '');
 
-            const resiDate = new Date(`${year}-${month}-${day}`);
-
-            if (startDate && resiDate < startDate) tanggalMatch = false;
-            if (endDate && resiDate > endDate) tanggalMatch = false;
-        }
-
-        return (
-            (idMatch || masalahMatch) &&
-            statusMatch &&
-            kategoriMatch &&
-            tanggalMatch &&
-            jenisInstansiMatch
-        );
-    });
-
-    currentPage = 1;
-    renderTable();
+    if (hasActiveFilters) {
+        isFilterActive = true;
+        currentPage = 1;
+        showFilterLoading();
+        fetchFilteredData();
+    } else {
+        isFilterActive = false;
+        currentPage = 1;
+        showFilterLoading();
+        fetchData();
+    }
 }
 
 function setQuickRange(range) {
     const today = new Date();
-
     let start = new Date();
 
     if (range === "today") {
@@ -469,13 +474,8 @@ function setQuickRange(range) {
 
     document.getElementById("startDate").value = formatDate(start);
     document.getElementById("endDate").value = formatDate(today);
+    document.getElementById("dateRange").value = `${formatDate(start)} - ${formatDate(today)}`;
 
-    // Update tampilan teks range
-    document.getElementById("dateRange").value = `${formatDate(
-        start
-    )} - ${formatDate(today)}`;
-
-    // Apply filter
     filterTable();
 }
 
@@ -483,11 +483,8 @@ function clearDateRange() {
     document.getElementById("startDate").value = "";
     document.getElementById("endDate").value = "";
     document.getElementById("dateRange").value = "";
-
-    // Sembunyikan date picker jika sedang terbuka
     document.getElementById("datePicker").classList.add("hidden");
 
-    // Render ulang tabel tanpa filter tanggal
     filterTable();
 }
 
@@ -495,50 +492,67 @@ function handleEntriesChange() {
     const showEntries = parseInt(document.getElementById("showEntries").value);
     itemsPerPage = showEntries;
     currentPage = 1;
-    renderTable();
+
+    showFilterLoading();
+
+    if (isFilterActive) {
+        fetchFilteredData();
+    } else {
+        fetchData();
+    }
 }
 
-document.getElementById("searchInput").addEventListener("input", filterTable);
+document.getElementById("searchInput").addEventListener("input", debounce(filterTable, 500));
 document.getElementById("filterStatus").addEventListener("change", filterTable);
-document
-    .getElementById("filterKategori")
-    .addEventListener("change", filterTable);
-document
-    .getElementById("filterJenisInstansi")
-    .addEventListener("change", filterTable);
+document.getElementById("filterKategori").addEventListener("change", filterTable);
+document.getElementById("filterJenisInstansi").addEventListener("change", filterTable);
 document.getElementById("datePicker").addEventListener("change", filterTable);
-document
-    .getElementById("showEntries")
-    .addEventListener("change", handleEntriesChange);
+document.getElementById("showEntries").addEventListener("change", handleEntriesChange);
 
-function openModal(dataIndex) {
-    currentEditingIndex = dataIndex;
-    const data = laporanData[currentEditingIndex];
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
 
-    document.getElementById("modalUserNama").innerText = data.nama;
-    document.getElementById("modalUserEmail").innerText = data.email;
-    document.getElementById("modalUserInstansi").innerText = data.instansi;
+function openModal(itemId) {
+    const data = laporanData.find(item => item.id == itemId);
+    if (!data) {
+        console.error('Data not found for ID:', itemId);
+        console.log('Available IDs:', laporanData.map(item => item.id));
+        showToast("error", "Data tidak ditemukan.");
+        return;
+    }
+
+    currentEditingIndex = itemId;
+
+    document.getElementById("modalUserNama").innerText = data.user_nama || '-';
+    document.getElementById("modalUserEmail").innerText = data.user_email || '-';
+    document.getElementById("modalUserInstansi").innerText = data.user_instansi || '-';
     document.getElementById("modalUserJenisInstansi").innerText =
-        data.jenis_instansi === "desa"
-            ? "Desa"
-            : data.jenis_instansi === "pemda"
-            ? "Perangkat Daerah"
-            : "-";
-    document.getElementById("modalResi").innerText = data.resi;
-    document.getElementById("modalNama").innerText = data.masalah;
-    document.getElementById("modalTanggal").innerText = data.tanggal;
-    document.getElementById("modalDeskripsi").innerText = data.deskripsi;
-    document.getElementById("modalLampiran").innerHTML = data.lampiran
-        ? `<a href="/storage/${data.lampiran}" target="_blank" class="text-blue-600 underline hover:text-blue-800">
-        Lihat Lampiran
-    </a>`
+        data.user_jenis_instansi === "desa" ? "Desa" :
+        data.user_jenis_instansi === "pemda" ? "Perangkat Daerah" : "-";
+    document.getElementById("modalResi").innerText = data.resi || '-';
+    document.getElementById("modalNama").innerText = data.judul_masalah || data.masalah || '-';
+    document.getElementById("modalTanggal").innerText = data.tanggal_pengajuan || '-';
+    document.getElementById("modalDeskripsi").innerText = data.deskripsi || '-';
+
+    const lampiranUrl = data.lampiran_url || (data.lampiran ? `/storage/${data.lampiran}` : null);
+    document.getElementById("modalLampiran").innerHTML = lampiranUrl
+        ? `<a href="${lampiranUrl}" target="_blank" class="text-blue-600 underline hover:text-blue-800">
+            Lihat Lampiran
+        </a>`
         : "-";
 
-    // Fill form fields
     const statusSelect = document.getElementById("modalSetStatus");
     const currentStatus = data.status || "";
 
-    // Semua opsi lengkap
     const allOptions = [
         { value: "", label: "--- Set Status ---" },
         { value: "Pengajuan", label: "Pengajuan" },
@@ -549,23 +563,19 @@ function openModal(dataIndex) {
     let filteredOptions = [];
 
     if (currentStatus.toLowerCase() === "pengajuan") {
-        filteredOptions = allOptions; // semua opsi
+        filteredOptions = allOptions;
     } else if (currentStatus.toLowerCase() === "progress") {
-        // tampilkan Progress dan Selesai (dan placeholder)
         filteredOptions = allOptions.filter(opt =>
             ["", "Progress", "Selesai"].includes(opt.value)
         );
     } else if (currentStatus.toLowerCase() === "selesai") {
-        // hanya Selesai (dan placeholder)
         filteredOptions = allOptions.filter(opt =>
             ["", "Selesai"].includes(opt.value)
         );
     } else {
-        // fallback tampilkan semua opsi
         filteredOptions = allOptions;
     }
 
-    // Render ulang opsi di select
     statusSelect.innerHTML = "";
     filteredOptions.forEach(opt => {
         const optionEl = document.createElement("option");
@@ -574,23 +584,26 @@ function openModal(dataIndex) {
         statusSelect.appendChild(optionEl);
     });
 
-    // Set value select ke status saat ini
     statusSelect.value = currentStatus;
-    document.getElementById("modalSetKategori").value = data.kategori || "";
-    document.getElementById("modalSetTanggalSelesai").value =
-        data.tanggal_selesai || "";
-    document.getElementById("modalDeskripsiPenanganan").value =
-        data.penyelesaian || "";
 
-    document.getElementById(
-        "editForm"
-    ).action = `/admin/laporan/${data.id}/update`;
+    statusSelect.setAttribute('data-original-status', currentStatus);
+
+    document.getElementById("modalSetKategori").value = data.kategori || "";
+    document.getElementById("modalSetTanggalSelesai").value = data.tanggal_selesai || "";
+    document.getElementById("modalDeskripsiPenanganan").value = data.penyelesaian || "";
+
+    document.getElementById("editForm").action = `/admin/laporan/${data.id}/update`;
 
     toggleButtonByStatus();
 
     const modal = document.getElementById("editModal");
-    modal.classList.remove("hidden");
-    modal.classList.add("flex");
+    if (modal) {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+        console.log('Modal opened successfully');
+    } else {
+        console.error('Modal element not found');
+    }
 }
 
 document.getElementById("editForm").addEventListener("submit", async (e) => {
@@ -604,18 +617,16 @@ document.getElementById("editForm").addEventListener("submit", async (e) => {
     const submitBtn = document.getElementById("adminEditBtn");
     const loadingBtn = document.getElementById("loadingBtn");
 
-    // Tampilkan loader, sembunyikan tombol submit
     submitBtn.classList.add("hidden");
     loadingBtn.classList.remove("hidden");
     loadingBtn.classList.add("inline-flex");
+
     try {
         const response = await fetch(actionUrl, {
             method: "POST",
             headers: {
                 "X-Requested-With": "XMLHttpRequest",
-                "X-CSRF-TOKEN": document.querySelector(
-                    'meta[name="csrf-token"]'
-                ).content,
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
             },
             body: formData,
         });
@@ -623,13 +634,13 @@ document.getElementById("editForm").addEventListener("submit", async (e) => {
         const result = await response.json();
 
         if (response.ok) {
-            await fetchData();
+            if (isFilterActive) {
+                await fetchFilteredData();
+            } else {
+                await fetchData();
+            }
             closeModal();
-            filterTable();
-            showToast(
-                "success",
-                result.message || "Perubahan berhasil disimpan."
-            );
+            showToast("success", result.message || "Perubahan berhasil disimpan.");
         } else {
             if (result.errors) {
                 showInputErrors(result.errors);
@@ -637,9 +648,9 @@ document.getElementById("editForm").addEventListener("submit", async (e) => {
                 showToast("error", result.message || "Terjadi kesalahan.");
             }
         }
-
     } catch (error) {
         console.error("Terjadi kesalahan saat submit:", error);
+        showToast("error", "Terjadi kesalahan sistem.");
     } finally {
         loadingBtn.classList.add("hidden");
         loadingBtn.classList.remove("inline-flex");
@@ -662,59 +673,154 @@ document.getElementById("editModal").addEventListener("click", function (e) {
 
 async function fetchData() {
     try {
-        const response = await fetch("/laporan/all");
-        const data = await response.json();
+        const params = new URLSearchParams({
+            page: currentPage,
+            per_page: itemsPerPage
+        });
 
-        laporanData = data.map((item) => ({
-            id: item.id,
-            resi: item.resi,
-            masalah: item.judul_masalah,
-            status: item.status,
-            kategori: item.kategori,
-            tanggal: item.tanggal_pengajuan,
-            tanggal_selesai: item.tanggal_selesai,
-            estimasi: item.estimasi,
-            deskripsi: item.deskripsi,
-            penyelesaian: item.penyelesaian,
-            lampiran: item.lampiran,
-            nama: item.user_nama,
-            instansi: item.user_instansi,
-            jenis_instansi: item.user_jenis_instansi,
-            email: item.user_email,
-        }));
+        const response = await fetch(`/laporan/all?${params.toString()}`);
+        const result = await response.json();
 
-        filteredData = [...laporanData];
-        updateStatistics();
+        laporanData = result.data?.all_data || [];
+        paginationInfo = {
+            total: result.data?.total || 0,
+            per_page: itemsPerPage,
+            current_page: currentPage
+        };
+
         renderTable();
 
-        isiDropdownTahun(laporanData)
+        if (result.statistics) {
+            updateStatistics(result.statistics);
+        }
+
+        if (laporanData.length > 0) {
+            isiDropdownTahun(laporanData);
+        }
     } catch (error) {
         console.error("Gagal memuat data laporan:", error);
+        showToast("error", "Gagal memuat data laporan.");
+        laporanData = [];
+        paginationInfo = { total: 0, per_page: itemsPerPage, current_page: 1 };
+        renderTable();
+        updateStatistics();
+    } finally {
+        hideFilterLoading();
     }
+}
+
+async function fetchFilteredData() {
+    try {
+        const params = new URLSearchParams({
+            page: currentPage,
+            per_page: itemsPerPage
+        });
+
+        Object.keys(currentFilters).forEach(key => {
+            if (currentFilters[key] && currentFilters[key].trim() !== '') {
+                params.append(key, currentFilters[key].trim());
+            }
+        });
+
+        const response = await fetch(`/laporan/searchFilter?${params.toString()}`);
+        const result = await response.json();
+
+        laporanData = result.all_data?.data || [];
+        paginationInfo = {
+            total: result.all_data?.total || 0,
+            per_page: result.all_data?.per_page || itemsPerPage,
+            current_page: result.all_data?.current_page || currentPage
+        };
+
+        renderTable();
+
+        if (result.statistics) {
+            updateStatistics(result.statistics);
+        }
+
+        if (laporanData.length > 0) {
+            isiDropdownTahun(laporanData);
+        }
+    } catch (error) {
+        console.error("Gagal memuat data filter:", error);
+        showToast("error", "Gagal memuat data filter.");
+
+        laporanData = [];
+        paginationInfo = { total: 0, per_page: itemsPerPage, current_page: 1 };
+        renderTable();
+    } finally {
+        hideFilterLoading();
+    }
+}
+
+// Function to clear all filters and return to initial data
+function clearAllFilters() {
+    // Reset filter form
+    document.getElementById("searchInput").value = "";
+    document.getElementById("filterStatus").value = "";
+    document.getElementById("filterKategori").value = "";
+    document.getElementById("filterJenisInstansi").value = "";
+    document.getElementById("startDate").value = "";
+    document.getElementById("endDate").value = "";
+    document.getElementById("dateRange").value = "";
+
+    // Reset filter object
+    currentFilters = {
+        search: '',
+        status: '',
+        kategori: '',
+        jenis_instansi: '',
+        start_date: '',
+        end_date: ''
+    };
+
+    // Reset filter state
+    isFilterActive = false;
+    currentPage = 1;
+
+    // Show loading dan fetch original data
+    showFilterLoading();
+    fetchData();
 }
 
 document.addEventListener("DOMContentLoaded", function () {
     fetchData();
-    document
-        .getElementById("laporanTable")
-        .addEventListener("click", function (e) {
-            const editBtn = e.target.closest(".edit-btn");
+
+    const tableContainer = document.getElementById("laporanTable");
+    if (tableContainer) {
+        tableContainer.addEventListener("click", function (e) {
+            const editBtn = e.target.closest(".edit-btn") || (e.target.classList.contains("edit-btn") ? e.target : null);
+
             if (editBtn) {
-                const row = editBtn.closest("tr");
-                const dataIndex = parseInt(row.getAttribute("data-index"));
-                openModal(dataIndex);
+                const itemId = editBtn.getAttribute("data-id");
+
+                if (itemId) {
+                    const numericId = parseInt(itemId);
+                    openModal(numericId);
+                }
             }
         });
+    } else {
+        console.error('Table container not found');
+    }
+
+    const statusSelect = document.getElementById("modalSetStatus");
+    if (statusSelect) {
+        statusSelect.addEventListener("change", toggleButtonByStatus);
+    }
 });
 
 function toggleButtonByStatus() {
     const statusSelect = document.getElementById("modalSetStatus");
     const submitBtn = document.getElementById("adminEditBtn");
     const status = statusSelect.value;
-    if (status === "Selesai") {
+
+    const originalStatus = statusSelect.getAttribute('data-original-status') || '';
+
+    if (originalStatus.toLowerCase() === "selesai" && status === "Selesai") {
         submitBtn.disabled = true;
         submitBtn.classList.add("opacity-50", "cursor-not-allowed");
-        submitBtn.title = "Status 'Selesai' tidak bisa disimpan ulang.";
+        submitBtn.title = "Status sudah 'Selesai', tidak perlu disimpan ulang.";
     } else {
         submitBtn.disabled = false;
         submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
@@ -736,11 +842,9 @@ function onJenisChange() {
 }
 
 function showToast(type, message) {
-    // Hapus toast lama jika ada
     document.getElementById("dynamicToast")?.remove();
 
     const isSuccess = type === "success";
-
     const toast = document.createElement("div");
     toast.id = "dynamicToast";
     toast.className = `fixed top-0 left-1/2 z-50 transform -translate-x-1/2 -translate-y-full opacity-0 transition duration-500 ease-out`;
@@ -778,13 +882,11 @@ function showToast(type, message) {
 
     document.body.appendChild(toast);
 
-    // Animasi masuk
     setTimeout(() => {
         toast.classList.remove("-translate-y-full", "opacity-0");
         toast.classList.add("translate-y-10", "opacity-100");
     }, 100);
 
-    // Sembunyikan otomatis setelah 5 detik
     setTimeout(() => {
         toast.classList.remove("translate-y-10", "opacity-100");
         toast.classList.add("-translate-y-full", "opacity-0");
@@ -792,7 +894,6 @@ function showToast(type, message) {
 }
 
 function showInputErrors(errors) {
-    // Hapus semua error sebelumnya
     document.querySelectorAll('.input-error').forEach(el => el.remove());
 
     for (const [field, messages] of Object.entries(errors)) {
@@ -804,12 +905,55 @@ function showInputErrors(errors) {
 
             input.insertAdjacentElement('afterend', errorEl);
 
-            // Tambahkan timeout agar error menghilang otomatis
             setTimeout(() => {
                 errorEl.remove();
-            }, 3000); // 3 detik
+            }, 3000);
         }
     }
 }
 
+// Loading functions untuk filter
+function showFilterLoading() {
+    const tableBody = document.getElementById("laporanTable");
+    if (tableBody) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="5" class="px-4 py-12 text-center">
+                    <div class="flex flex-col items-center justify-center space-y-3">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        <p class="text-gray-500 text-sm">Memuat data...</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
 
+    // Disable pagination saat loading
+    const paginationContainer = document.getElementById("paginationButtons");
+    if (paginationContainer) {
+        paginationContainer.innerHTML = "";
+    }
+
+    // Update pagination info
+    document.getElementById("paginationInfo").textContent = "Memuat data...";
+}
+
+function hideFilterLoading() {
+    // Loading akan otomatis hilang ketika renderTable() dipanggil
+    // Fungsi ini dibuat untuk konsistensi dan kemungkinan penggunaan future
+}
+
+function changePage(page) {
+    const totalPages = Math.ceil(paginationInfo.total / paginationInfo.per_page);
+    if (page >= 1 && page <= totalPages && page !== currentPage) {
+        currentPage = page;
+
+        showFilterLoading();
+
+        if (isFilterActive) {
+            fetchFilteredData();
+        } else {
+            fetchData();
+        }
+    }
+}

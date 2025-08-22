@@ -31,6 +31,10 @@ Route::get('/semua/laporan', function(){
     return view('semua-laporan');
 })->name('semua-laporan');
 
+Route::get('/all/public/data', [LaporanController::class, "getAllPublicData"]);
+
+Route::get('/laporan/public', [LaporanController::class, "publicSearchFilter"]);
+
 // Auth Routes (Login, Register)
 Route::middleware('custom_guest')->group(function () {
     // view login
@@ -177,6 +181,8 @@ Route::middleware(['auth', 'verified', 'user'])->group(function () {
 
     Route::get('/laporan/user', [LaporanController::class, "getUserData"]);
 
+    Route::get('/laporan/searchFilterLaporanUser', [LaporanController::class, "userSearchFilter"]);
+
     Route::get('/ajukanLaporan', function () {
         return view('userAjukanLaporan');
     })->name('ajukanLaporan');
@@ -221,6 +227,8 @@ Route::middleware(['auth', 'admin'])->group(function(){
     Route::delete('/delete-user/{id}', [UserController::class, 'deleteUser'])->name('users.destroy');
 
     Route::put('/update-admin-pass', [UserController::class, 'updateAdminPass'])->name('updateAdminPass.submit');
+
+    Route::get('/laporan/searchFilter', [LaporanController::class, "adminSearchFilter"]);
 });
 
 // import route
